@@ -302,11 +302,17 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [Claude Code](https://claude.ai/code) - AI coding assistant
 - [GitHub Copilot](https://github.com/features/copilot) - AI pair programmer
 
+## Documentation
+
+- **[Quick Start](docs/QUICKSTART.md)** - 5-minute setup guide
+- **[Examples](examples/)** - Working project examples
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Contributing](CONTRIBUTING.md)** - How to contribute
+
 ## Support
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/spec-kit-multiagent-lite/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/spec-kit-multiagent-lite/discussions)
-- **Docs**: [README.md](README.md) and [examples/](examples/)
 
 ## Acknowledgments
 

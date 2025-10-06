@@ -59,6 +59,16 @@ def add(
         "--dry-run",
         help="Preview changes without applying them",
     ),
+    kit: Optional[str] = typer.Option(
+        None,
+        "--kit",
+        help="Comma-separated list of kits to install: project,git,multiagent (default: project)",
+    ),
+    recommended: bool = typer.Option(
+        False,
+        "--recommended",
+        help="Install recommended kits: project + git",
+    ),
     target: Optional[Path] = typer.Argument(
         None,
         help="Target directory (defaults to current directory)",
@@ -67,15 +77,16 @@ def add(
     """
     Add multiagent coordination features to a spec-kit project.
 
-    This command installs:
-    - /orient command for agent orientation
-    - Collaboration directory structure
-    - Git workflow guides (PR, worktrees)
-    - Multi-agent sections in constitution
+    Kits:
+    - project: /orient command, project management features
+    - git: /commit, /pr commands with agent attribution
+    - multiagent: Collaboration structure, PR workflow guides
 
-    Example:
-        speckit-ma add --here --dry-run  # Preview changes
-        speckit-ma add --here             # Install features
+    Examples:
+        speckit-ma add --here --kit=project      # Install project kit only (default)
+        speckit-ma add --here --recommended      # Install project + git kits
+        speckit-ma add --here --kit=multiagent   # Install all kits (auto-includes deps)
+        speckit-ma add --here --dry-run          # Preview changes
     """
     if not here and target is None:
         console.print(
@@ -85,7 +96,20 @@ def add(
         raise typer.Exit(1)
 
     target_dir = Path.cwd() if here else target
-    installer = Installer(target_dir)
+
+    # Determine which kits to install
+    kits = None
+    if recommended:
+        kits = ['project', 'git']
+    elif kit:
+        kits = [k.strip() for k in kit.split(',')]
+    # else: kits=None will use default ['project'] in Installer
+
+    try:
+        installer = Installer(target_dir, kits=kits)
+    except ValueError as e:
+        console.print(f"[red]Error:[/red] {e}", style="bold")
+        raise typer.Exit(1)
 
     # Validate target is a spec-kit project
     if not installer.is_spec_kit_project():
@@ -184,7 +208,9 @@ def validate(
         speckit-ma validate --here
     """
     target_dir = Path.cwd() if here else target
-    installer = Installer(target_dir)
+
+    # For validation, we don't know which kits are installed yet, so check for all
+    installer = Installer(target_dir, kits=['project', 'git', 'multiagent'])
 
     console.print(f"\n[bold cyan]Validating {target_dir}[/bold cyan]\n")
 
@@ -238,7 +264,9 @@ def status(
         speckit-ma status --here
     """
     target_dir = Path.cwd() if here else target
-    installer = Installer(target_dir)
+
+    # For status, check for all possible kits
+    installer = Installer(target_dir, kits=['project', 'git', 'multiagent'])
 
     console.print(f"\n[bold cyan]Project Status: {target_dir}[/bold cyan]\n")
 

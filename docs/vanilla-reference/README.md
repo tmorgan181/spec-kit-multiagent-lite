@@ -14,7 +14,7 @@ These are vanilla configurations from the [GitHub spec-kit](https://github.com/g
 ## Directory Structure
 
 ```
-spec-kits/
+docs/vanilla-reference/
 ├── README.md                    # This file
 ├── UPSTREAM.md                  # How to update from upstream
 ├── claude-code-vanilla/         # Vanilla for Claude Code
@@ -167,7 +167,7 @@ To test that our kits work correctly with vanilla:
 
 ```bash
 # 1. Copy vanilla to test directory
-cp -r spec-kits/claude-code-vanilla /tmp/test-project
+cp -r docs/vanilla-reference/claude-code-vanilla /tmp/test-project
 cd /tmp/test-project
 
 # 2. Install our kits

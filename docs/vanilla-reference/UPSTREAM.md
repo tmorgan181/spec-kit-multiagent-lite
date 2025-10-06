@@ -40,9 +40,9 @@ cd spec-kit-latest
 
 ```bash
 # Compare directories
-diff -r /tmp/spec-kit-latest/.claude spec-kits/claude-code-vanilla/.claude
-diff -r /tmp/spec-kit-latest/.github spec-kits/github-cli-vanilla/.github
-diff -r /tmp/spec-kit-latest/.specify spec-kits/claude-code-vanilla/.specify
+diff -r /tmp/spec-kit-latest/.claude docs/vanilla-reference/claude-code-vanilla/.claude
+diff -r /tmp/spec-kit-latest/.github docs/vanilla-reference/github-cli-vanilla/.github
+diff -r /tmp/spec-kit-latest/.specify docs/vanilla-reference/claude-code-vanilla/.specify
 
 # Look for:
 # - New commands
@@ -57,11 +57,11 @@ diff -r /tmp/spec-kit-latest/.specify spec-kits/claude-code-vanilla/.specify
 
 ```bash
 # Backup current vanilla
-cp -r spec-kits/claude-code-vanilla spec-kits/claude-code-vanilla.backup
+cp -r docs/vanilla-reference/claude-code-vanilla docs/vanilla-reference/claude-code-vanilla.backup
 
 # Copy new vanilla files
-rsync -av --delete /tmp/spec-kit-latest/.claude/ spec-kits/claude-code-vanilla/.claude/
-rsync -av --delete /tmp/spec-kit-latest/.specify/ spec-kits/claude-code-vanilla/.specify/
+rsync -av --delete /tmp/spec-kit-latest/.claude/ docs/vanilla-reference/claude-code-vanilla/.claude/
+rsync -av --delete /tmp/spec-kit-latest/.specify/ docs/vanilla-reference/claude-code-vanilla/.specify/
 
 # Repeat for github-cli-vanilla if there are GitHub Copilot specific changes
 ```
@@ -71,7 +71,7 @@ rsync -av --delete /tmp/spec-kit-latest/.specify/ spec-kits/claude-code-vanilla/
 ```bash
 # Test our kits still install on updated vanilla
 cd /tmp
-cp -r spec-kits/claude-code-vanilla test-install
+cp -r docs/vanilla-reference/claude-code-vanilla test-install
 cd test-install
 
 # Install our kits
@@ -106,7 +106,7 @@ Document changes in main [CHANGELOG.md](../CHANGELOG.md):
 ### 7. Commit Changes
 
 ```bash
-git add spec-kits/
+git add docs/vanilla-reference/
 git commit -m "chore: Update vanilla spec-kit to v1.2.3
 
 - Updated claude-code-vanilla from upstream
@@ -246,6 +246,6 @@ jobs:
 
 ## Related
 
-- Vanilla configurations: [spec-kits/](.)
+- Vanilla configurations: [docs/vanilla-reference/](.)
 - Kit implementations: [../src/speckit_multiagent/kits/](../src/speckit_multiagent/kits/)
 - Testing: [../tests/](../tests/) (TODO)
