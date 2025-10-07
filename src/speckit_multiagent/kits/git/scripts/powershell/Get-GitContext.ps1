@@ -141,12 +141,12 @@ if ($remoteUrl) {
 
 # Get recent commits
 if ($IncludeCommits -gt 0) {
-    $commitFormat = '%H|%h|%an|%ae|%ad|%s'
+    $commitFormat = '%H%x00%h%x00%an%x00%ae%x00%ad%x00%s'
     $commitLines = git log -n $IncludeCommits --pretty=format:$commitFormat --date=relative
 
     foreach ($line in $commitLines) {
         if ($line) {
-            $parts = $line -split '\|', 6
+            $parts = $line -split "`0", 6
             $context.RecentCommits += [PSCustomObject]@{
                 Hash = $parts[0]
                 ShortHash = $parts[1]
