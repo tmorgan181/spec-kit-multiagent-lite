@@ -201,9 +201,9 @@ if (Test-Path "specs/*/collaboration/active") {
 Show the generated PR information:
 
 ```
-═══════════════════════════════════════════════════════════
+===========================================================
 Pull Request Preview:
-═══════════════════════════════════════════════════════════
+===========================================================
 
 Title: feat: Implement Phase 1 MVP - /orient and kit system
 
@@ -216,7 +216,7 @@ Files changed: 10 (+1456, -132)
 Description:
 [Generated description from step 4]
 
-═══════════════════════════════════════════════════════════
+===========================================================
 ```
 
 ### 8. Confirm and Create PR

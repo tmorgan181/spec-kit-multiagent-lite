@@ -10,9 +10,9 @@ description: Smart commit with agent attribution
 
 Execute the following steps to create a smart commit:
 
-### 1. Validate Full Git Status
+### 1. Analyze Git Status and Propose Staging Plan
 
-**CRITICAL**: Always check the complete git status before committing to avoid missing files!
+**CRITICAL**: Always analyze the complete git status and propose a staging plan BEFORE staging anything!
 
 ```powershell
 # Get complete status - staged, unstaged, and untracked
@@ -25,44 +25,138 @@ git status --short
 - Lines starting with `??` = Untracked files
 - Lines starting with `MM` = Staged AND modified again
 
-**Auto-stage related files**:
-If you see unstaged changes that are clearly related to staged changes, automatically stage them:
+**Step 1a: Present current state and propose staging plan**
 
-```powershell
-# Example logic:
-# - If committing src/foo.py and tests/test_foo.py is unstaged → stage it
-# - If committing .claude/commands/X.md and src/kits/.../X.md is unstaged → stage it
-# - If committing any file and its test is unstaged → stage it
-
-git add <related-files>
+**Scenario 1: Files already staged**
 ```
+===========================================================
+Current Git Status:
+===========================================================
 
-**Alert user to unstaged changes**:
-If there are unstaged or untracked files that might be related:
-```
-WARNING: Found unstaged/untracked files that might be related:
-  M  src/related_file.py
-  ?? new_file.py
-
-Do you want to:
-  1. Stage ALL changes and include in this commit (git add .)
-  2. Stage specific files (specify which)
-  3. Continue with only currently staged files
-  4. Cancel and let me stage manually
-```
-
-**If nothing is staged**:
-```
-No changes staged for commit.
-
-Unstaged changes found:
+Staged (will be committed):
   M  src/file1.py
   M  src/file2.py
 
-Do you want to stage all changes? (y/n)
+Unstaged (not included):
+  M  src/unrelated.py
+  ?? tests/new_test.py
+
+===========================================================
+Proposed staging plan: Use currently staged files
+===========================================================
+
+Options:
+  1. Accept - proceed with staged files only
+  2. Add specific files (specify which)
+  3. Add ALL unstaged files
+  4. Cancel - let me adjust manually
+
+Your choice (1-4): _____
 ```
 
-### 2. Analyze Changes
+**Scenario 2: Nothing staged, propose intelligent staging**
+```
+===========================================================
+Current Git Status:
+===========================================================
+
+No files staged for commit.
+
+Modified/new files detected:
+  M  src/commands/pr.md
+  M  src/commands/commit.md
+  M  src/prompts/pr.prompt.md
+  ?? docs/new_feature.md
+
+===========================================================
+Proposed staging plan: Stage related command files
+===========================================================
+
+Files to stage:
+  ✓ src/commands/pr.md (command update)
+  ✓ src/commands/commit.md (related command)
+  ✓ src/prompts/pr.prompt.md (matching prompt)
+  ✗ docs/new_feature.md (unrelated documentation)
+
+Rationale: These files are all part of command improvements.
+
+Options:
+  1. Accept proposal - stage listed files
+  2. Stage ALL files (including docs)
+  3. Select specific files
+  4. Cancel - let me stage manually
+
+Your choice (1-4): _____
+```
+
+**Scenario 3: Mixed state (some staged, related unstaged)**
+```
+===========================================================
+Current Git Status:
+===========================================================
+
+Already staged:
+  M  src/commands/pr.md
+
+Related unstaged files detected:
+  M  src/commands/commit.md (both are command files)
+  M  src/prompts/pr.prompt.md (pr-related)
+  M  src/prompts/commit.prompt.md (commit-related)
+
+Unrelated:
+  ?? random_file.txt
+
+===========================================================
+Proposed staging plan: Stage related command files
+===========================================================
+
+Will stage:
+  ✓ src/commands/pr.md (already staged)
+  + src/commands/commit.md (add - related)
+  + src/prompts/pr.prompt.md (add - related)
+  + src/prompts/commit.prompt.md (add - related)
+  ✗ random_file.txt (skip - unrelated)
+
+This creates a cohesive commit for command improvements.
+
+Options:
+  1. Accept proposal - stage related files
+  2. Use only currently staged files
+  3. Stage ALL files
+  4. Select different files
+  5. Cancel - let me adjust manually
+
+Your choice (1-5): _____
+```
+
+**Step 1b: Execute staging based on user choice**
+
+**Execute staging based on user choice**:
+```powershell
+# After user confirms, stage the agreed-upon files
+git add <files-from-plan>
+
+Write-Host "✓ Staged files for commit"
+git status --short  # Show final staged state
+```
+
+**Step 1c: Confirm final staging before proceeding**
+
+```
+===========================================================
+Final staging confirmed:
+===========================================================
+
+Files to be committed:
+  M  src/commands/pr.md
+  M  src/commands/commit.md
+  M  src/prompts/pr.prompt.md
+
+Ready to generate commit message.
+===========================================================
+```
+
+### 2. Analyze Staged Changes
 
 Examine the staged changes to determine:
 

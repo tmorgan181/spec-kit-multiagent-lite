@@ -48,33 +48,122 @@ Then try /pr again.
 
 ### 2. Determine Base Branch
 
-**Default to `develop` branch**, then ask user for confirmation:
+**Enhanced base branch detection with remote-first priority**:
 
 ```powershell
-# Try to find base branches in priority order (develop first!)
-$BASE_BRANCH = $null
+# Step 1: Find base branch that exists on REMOTE (preferred)
+$BASE_BRANCH_REMOTE = $null
 foreach ($base in @('develop', 'main', 'master')) {
-    if (git show-ref --verify --quiet "refs/heads/$base") {
-        $BASE_BRANCH = $base
+    $remote = git ls-remote --heads origin $base 2>$null | Select-String $base
+    if ($remote) {
+        $BASE_BRANCH_REMOTE = $base
         break
+    }
+}
+
+# Step 2: If no remote base found, check LOCAL branches
+$BASE_BRANCH_LOCAL = $null
+if (-not $BASE_BRANCH_REMOTE) {
+    foreach ($base in @('develop', 'main', 'master')) {
+        if (git show-ref --verify --quiet "refs/heads/$base") {
+            $BASE_BRANCH_LOCAL = $base
+            break
+        }
     }
 }
 ```
 
-**Ask user to confirm**:
-```
-Creating PR to merge into: develop
+**Present options to user**:
 
-Is this correct?
-  y - Yes, use develop
-  m - Use main instead
-  c - Use custom branch (specify name)
-  n - Cancel
-```
+```powershell
+if ($BASE_BRANCH_REMOTE) {
+    Write-Host "Detected base branches:"
+    Write-Host "  Remote: $BASE_BRANCH_REMOTE (exists on origin)"
+    if ($BASE_BRANCH_LOCAL -and $BASE_BRANCH_LOCAL -ne $BASE_BRANCH_REMOTE) {
+        Write-Host "  Local:  $BASE_BRANCH_LOCAL (not pushed to remote)"
+    }
+    Write-Host ""
+    Write-Host "Creating PR requires a remote base branch."
+    Write-Host ""
+    Write-Host "Options:"
+    Write-Host "  1. Use existing remote: $BASE_BRANCH_REMOTE"
+    if ($BASE_BRANCH_REMOTE -eq 'main') {
+        Write-Host "     ⚠️  WARNING: This will PR into your default/production branch" -ForegroundColor Yellow
+    }
+    Write-Host "  2. Use custom branch (specify name)"
+    Write-Host "  3. Cancel"
+    Write-Host ""
+    $choice = Read-Host "Your choice (1-3)"
 
-**If user chooses custom**:
-```
-Enter base branch name: _____
+    switch ($choice) {
+        '1' {
+            $BASE_BRANCH = $BASE_BRANCH_REMOTE
+            if ($BASE_BRANCH -eq 'main') {
+                Write-Host "⚠️  WARNING: You're about to create a PR into 'main'" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "This is your default/production branch. Are you sure?"
+                Write-Host ""
+                Write-Host "  y - Yes, PR into main (use sparingly!)"
+                Write-Host "  n - Cancel"
+                Write-Host ""
+                $confirm = Read-Host "Confirm (y/n)"
+                if ($confirm -ne 'y') {
+                    Write-Host "PR creation cancelled."
+                    exit 0
+                }
+            }
+        }
+        '2' {
+            $BASE_BRANCH = Read-Host "Enter base branch name"
+            # Check if it exists on remote
+            $remoteCheck = git ls-remote --heads origin $BASE_BRANCH 2>$null | Select-String $BASE_BRANCH
+            if (-not $remoteCheck) {
+                Write-Host "Branch '$BASE_BRANCH' doesn't exist on remote."
+                $create = Read-Host "Create it? (y/n)"
+                if ($create -eq 'y') {
+                    git push origin $BASE_BRANCH
+                    Write-Host "✓ Pushed $BASE_BRANCH to remote"
+                } else {
+                    Write-Host "PR creation cancelled."
+                    exit 0
+                }
+            }
+        }
+        default {
+            Write-Host "PR creation cancelled."
+            exit 0
+        }
+    }
+} elseif ($BASE_BRANCH_LOCAL) {
+    Write-Host "Detected base branches:"
+    Write-Host "  Local: $BASE_BRANCH_LOCAL (not pushed to remote yet)"
+    Write-Host ""
+    Write-Host "Options:"
+    Write-Host "  1. Push $BASE_BRANCH_LOCAL to remote and use it"
+    Write-Host "  2. Use custom branch (specify name)"
+    Write-Host "  3. Cancel"
+    Write-Host ""
+    $choice = Read-Host "Your choice (1-3)"
+
+    switch ($choice) {
+        '1' {
+            git push -u origin $BASE_BRANCH_LOCAL
+            Write-Host "✓ Pushed $BASE_BRANCH_LOCAL to origin"
+            $BASE_BRANCH = $BASE_BRANCH_LOCAL
+        }
+        '2' {
+            $BASE_BRANCH = Read-Host "Enter base branch name"
+        }
+        default {
+            Write-Host "PR creation cancelled."
+            exit 0
+        }
+    }
+} else {
+    Write-Host "No base branches found (develop, main, or master)."
+    Write-Host ""
+    $BASE_BRANCH = Read-Host "Enter base branch name"
+}
 ```
 
 ### 3. Analyze Commits Since Base Branch
@@ -201,9 +290,9 @@ if (Test-Path "specs/*/collaboration/active") {
 Show the generated PR information:
 
 ```
-═══════════════════════════════════════════════════════════
+===========================================================
 Pull Request Preview:
-═══════════════════════════════════════════════════════════
+===========================================================
 
 Title: feat: Implement Phase 1 MVP - /orient and kit system
 
@@ -216,7 +305,7 @@ Files changed: 10 (+1456, -132)
 Description:
 [Generated description from step 4]
 
-═══════════════════════════════════════════════════════════
+===========================================================
 ```
 
 ### 8. Confirm and Create PR
@@ -246,6 +335,25 @@ Use the generated description above.
 ### 9. Post-Creation Actions
 
 After PR is created:
+
+```powershell
+# Get PR number
+$PR_NUM = gh pr view --json number -q .number
+
+Write-Host "✓ Pull Request created: #$PR_NUM"
+Write-Host ""
+
+# Ask about branch auto-delete
+Write-Host "Delete branch after merge? (y/n/later)"
+$DELETE_CHOICE = Read-Host
+
+if ($DELETE_CHOICE -eq 'y') {
+    gh pr edit $PR_NUM --delete-branch
+    Write-Host "✓ Branch will be auto-deleted after merge"
+} elseif ($DELETE_CHOICE -eq 'later') {
+    Write-Host "You can enable this later with:"
+    Write-Host "  gh pr edit $PR_NUM --delete-branch"
+}
 
 ```powershell
 # Get PR URL
