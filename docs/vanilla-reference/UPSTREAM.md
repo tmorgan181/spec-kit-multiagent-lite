@@ -75,7 +75,7 @@ cp -r docs/vanilla-reference/claude-code-vanilla test-install
 cd test-install
 
 # Install our kits
-speckit-ma install --recommended
+lite-kits install -Recommended
 
 # Verify no conflicts
 ls -la .claude/commands/

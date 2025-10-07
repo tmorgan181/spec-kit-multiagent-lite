@@ -15,7 +15,7 @@ pip install -e ".[dev]"
 
 # Test locally
 cd /tmp/test-vanilla-project
-speckit-ma install --kit=project
+lite-kits install -Kit project
 
 # Submit PR
 ```
@@ -73,7 +73,7 @@ Add command to kit's README.md status table.
 
 ```bash
 # Test on vanilla project
-speckit-ma install --kit=YOUR-KIT
+lite-kits install -Kit YOUR-KIT
 ls .claude/commands/YOUR-COMMAND.md  # Verify installed
 ```
 
@@ -102,7 +102,7 @@ pytest --cov=src/speckit_multiagent
 # Manual testing
 cp -r docs/vanilla-reference/claude-code-vanilla /tmp/test
 cd /tmp/test
-speckit-ma install --recommended
+lite-kits install -Recommended
 # Verify files created correctly
 ```
 

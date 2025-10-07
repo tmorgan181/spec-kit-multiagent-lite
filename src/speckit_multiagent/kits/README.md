@@ -94,30 +94,30 @@ When installed, files go to the appropriate locations:
 ### Install Recommended Kits (project + git)
 
 ```bash
-speckit-ma install --recommended
+lite-kits install -Recommended
 # or
-speckit-ma install --kit=project,git
+lite-kits install -Kit project,git
 ```
 
 ### Install Individual Kits
 
 ```bash
-speckit-ma install --kit=project
-speckit-ma install --kit=git
-speckit-ma install --kit=multiagent  # Auto-installs project + git
+lite-kits install -Kit project
+lite-kits install -Kit git
+lite-kits install -Kit multiagent  # Auto-installs project + git
 ```
 
 ### Install All Kits
 
 ```bash
-speckit-ma install --kit=all
+lite-kits install -All
 ```
 
 ### Uninstall Kits
 
 ```bash
-speckit-ma uninstall --kit=multiagent
-speckit-ma uninstall --kit=git,project
+lite-kits remove -Kit multiagent
+lite-kits remove -Kit git,project
 ```
 
 ## Design Principles

@@ -21,12 +21,12 @@ Git workflow automation with smart commits, PR creation, sync visualization, and
 
 ### As part of recommended kits:
 ```bash
-speckit-ma install --recommended  # project + git
+lite-kits install -Recommended  # project + git
 ```
 
 ### Individually:
 ```bash
-speckit-ma install --kit=git
+lite-kits install -Kit git
 ```
 
 ## What Gets Installed
@@ -353,7 +353,7 @@ Commits ahead of main:
 ## Uninstall
 
 ```bash
-speckit-ma uninstall --kit=git
+lite-kits remove -Kit git
 ```
 
 Removes:

@@ -47,7 +47,7 @@ cd my-project
 npm install -g @github/spec-kit
 
 # Install multiagent features
-speckit-ma add --here
+lite-kits install -Recommended
 ```
 
 ### Option 2: Reference for Learning

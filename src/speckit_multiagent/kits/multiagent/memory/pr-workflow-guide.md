@@ -26,7 +26,7 @@ git status
 npm test || pytest || cargo test
 
 # Validate against constitution
-speckit-ma validate --here
+lite-kits validate
 ```
 
 ### Step 2: Update Collaboration Directory
