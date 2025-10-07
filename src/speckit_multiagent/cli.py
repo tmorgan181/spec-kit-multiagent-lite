@@ -18,7 +18,7 @@ from . import __version__
 from .installer import Installer
 
 app = typer.Typer(
-    name="speckit-ma",
+    name="lite-kits",
     help="Lightweight multi-agent coordination add-on for GitHub spec-kit",
     no_args_is_help=True,
 )
@@ -83,10 +83,10 @@ def add(
     - multiagent: Collaboration structure, PR workflow guides
 
     Examples:
-        speckit-ma add --here --kit=project      # Install project kit only (default)
-        speckit-ma add --here --recommended      # Install project + git kits
-        speckit-ma add --here --kit=multiagent   # Install all kits (auto-includes deps)
-        speckit-ma add --here --dry-run          # Preview changes
+        lite-kits install -Kit project           # Install project kit only
+        lite-kits install -Recommended           # Install project + git kits
+        lite-kits install -Kit multiagent        # Install all kits (auto-includes deps)
+        lite-kits install -Recommended -WhatIf   # Preview changes
     """
     if not here and target is None:
         console.print(
@@ -179,9 +179,9 @@ def remove(
     Returns the project to vanilla spec-kit state.
 
     Examples:
-        speckit-ma remove --here --kit=git              # Remove git-kit only
-        speckit-ma remove --here --kit=project,git      # Remove specific kits
-        speckit-ma remove --here --all                  # Remove all kits
+        lite-kits remove -Kit git                # Remove git-kit only
+        lite-kits remove -Kit project,git        # Remove specific kits
+        lite-kits remove -All                    # Remove all kits
     """
     if not here and target is None:
         console.print(
@@ -201,8 +201,8 @@ def remove(
     else:
         console.print("[yellow]Error:[/yellow] Specify --kit or --all", style="bold")
         console.print("\nExamples:", style="dim")
-        console.print("  speckit-ma remove --here --kit=git", style="dim")
-        console.print("  speckit-ma remove --here --all", style="dim")
+        console.print("  lite-kits remove -Kit git", style="dim")
+        console.print("  lite-kits remove -All", style="dim")
         raise typer.Exit(1)
 
     try:
@@ -264,7 +264,7 @@ def validate(
     - Command synchronization
 
     Example:
-        speckit-ma validate --here
+        lite-kits validate
     """
     target_dir = Path.cwd() if here else target
 
@@ -281,7 +281,7 @@ def validate(
     # Check if multiagent is installed
     if not installer.is_multiagent_installed():
         console.print("[yellow]⚠ Multiagent features not installed[/yellow]")
-        console.print("  Run: speckit-ma add --here", style="dim")
+        console.print("  Run: lite-kits install -Recommended", style="dim")
         raise typer.Exit(1)
 
     # Validate structure
@@ -320,7 +320,7 @@ def status(
     - Agent attribution
 
     Example:
-        speckit-ma status --here
+        lite-kits status
     """
     target_dir = Path.cwd() if here else target
 
@@ -373,7 +373,7 @@ def _display_installation_summary(result: dict):
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print("  1. Run: /orient (in your AI assistant)")
     console.print("  2. Check: .claude/commands/orient.md or .github/prompts/orient.prompt.md")
-    console.print("  3. Validate: speckit-ma validate --here")
+    console.print("  3. Validate: lite-kits validate")
 
 
 def _display_validation_results(result: dict):

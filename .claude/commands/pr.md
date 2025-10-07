@@ -46,19 +46,41 @@ Run: git push -u origin <branch-name>
 Then try /pr again.
 ```
 
-### 2. Analyze Commits Since Base Branch
+### 2. Determine Base Branch
 
-Determine the base branch (usually `main` or `master`):
+**Default to `develop` branch**, then ask user for confirmation:
 
 ```bash
-# Try common base branches
-for base in main master develop; do
+# Try to find base branches in priority order (develop first!)
+for base in develop main master; do
   if git show-ref --verify --quiet refs/heads/$base; then
     BASE_BRANCH=$base
     break
   fi
 done
+```
 
+**Ask user to confirm**:
+```
+Creating PR to merge into: develop
+
+Is this correct?
+  y - Yes, use develop
+  m - Use main instead
+  c - Use custom branch (specify name)
+  n - Cancel
+```
+
+**If user chooses custom**:
+```
+Enter base branch name: _____
+```
+
+### 3. Analyze Commits Since Base Branch
+
+Once base branch is confirmed, analyze commits:
+
+```bash
 # Get commits since divergence
 git log $BASE_BRANCH..HEAD --oneline
 
@@ -69,7 +91,7 @@ git log $BASE_BRANCH..HEAD --format="%s%n%b"
 git diff $BASE_BRANCH...HEAD --stat
 ```
 
-### 3. Detect Multi-Agent Collaboration
+### 4. Detect Multi-Agent Collaboration
 
 Check commit attributions to see if multiple agents contributed:
 
@@ -82,7 +104,7 @@ git log $BASE_BRANCH..HEAD --format="%b" | grep "via.*@" || echo "No attribution
 - Note which agents contributed (e.g., "claude-code" and "github-copilot-cli")
 - Highlight collaboration in PR description
 
-### 4. Generate PR Description
+### 5. Generate PR Description
 
 Create a comprehensive PR description:
 
@@ -156,7 +178,7 @@ Implements Phase 1 MVP with `/orient` command and modular kit system for multi-a
 🤖 Generated with Claude Code (https://claude.com/claude-code)
 ```
 
-### 5. Analyze Recent Activity
+### 6. Analyze Recent Activity
 
 Check for collaboration indicators:
 
@@ -173,7 +195,7 @@ if [ -d "specs/*/collaboration/active" ]; then
 fi
 ```
 
-### 6. Present PR Details
+### 7. Present PR Details
 
 Show the generated PR information:
 
@@ -196,7 +218,7 @@ Description:
 ═══════════════════════════════════════════════════════════
 ```
 
-### 7. Confirm and Create PR
+### 8. Confirm and Create PR
 
 **Ask user**:
 - **y** - Create PR
@@ -220,7 +242,7 @@ https://github.com/[owner]/[repo]/compare/[base]...[head]
 Use the generated description above.
 ```
 
-### 8. Post-Creation Actions
+### 9. Post-Creation Actions
 
 After PR is created:
 

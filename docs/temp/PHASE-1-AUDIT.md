@@ -128,7 +128,7 @@
 
 ### ✅ Installation Flow (WORKFLOW-PATHWAYS.md:217-253)
 
-**User runs: `speckit-ma add --kit=project`**
+**User runs: `lite-kits install -Kit project`**
 
 Step-by-step verification:
 

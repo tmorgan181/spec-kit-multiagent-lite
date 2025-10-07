@@ -211,7 +211,7 @@ class Installer:
         checks["orient_command"] = {
             "passed": claude_orient.exists() or copilot_orient.exists(),
             "message": "Orient command found" if (claude_orient.exists() or copilot_orient.exists())
-                      else "Orient command missing - run: speckit-ma add --here",
+                      else "Orient command missing - run: lite-kits install -Recommended",
         }
 
         # Check memory guides

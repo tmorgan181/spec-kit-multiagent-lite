@@ -317,13 +317,13 @@ git worktree list
 # /path/to/feature-auth-frontend  ghi789 [003-user-auth]
 ```
 
-## Integration with speckit-ma
+## Integration with lite-kits
 
 ### Check Worktree Status
 
 ```bash
 # From main repo
-speckit-ma status --here
+lite-kits status
 
 # Output should show active worktrees (TODO: implement)
 # Worktrees:
@@ -335,7 +335,7 @@ speckit-ma status --here
 
 ```bash
 # Ensure collaboration docs exist for each worktree
-speckit-ma validate --here
+lite-kits validate
 
 # Checks:
 # - Session logs for each worktree

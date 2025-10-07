@@ -39,10 +39,10 @@ specify init test-project
 cd test-project
 
 # Test the add command (dry run)
-speckit-ma add --here --dry-run
+lite-kits install -WhatIf
 
 # Actually install multiagent features
-speckit-ma add --here
+lite-kits install -Recommended
 
 # Verify installation
 /orient  # Should work if slash commands are configured
@@ -85,7 +85,7 @@ See `docs/ARCHITECTURE.md` for the full rationale.
 
 ### What Gets Added
 
-When `speckit-ma add --here` runs:
+When `lite-kits install` runs:
 
 **New Files**:
 - `.claude/commands/orient.md` - Claude Code version of orient command
@@ -117,7 +117,7 @@ specs/NNN-feature-name/
 ```
 src/speckit_multiagent/
 ├── __init__.py          # Package exports
-├── cli.py               # Entry point: speckit-ma command
+├── cli.py               # Entry point: lite-kits command
 ├── installer.py         # Installation logic
 └── templates/           # Files added to target projects
     ├── commands/        # Slash commands (orient)
@@ -255,7 +255,7 @@ uv tool install -e . --force-reinstall
 
 # Test on a vanilla project
 cd /tmp/test-project
-speckit-ma add --here --dry-run
+lite-kits install -WhatIf
 ```
 
 ### Updating Slash Commands

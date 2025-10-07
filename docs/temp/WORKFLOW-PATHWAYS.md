@@ -786,7 +786,7 @@ PROJECT_KIT_COMPLETE=true
 
 if [ "$PROJECT_KIT_COMPLETE" = false ]; then
   echo "⚠ Warning: project-kit partially installed"
-  echo "  Run: speckit-ma install --kit=project"
+  echo "  Run: lite-kits install -Kit project"
 fi
 ```
 
@@ -805,7 +805,7 @@ fi
 if ! source "$SCRIPT_DIR/common.sh" 2>/dev/null; then
   echo "ERROR: Vanilla common.sh not compatible"
   echo "  This may be due to vanilla spec-kit update"
-  echo "  Run: speckit-ma update"
+  echo "  Run: lite-kits install -Recommended"
   exit 1
 fi
 ```
@@ -851,7 +851,7 @@ fi
 
 ## Installation Validation
 
-After `speckit-ma install --recommended`:
+After `lite-kits install -Recommended`:
 
 **Validation checklist**:
 

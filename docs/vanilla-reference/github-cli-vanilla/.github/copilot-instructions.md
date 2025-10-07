@@ -27,7 +27,7 @@
 spec-kit-multiagent/
 ├── src/speckit_multiagent/     # Python package (FUTURE - not yet implemented)
 │   ├── __init__.py             # Package exports
-│   ├── cli.py                  # Entry point: speckit-ma command
+│   ├── cli.py                  # Entry point: lite-kits command
 │   ├── installer.py            # Installation logic
 │   └── templates/              # Files to install in target projects
 ├── examples/                   # Demo projects and templates
@@ -85,10 +85,10 @@ specify init test-project
 cd test-project
 
 # Test the add command (dry run)
-speckit-ma add --here --dry-run
+lite-kits install -WhatIf
 
 # Actually install multiagent features
-speckit-ma add --here
+lite-kits install -Recommended
 
 # Verify installation
 /orient  # Should work if slash commands configured

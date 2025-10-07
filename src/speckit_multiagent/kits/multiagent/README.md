@@ -29,7 +29,7 @@ Multi-agent coordination structure for projects with multiple AI agents working 
 
 **Recommended installation**:
 ```bash
-speckit-ma install --recommended --kit=multiagent
+lite-kits install -Recommended -Kit multiagent
 # Installs: project + git + multiagent
 ```
 
@@ -39,12 +39,12 @@ speckit-ma install --recommended --kit=multiagent
 
 ### With dependencies (recommended):
 ```bash
-speckit-ma install --recommended --kit=multiagent
+lite-kits install -Recommended -Kit multiagent
 ```
 
 ### Individually (installs dependencies automatically):
 ```bash
-speckit-ma install --kit=multiagent
+lite-kits install -Kit multiagent
 ```
 
 ## What Gets Installed
@@ -361,7 +361,7 @@ No configuration needed - works out of the box.
 ## Uninstall
 
 ```bash
-speckit-ma uninstall --kit=multiagent
+lite-kits remove -Kit multiagent
 ```
 
 Removes:
