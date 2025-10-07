@@ -36,7 +36,7 @@ dev = [
 ]
 
 [project.scripts]
-speckit-ma = "speckit_multiagent.cli:app"
+lite-kits = "speckit_multiagent.cli:app"
 
 [project.urls]
 Homepage = "https://github.com/yourusername/spec-kit-multiagent-lite"

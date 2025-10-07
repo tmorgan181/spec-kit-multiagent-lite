@@ -73,7 +73,7 @@ npm install -g @github/spec-kit
 
 # Install multiagent add-on
 pip install spec-kit-multiagent
-speckit-ma add --here
+lite-kits install -Recommended
 
 # Run /orient in Claude Code
 # Agent reads constitution, checks git state, confirms ready

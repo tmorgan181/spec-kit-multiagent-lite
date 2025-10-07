@@ -92,8 +92,8 @@ pip install dist/spec_kit_multiagent-0.1.0-py3-none-any.whl
 
 ```bash
 cd your-spec-kit-project
-speckit-ma add --here --dry-run  # Preview changes
-speckit-ma add --here             # Install
+lite-kits install -Recommended -WhatIf  # Preview changes
+lite-kits install -Recommended          # Install
 ```
 
 **What gets installed**:
@@ -133,19 +133,19 @@ Collaboration directories are automatically created for session logging.
 
 ```bash
 # Install multiagent features
-speckit-ma add --here [--dry-run]
+lite-kits install -Recommended [--WhatIf]
 
 # Validate installation
-speckit-ma validate --here
+lite-kits validate
 
 # Show project status
-speckit-ma status --here
+lite-kits status
 
 # Remove multiagent features (TODO)
-speckit-ma remove --here [--dry-run]
+lite-kits remove -All
 
 # Show version
-speckit-ma --version
+lite-kits --version
 ```
 
 ### Multi-Agent Workflow Example

@@ -97,7 +97,7 @@
    - **Why critical**: User experience
    - **Estimated effort**: 1 hour
 
-**MVP Deliverable**: `speckit-ma install --kit=project` → installs `/orient` command
+**MVP Deliverable**: `lite-kits install -Kit project` → installs `/orient` command
 
 ---
 
@@ -217,7 +217,7 @@
 ### Installation Flow
 
 ```
-User runs: speckit-ma install --recommended
+User runs: lite-kits install -Recommended
                     │
                     ▼
             ┌──────────────┐
@@ -359,7 +359,7 @@ specs/NNN-feature/
 
 - [ ] **Test MVP workflow**
   - [ ] Copy vanilla reference to /tmp/test-project
-  - [ ] Run: `speckit-ma install --kit=project`
+  - [ ] Run: `lite-kits install -Kit project`
   - [ ] Verify: `/orient` command appears in correct location
   - [ ] Test: Run `/orient` in AI agent, verify output
 
@@ -432,7 +432,7 @@ cd my-vanilla-project
 
 # Install multiagent (includes recommended kits)
 pip install spec-kit-multiagent
-speckit-ma install --recommended --kit=multiagent
+lite-kits install -Recommended -Kit multiagent
 
 # What gets added (new files only):
 # ✅ /orient command

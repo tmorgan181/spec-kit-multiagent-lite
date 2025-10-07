@@ -27,12 +27,12 @@ Essential project-level utilities and enhancements for vanilla spec-kit. Include
 
 ### As part of recommended kits:
 ```bash
-speckit-ma install --recommended  # project + git
+lite-kits install -Recommended  # project + git
 ```
 
 ### Individually:
 ```bash
-speckit-ma install --kit=project
+lite-kits install -Kit project
 ```
 
 ## What Gets Installed
@@ -222,7 +222,7 @@ No configuration needed - works out of the box.
 ## Uninstall
 
 ```bash
-speckit-ma uninstall --kit=project
+lite-kits remove -Kit project
 ```
 
 Removes:

@@ -57,7 +57,7 @@ docs/vanilla-reference/
 
 ### Recommended Kits (project + git)
 
-**Install command**: `speckit-ma install --recommended`
+**Install command**: `lite-kits install -Recommended`
 
 Adds to vanilla:
 ```
@@ -88,7 +88,7 @@ your-vanilla-project/
 
 ### Optional Kit (multiagent)
 
-**Install command**: `speckit-ma install --kit=multiagent`
+**Install command**: `lite-kits install -Kit multiagent`
 
 Adds to vanilla:
 ```
@@ -171,7 +171,7 @@ cp -r docs/vanilla-reference/claude-code-vanilla /tmp/test-project
 cd /tmp/test-project
 
 # 2. Install our kits
-speckit-ma install --recommended
+lite-kits install -Recommended
 
 # 3. Verify installation
 ls .claude/commands/
