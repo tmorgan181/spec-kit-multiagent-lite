@@ -1,543 +1,425 @@
-# Spec-Kit-Multiagent Implementation Status
-## What's Built, What's Missing, How It Stacks with Vanilla
+# Lite-Kits Implementation Status
 
-**Baseline**: Vanilla `specify.exe` (GitHub spec-kit) provides the foundation  
-**Add-on**: `spec-kit-multiagent-lite` layers coordination on top  
-**Philosophy**: Add new files only, never modify vanilla
+**Last Updated**: 2025-10-07
+**Current Phase**: Phase 2 - Git Workflow (Solo Agent)
 
 ---
 
-## 📊 Implementation Status Matrix
+## 🎯 Project Overview
+
+**Lite-Kits** is a modular add-on system for vanilla [GitHub spec-kit](https://github.com/github/spec-kit) that adds:
+- **Project Kit**: Essential commands for solo agent development (`/orient`, `/review`, `/audit`, `/stats`)
+- **Git Kit**: Smart git workflows for solo agents (`/commit`, `/pr`)
+- **Multiagent Kit**: Multi-agent coordination tools (`/sync`, collaboration templates, handoff workflows)
+
+**Philosophy**: Add-on pattern (never modify vanilla files), modular kits (install what you need), version-safe (vanilla updates work automatically).
+
+---
+
+## 📊 Implementation Status by Kit
 
 ### Core CLI & Installer
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **CLI framework** | ✅ Complete | `typer` + `rich`, working `add`, `validate`, `status` |
-| **Installer logic** | ✅ Core done | Template copying works, smart merge TODO |
-| **Package metadata** | ✅ Complete | `pyproject.toml` configured, ready for PyPI |
-| **Error handling** | ✅ Complete | Graceful failures, clear messages |
-| **Dry-run mode** | ✅ Complete | Preview before install |
-| **Uninstall** | ❌ Missing | `remove` command stubbed but not implemented |
-
----
-
-### Project Kit (Essential)
-
-| Component | Agent | Status | Location | Notes |
-|-----------|-------|--------|----------|-------|
-| **`/orient` command** | Claude | ❌ Missing | `kits/project/claude/commands/` | **CRITICAL** - Most important command |
-| **`/orient` prompt** | Copilot | ❌ Missing | `kits/project/github/prompts/` | **CRITICAL** |
-| **`/review` command** | Claude | ❌ Missing | `kits/project/claude/commands/` | Code review helper |
-| **`/review` prompt** | Copilot | ❌ Missing | `kits/project/github/prompts/` | Code review helper |
-| **`/audit` command** | Claude | ❌ Missing | `kits/project/claude/commands/` | Security audit |
-| **`/audit` prompt** | Copilot | ❌ Missing | `kits/project/github/prompts/` | Security audit |
-| **`/stats` command** | Claude | ❌ Missing | `kits/project/claude/commands/` | Project stats |
-| **`/stats` prompt** | Copilot | ❌ Missing | `kits/project/github/prompts/` | Project stats |
-| **Enhanced scripts** | Bash | ❌ Missing | `kits/project/scripts/bash/` | Custom feature numbering |
-| **Enhanced scripts** | PowerShell | ❌ Missing | `kits/project/scripts/powershell/` | Custom feature numbering |
-
-**Priority**: `/orient` is **CRITICAL** - should be first implementation.
-
----
-
-### Git Kit (Workflow)
-
-| Component | Agent | Status | Location | Notes |
-|-----------|-------|--------|----------|-------|
-| **`/commit` command** | Claude | ❌ Missing | `kits/git/claude/commands/` | Smart commits + attribution |
-| **`/commit` prompt** | Copilot | ❌ Missing | `kits/git/github/prompts/` | Smart commits + attribution |
-| **`/pr` command** | Claude | ❌ Missing | `kits/git/claude/commands/` | PR creation helper |
-| **`/pr` prompt** | Copilot | ❌ Missing | `kits/git/github/prompts/` | PR creation helper |
-| **`/sync` command** | Claude | ❌ Missing | `kits/git/claude/commands/` | Sync status + ASCII viz |
-| **`/sync` prompt** | Copilot | ❌ Missing | `kits/git/github/prompts/` | Sync status + ASCII viz |
-| **`/cleanup` command** | Claude | ❌ Missing | `kits/git/claude/commands/` | Branch/worktree cleanup |
-| **`/cleanup` prompt** | Copilot | ❌ Missing | `kits/git/github/prompts/` | Branch/worktree cleanup |
-
-**Priority**: `/commit` with attribution is most valuable first.
-
----
-
-### Multiagent Kit (Coordination)
-
 | Component | Status | Location | Notes |
 |-----------|--------|----------|-------|
-| **PR workflow guide** | ✅ Complete | `kits/multiagent/memory/` | How agents create PRs |
-| **Git worktrees protocol** | ✅ Complete | `kits/multiagent/memory/` | Parallel development |
-| **Collaboration structure** | ❌ Missing | `kits/multiagent/templates/` | Template for `specs/NNN/collaboration/` |
-| **Session log template** | ❌ Missing | `kits/multiagent/templates/` | Individual work sessions |
-| **Handoff template** | ❌ Missing | `kits/multiagent/templates/` | Agent-to-agent handoffs |
-| **Status template** | ❌ Missing | `kits/multiagent/templates/` | Current status summaries |
-
-**Priority**: Collaboration structure template is most important.
+| **CLI framework** | ✅ Complete | `src/speckit_multiagent/cli.py` | Typer + Rich, working commands |
+| **Installer logic** | ✅ Complete | `src/speckit_multiagent/installer.py` | Template copying, kit detection |
+| **Package metadata** | ✅ Complete | `pyproject.toml` | PyPI-ready |
+| **Kit structure** | ✅ Complete | `src/speckit_multiagent/kits/` | Modular organization |
 
 ---
 
-## 🎯 Critical Path: What to Build First
+### Project Kit (Solo Agent Essentials)
 
-### Phase 1: Essential Foundation (MVP) ⭐
+**Purpose**: Core commands every agent needs for solo development work.
+
+| Component | Status | Priority | Notes |
+|-----------|--------|----------|-------|
+| **`/orient` command** | ✅ Complete | Critical | Project orientation at session start |
+| **`/review` command** | ❌ TODO | High | Code review helper |
+| **`/audit` command** | ❌ TODO | Medium | Security audit |
+| **`/stats` command** | ❌ TODO | Low | Project statistics |
+
+**Current Status**: 1/4 commands (25%)
+
+---
+
+### Git Kit (Solo Agent Workflow)
+
+**Purpose**: Smart git workflows for single-agent development with attribution tracking.
+
+| Component | Status | Priority | Notes |
+|-----------|--------|----------|-------|
+| **`/commit` command** | ✅ Complete | Critical | Smart commits + agent attribution + staging proposal |
+| **`/pr` command** | ✅ Complete | Critical | PR creation with smart descriptions |
+| **`/cleanup` command** | ✅ Complete | High | Safe deletion of merged branches |
+| **Git context scripts** | ✅ Complete | High | Get-GitContext.ps1 and get-git-context.sh |
+| **Encoding fixes** | ✅ Complete | High | Windows terminal compatibility |
+
+**Current Status**: ✅ Complete (100%)
+
+**Recent Improvements** (PR #4):
+- Two-stage commit approval (staging proposal → commit message)
+- Enhanced formatting (bold headers, numbered lists, code blocks)
+- Windows encoding fixes (═ → =)
+- Reusable git context gathering scripts
+
+**Latest Addition** (dev/004-cleanup-command):
+- `/cleanup` command for safe merged branch deletion
+- Numbered selection for specific branches
+- Multi-agent awareness (warns about shared branches)
+
+---
+
+### Multiagent Kit (Multi-Agent Coordination)
+
+**Purpose**: Tools for coordinating multiple AI agents working in parallel.
+
+| Component | Status | Priority | Notes |
+|-----------|--------|----------|-------|
+| **PR workflow guide** | ✅ Complete | Critical | Memory doc for agent PR creation |
+| **Git worktrees protocol** | ✅ Complete | Critical | Memory doc for parallel development |
+| **`/sync` command** | ❌ TODO | High | Multi-agent sync status + ASCII viz |
+| **Collaboration templates** | ❌ TODO | High | `specs/NNN/collaboration/` structure |
+| **Session log template** | ❌ TODO | Medium | Individual work sessions |
+| **Handoff template** | ❌ TODO | Medium | Agent-to-agent handoffs |
+| **Status template** | ❌ TODO | Medium | Current status summaries |
+
+**Current Status**: 2/7 components (29%)
+
+---
+
+## ✅ Completed Work
+
+### Phase 1: Foundation (MVP) - ✅ COMPLETE
 
 **Goal**: Get basic install working with most important command
 
-1. **`/orient` command** (project-kit)
-   - File: `kits/project/claude/commands/orient.md`
-   - File: `kits/project/github/prompts/orient.prompt.md`
-   - **Why critical**: Every agent needs this at start of session
-   - **Estimated effort**: 2-3 hours
+- ✅ `/orient` command (project-kit)
+  - Claude Code: `.claude/commands/orient.md`
+  - GitHub Copilot: `.github/prompts/orient.prompt.md`
+  - Detects installed kits, reads docs, checks git state, suggests next action
 
-2. **Installer template system** (core)
-   - Update `installer.py` to copy from `kits/` structure
-   - Test installation to vanilla project
-   - **Why critical**: Without this, nothing installs
-   - **Estimated effort**: 1-2 hours
+- ✅ Installer template system
+  - Kit-aware installer copies from `kits/` structure
+  - Auto-detects agent interface (Claude vs Copilot)
+  - Smart kit selection with dependency resolution
 
-3. **Kit selection logic** (core)
-   - Implement `--kit=project,git,multiagent` selection
-   - Auto-install dependencies (multiagent → project + git)
-   - **Why critical**: User experience
-   - **Estimated effort**: 1 hour
+- ✅ Package structure
+  - PyPI-ready with `pyproject.toml`
+  - Modular kit organization
+  - Cross-platform (Bash + PowerShell)
 
-**MVP Deliverable**: `lite-kits install -Kit project` → installs `/orient` command
+**Deliverable**: ✅ `lite-kits install -Kit project` → installs `/orient` command
 
----
+### Phase 2: Git Workflow (Solo Agent) - ✅ COMPLETE
 
-### Phase 2: Git Workflow (High Value)
+**Goal**: Smart git workflows with agent attribution for solo development
 
-**Goal**: Smart commits with agent attribution
+- ✅ `/commit` command (git-kit)
+  - Two-stage approval workflow
+  - Staging proposal with numbered file selection
+  - Smart conventional commit messages
+  - Agent attribution tracking
+  - Enhanced formatting in code blocks
 
-4. **`/commit` command** (git-kit)
-   - File: `kits/git/claude/commands/commit.md`
-   - File: `kits/git/github/prompts/commit.prompt.md`
-   - **Why important**: Core multiagent need - track who coded what
-   - **Estimated effort**: 3-4 hours
+- ✅ `/pr` command (git-kit)
+  - Remote-first base branch detection
+  - Smart PR descriptions from commits
+  - Branch auto-delete option
+  - User confirmation prompts
 
-5. **`/pr` command** (git-kit)
-   - File: `kits/git/claude/commands/pr.md`
-   - File: `kits/git/github/prompts/pr.prompt.md`
-   - **Why important**: PR creation is common workflow
-   - **Estimated effort**: 3-4 hours
+- ✅ `/cleanup` command (git-kit)
+  - Safe deletion of merged branches
+  - Numbered selection for specific branches
+  - Protection for current/base/unmerged branches
+  - Multi-agent awareness warnings
 
-**Phase 2 Deliverable**: Full git workflow with attribution
+- ✅ Git context scripts
+  - Get-GitContext.ps1 (PowerShell)
+  - get-git-context.sh (Bash)
+  - Multiple output formats (Object, JSON, Text)
 
----
+- ✅ Windows encoding fixes
+  - Replaced Unicode box characters (═) with ASCII (=)
+  - Fixed across 11 command/prompt files
 
-### Phase 3: Multiagent Structure (Coordination)
-
-**Goal**: Templates for multi-agent projects
-
-6. **Collaboration directory template** (multiagent-kit)
-   - Create template in `kits/multiagent/templates/`
-   - Update installer to create on feature creation
-   - **Why important**: Core multiagent coordination
-   - **Estimated effort**: 2-3 hours
-
-7. **Document templates** (multiagent-kit)
-   - Session log template
-   - Handoff document template
-   - Status update template
-   - **Why important**: Structure for agent communication
-   - **Estimated effort**: 2 hours
-
-**Phase 3 Deliverable**: Full multiagent coordination structure
+**Deliverable**: ✅ Complete git workflow with attribution for solo agents
 
 ---
 
-### Phase 4: Polish & Extras
+## 🚧 In Progress / TODO
 
-8. **`/review`, `/audit`, `/stats`** (project-kit)
-9. **`/sync`, `/cleanup`** (git-kit)
-10. **Enhanced scripts** (project-kit)
-11. **Remove command** (core)
-12. **Smart constitution merge** (core)
+### Immediate (This Week)
 
----
+**None** - Phase 2 complete! Git-kit finished. Ready for Phase 3 or project-kit completion.
 
-## 🏗️ Integration Architecture
+### Medium Priority (Phase 3 - Multiagent)
 
-### How Vanilla + Kits Stack
+**Goal**: Templates and coordination for multi-agent projects
 
-```
-┌─────────────────────────────────────────────────┐
-│ User Experience Layer                            │
-│ • AI Agent (Claude Code / GitHub Copilot)       │
-│ • Runs slash commands: /specify, /orient, /pr   │
-└────────────┬────────────────────────────────────┘
-             │
-             │ executes
-             ▼
-┌─────────────────────────────────────────────────┐
-│ Command Layer (Markdown Prompts)                │
-│                                                  │
-│ Vanilla (Never Modified):                       │
-│ • /specify → .claude/commands/specify.md        │
-│ • /plan    → .claude/commands/plan.md           │
-│ • /tasks   → .claude/commands/tasks.md          │
-│                                                  │
-│ Our Add-ons (New Files):                        │
-│ • /orient  → .claude/commands/orient.md    ⭐   │
-│ • /commit  → .claude/commands/commit.md         │
-│ • /pr      → .claude/commands/pr.md             │
-└────────────┬────────────────────────────────────┘
-             │
-             │ calls
-             ▼
-┌─────────────────────────────────────────────────┐
-│ Script Layer (Shell Execution)                  │
-│                                                  │
-│ Vanilla (Never Modified):                       │
-│ • create-new-feature.sh                         │
-│ • setup-plan.sh                                 │
-│ • check-prerequisites.sh                        │
-│                                                  │
-│ Our Add-ons (New Files):                        │
-│ • create-feature-enhanced.sh                    │
-└────────────┬────────────────────────────────────┘
-             │
-             │ creates/modifies
-             ▼
-┌─────────────────────────────────────────────────┐
-│ Project Structure Layer                         │
-│                                                  │
-│ Vanilla (Never Modified):                       │
-│ • specs/NNN-feature/spec.md                     │
-│ • specs/NNN-feature/plan.md                     │
-│ • specs/NNN-feature/tasks.md                    │
-│ • .specify/memory/constitution.md               │
-│                                                  │
-│ Our Add-ons (New Files):                        │
-│ • .specify/memory/pr-workflow-guide.md          │
-│ • .specify/memory/git-worktrees-protocol.md     │
-│ • specs/NNN-feature/collaboration/              │
-│   ├── active/                                   │
-│   ├── archive/                                  │
-│   └── results/                                  │
-└─────────────────────────────────────────────────┘
-```
+- ❌ **`/sync` command** (multiagent-kit) - Moved from git-kit
+  - Show parallel work status across agents
+  - ASCII visualization of worktree structure
+  - Check parallel work protocol compliance
 
-### Installation Flow
+- ❌ **Collaboration directory templates** (multiagent-kit)
+  - Template structure for `specs/NNN-feature/collaboration/`
+  - Subdirectories: `active/`, `archive/`, `results/`
+  - Auto-create on feature creation (if multiagent-kit installed)
 
-```
-User runs: lite-kits install -Recommended
-                    │
-                    ▼
-            ┌──────────────┐
-            │ CLI (cli.py) │
-            └──────┬───────┘
-                   │
-                   ▼
-        ┌──────────────────────┐
-        │ Installer            │
-        │ (installer.py)       │
-        └──────┬───────────────┘
-               │
-               ├─ 1. Detect interfaces (Claude/Copilot)
-               ├─ 2. Select kits (project + git)
-               ├─ 3. Copy templates from kits/
-               └─ 4. Create new files only
-                      │
-                      ▼
-        ┌─────────────────────────────────┐
-        │ Result: Vanilla + Kits          │
-        │                                  │
-        │ .claude/commands/                │
-        │ ├── [vanilla commands] (INTACT) │
-        │ ├── orient.md          (NEW)    │
-        │ ├── commit.md          (NEW)    │
-        │ └── pr.md              (NEW)    │
-        │                                  │
-        │ .specify/memory/                 │
-        │ ├── constitution.md    (INTACT) │
-        │ ├── pr-workflow-guide.md (NEW)  │
-        │ └── git-worktrees-protocol.md   │
-        └─────────────────────────────────┘
-```
+- ❌ **Document templates** (multiagent-kit)
+  - Session log template (`sessions/<date>-<agent>.md`)
+  - Handoff document template (`decisions/handoff-to-<agent>.md`)
+  - Status update template (`status/<date>-status.md`)
+
+- ❌ **Update installer for collaboration**
+  - Copy templates to project on install
+  - Create collaboration/ structure on feature creation
+
+### Low Priority (Phase 4 - Polish)
+
+**Goal**: Additional helpful commands and enhancements
+
+- ❌ **`/review` command** (project-kit)
+  - Code review helper with suggestions
+  - Check against constitution/principles
+
+- ❌ **`/audit` command** (project-kit)
+  - Security audit helper
+  - Dependency vulnerability checks
+
+- ❌ **`/stats` command** (project-kit)
+  - Project statistics and metrics
+  - Code coverage, test counts, etc.
+
+- ❌ **`/cleanup` command enhancements** (git-kit)
+  - Safe branch deletion after merge
+  - Worktree cleanup (if multiagent-kit installed)
+
+- ❌ **Enhanced scripts** (project-kit)
+  - `create-feature-enhanced.sh` for custom feature naming
+
+- ❌ **Smart constitution merge** (core installer)
+  - Merge multiagent sections into existing constitution
+  - Currently skipped to avoid vanilla file modification
 
 ---
 
-## 🔌 Vanilla Integration Points
+## 📋 Phase-by-Phase Checklist
 
-### What Vanilla Provides (Baseline)
+### Phase 1: Foundation (MVP) ✅ COMPLETE
 
-**Commands** (Don't modify these):
-```
-.claude/commands/
-├── analyze.md        # Analyze spec/plan/tasks
-├── clarify.md        # Clarify ambiguities
-├── constitution.md   # Update constitution
-├── implement.md      # Execute tasks
-├── plan.md           # Create plan
-├── specify.md        # Create spec
-└── tasks.md          # Break into tasks
-```
+- [x] Create `/orient` command markdown
+  - [x] `kits/project/claude/commands/orient.md`
+  - [x] `kits/project/github/prompts/orient.prompt.md`
 
-**Scripts** (Don't modify these):
-```
-.specify/scripts/bash/
-├── check-prerequisites.sh
-├── common.sh
-├── create-new-feature.sh
-├── setup-plan.sh
-└── update-agent-context.sh
-```
+- [x] Update installer for kit structure
+  - [x] Modify `installer.py` to read from `kits/*/` directories
+  - [x] Implement kit selection (--kit flag)
+  - [x] Auto-detect agent interface (Claude vs Copilot)
 
-**Memory** (Read from, don't modify):
-```
-.specify/memory/
-└── constitution.md   # Project principles (user edits)
-```
+- [x] Test MVP workflow
+  - [x] Install project-kit to vanilla project
+  - [x] Verify `/orient` command works
+  - [x] Test agent orientation output
 
-**Templates** (Don't modify these):
-```
-.specify/templates/
-├── agent-file-template.md
-├── plan-template.md
-├── spec-template.md
-└── tasks-template.md
-```
+### Phase 2: Git Workflow (Solo Agent) ✅ COMPLETE
 
----
+- [x] Create `/commit` command
+  - [x] `kits/git/claude/commands/commit.md`
+  - [x] `kits/git/github/prompts/commit.prompt.md`
 
-### What Our Kits Add (Stacked On Top)
+- [x] Create `/pr` command
+  - [x] `kits/git/claude/commands/pr.md`
+  - [x] `kits/git/github/prompts/pr.prompt.md`
 
-**New Commands** (Install alongside vanilla):
-```
-.claude/commands/
-├── [vanilla commands]  ← UNCHANGED
-├── orient.md           ← NEW (project-kit)
-├── review.md           ← NEW (project-kit)
-├── audit.md            ← NEW (project-kit)
-├── stats.md            ← NEW (project-kit)
-├── commit.md           ← NEW (git-kit)
-├── pr.md               ← NEW (git-kit)
-├── sync.md             ← NEW (git-kit)
-└── cleanup.md          ← NEW (git-kit)
-```
+- [x] Enhance `/commit` with staging proposal
+  - [x] Two-stage approval workflow
+  - [x] Numbered file selection
+  - [x] Enhanced formatting in code blocks
 
-**Enhanced Scripts** (Install alongside vanilla):
-```
-.specify/scripts/bash/
-├── [vanilla scripts]           ← UNCHANGED
-└── create-feature-enhanced.sh  ← NEW (project-kit)
-```
+- [x] Enhance `/pr` with better UX
+  - [x] Remote-first base branch detection
+  - [x] User confirmation prompts
+  - [x] Branch auto-delete option
 
-**New Memory Guides** (Install alongside vanilla):
-```
-.specify/memory/
-├── constitution.md              ← UNCHANGED (vanilla)
-├── pr-workflow-guide.md         ← NEW (multiagent-kit)
-└── git-worktrees-protocol.md    ← NEW (multiagent-kit)
-```
+- [x] Create `/cleanup` command
+  - [x] `kits/git/claude/commands/cleanup.md`
+  - [x] `kits/git/github/prompts/cleanup.prompt.md`
+  - [x] Safe merged branch deletion
+  - [x] Numbered selection support
 
-**New Per-Feature Structure** (Created on demand):
-```
-specs/NNN-feature/
-├── spec.md                      ← VANILLA
-├── plan.md                      ← VANILLA
-├── tasks.md                     ← VANILLA
-└── collaboration/               ← NEW (multiagent-kit)
-    ├── active/
-    ├── archive/
-    └── results/
-```
+- [x] Create git context helper scripts
+  - [x] Get-GitContext.ps1 (PowerShell)
+  - [x] get-git-context.sh (Bash)
 
----
+- [x] Fix Windows encoding issues
+  - [x] Replace box characters across all files
 
-## 📝 Implementation Checklist
+### Phase 3: Multiagent Coordination ❌ TODO
 
-### MVP (Phase 1) - Essential Foundation
+- [ ] Create `/sync` command (moved from git-kit)
+  - [ ] `kits/multiagent/claude/commands/sync.md`
+  - [ ] `kits/multiagent/github/prompts/sync.prompt.md`
+  - [ ] ASCII visualization of parallel work
+  - [ ] Check parallel work protocol
 
-- [ ] **Create `/orient` command markdown**
-  - [ ] `kits/project/claude/commands/orient.md`
-  - [ ] `kits/project/github/prompts/orient.prompt.md`
-  - Content: Read docs, check git state, determine role, output concise summary
-
-- [ ] **Update installer for kit structure**
-  - [ ] Modify `installer.py` to read from `kits/*/` directories
-  - [ ] Implement kit selection (--kit=project,git,multiagent)
-  - [ ] Auto-detect agent interface (Claude vs Copilot)
-  - [ ] Test: Install project-kit to vanilla project
-
-- [ ] **Test MVP workflow**
-  - [ ] Copy vanilla reference to /tmp/test-project
-  - [ ] Run: `lite-kits install -Kit project`
-  - [ ] Verify: `/orient` command appears in correct location
-  - [ ] Test: Run `/orient` in AI agent, verify output
-
-**Success Criteria**: User can install project-kit and run `/orient` command.
-
----
-
-### High Value (Phase 2) - Git Workflow
-
-- [ ] **Create `/commit` command**
-  - [ ] `kits/git/claude/commands/commit.md`
-  - [ ] `kits/git/github/prompts/commit.prompt.md`
-  - Content: Analyze changes, generate conventional commit, add attribution
-
-- [ ] **Create `/pr` command**
-  - [ ] `kits/git/claude/commands/pr.md`
-  - [ ] `kits/git/github/prompts/pr.prompt.md`
-  - Content: Analyze commits, generate PR description, create with `gh`
-
-- [ ] **Test git workflow**
-  - [ ] Make test changes to project
-  - [ ] Run `/commit`, verify smart message generation
-  - [ ] Run `/pr`, verify PR creation
-
-**Success Criteria**: Agent can create attributed commits and PRs.
-
----
-
-### Coordination (Phase 3) - Multiagent Structure
-
-- [ ] **Create collaboration templates**
+- [ ] Create collaboration templates
   - [ ] `kits/multiagent/templates/collaboration-structure/`
-  - [ ] `kits/multiagent/templates/session-log.md`
-  - [ ] `kits/multiagent/templates/handoff.md`
-  - [ ] `kits/multiagent/templates/status.md`
+  - [ ] Session log template
+  - [ ] Handoff document template
+  - [ ] Status update template
 
-- [ ] **Update installer for templates**
+- [ ] Update installer for templates
   - [ ] Copy templates to project on install
   - [ ] Create collaboration/ on feature creation
 
-- [ ] **Test multiagent workflow**
-  - [ ] Create test feature with collaboration structure
-  - [ ] Verify templates are copied correctly
-  - [ ] Test handoff workflow between agents
+- [ ] Test multiagent workflow
+  - [ ] Create feature with collaboration structure
+  - [ ] Verify templates copy correctly
+  - [ ] Test handoff workflow
 
-**Success Criteria**: Feature directories have collaboration structure.
-
----
-
-### Polish (Phase 4) - Remaining Commands
+### Phase 4: Polish & Extras ❌ TODO
 
 - [ ] Create `/review` command (project-kit)
 - [ ] Create `/audit` command (project-kit)
 - [ ] Create `/stats` command (project-kit)
-- [ ] Create `/sync` command (git-kit)
-- [ ] Create `/cleanup` command (git-kit)
+- [ ] Enhance `/cleanup` command (git-kit)
 - [ ] Create enhanced scripts (project-kit)
-- [ ] Implement remove command (core)
 - [ ] Implement smart constitution merge (core)
 
 ---
 
-## 🚀 User Experience Flow
+## 🏗️ Architecture Decisions
 
-### First-Time Setup
-
-```bash
-# User has vanilla spec-kit project
-cd my-vanilla-project
-
-# Install multiagent (includes recommended kits)
-pip install spec-kit-multiagent
-lite-kits install -Recommended -Kit multiagent
-
-# What gets added (new files only):
-# ✅ /orient command
-# ✅ /commit command  
-# ✅ /pr command
-# ✅ PR workflow guide
-# ✅ Git worktrees protocol
-# ✅ Vanilla spec-kit: UNTOUCHED
-```
-
-### Daily Workflow
-
-```bash
-# Morning: Start work
-/orient                    # NEW: Get oriented (project-kit)
-/specify "Add user auth"   # VANILLA: Create spec
-/plan                      # VANILLA: Create plan
-/tasks                     # VANILLA: Break into tasks
-
-# Work: Implement
-/implement                 # VANILLA: Execute tasks
-
-# Git: Commit work
-/commit                    # NEW: Smart commit (git-kit)
-
-# Review: Check quality
-/review                    # NEW: Code review (project-kit)
-
-# Ship: Create PR
-/pr                        # NEW: Create PR (git-kit)
-```
-
-### Multi-Agent Workflow
-
-```bash
-# Agent 1: Create feature and handoff
-/orient
-/specify "Blog platform"
-/plan
-# Creates: specs/003-blog/collaboration/
-# Creates handoff in: collaboration/active/decisions/
-
-# Agent 2: Pick up and continue
-/orient                    # NEW: Shows handoff available
-cd specs/003-blog
-# Read: collaboration/active/decisions/handoff-to-copilot.md
-# Work on assigned tasks
-/commit                    # NEW: Attribution shows it's Agent 2
-```
-
----
-
-## 🎯 Summary: Build Priority
-
-**Critical (Do First)**:
-1. ⭐ `/orient` command (project-kit) - Most essential
-2. ⭐ Installer kit structure (core) - Makes everything work
-3. ⭐ `/commit` command (git-kit) - Agent attribution
-
-**High Value (Do Next)**:
-4. `/pr` command (git-kit)
-5. Collaboration templates (multiagent-kit)
-
-**Nice to Have (Do Later)**:
-6. `/review`, `/audit`, `/stats` (project-kit)
-7. `/sync`, `/cleanup` (git-kit)
-8. Enhanced scripts (project-kit)
-
-**Total Estimated Effort**: 
-- MVP (Phase 1): ~4 hours
-- High Value (Phase 2): ~8 hours
-- Coordination (Phase 3): ~5 hours
-- **Working system**: ~17 hours
-- Polish (Phase 4): +10 hours
-
----
-
-## ✨ Key Architectural Decisions
-
-### ✅ Good Decisions Already Made
+### ✅ Good Decisions Made
 
 1. **Add-on pattern** - Never modify vanilla (version-safe)
-2. **Cross-agent support** - Works with Claude + Copilot
+2. **Cross-agent support** - Works with Claude Code + GitHub Copilot
 3. **Cross-platform** - Supports Bash + PowerShell
 4. **Modular kits** - Install what you need
 5. **Pip-installable** - Easy distribution
 
-### 🎯 Decisions Needed
+### 🤔 Decisions Needed
 
-1. **Template location**: Store in `kits/*/templates/` or separate?
-   - **Recommendation**: Keep in `kits/*/` for modularity
+1. **Kit Boundaries** - What belongs in git-kit vs multiagent-kit?
+   - **Current thinking**:
+     - **git-kit**: Solo agent git workflows (commit, PR, basic cleanup)
+     - **multiagent-kit**: Multi-agent coordination (sync, handoffs, collaboration)
+   - **Question**: Where does `/cleanup` belong? Branch cleanup (solo) vs worktree cleanup (multi)?
 
-2. **Constitution merge**: When to implement smart merge vs manual?
-   - **Recommendation**: Phase 4, not critical for MVP
+2. **`/sync` Command** - Solo or multi-agent?
+   - **Original design**: Multi-agent sync status with ASCII visualization
+   - **Recommendation**: Move to multiagent-kit (it's for parallel work coordination)
 
-3. **Collaboration auto-creation**: On install or on first `/specify`?
-   - **Recommendation**: On first feature creation (lazy)
+3. **Collaboration Auto-Creation** - When to create structure?
+   - **Options**: On install, on first `/specify`, on explicit command
+   - **Recommendation**: On first feature creation (lazy, only when needed)
 
-4. **Command format**: Use vanilla style or innovate?
-   - **Recommendation**: Match vanilla style for consistency
+### 📝 Architecture Notes
+
+**Kit Structure**:
+```
+kits/
+├── project/          # Solo agent essentials
+│   ├── claude/
+│   │   └── commands/
+│   │       └── orient.md
+│   └── github/
+│       └── prompts/
+│           └── orient.prompt.md
+│
+├── git/              # Solo agent git workflows
+│   ├── claude/
+│   │   └── commands/
+│   │       ├── commit.md
+│   │       └── pr.md
+│   ├── github/
+│   │   └── prompts/
+│   │       ├── commit.prompt.md
+│   │       └── pr.prompt.md
+│   └── scripts/
+│       ├── bash/
+│       │   └── get-git-context.sh
+│       └── powershell/
+│           └── Get-GitContext.ps1
+│
+└── multiagent/       # Multi-agent coordination
+    ├── claude/
+    │   └── commands/
+    │       └── sync.md         # TODO: Move from git-kit
+    ├── github/
+    │   └── prompts/
+    │       └── sync.prompt.md  # TODO: Move from git-kit
+    ├── memory/
+    │   ├── pr-workflow-guide.md
+    │   └── git-worktrees-protocol.md
+    └── templates/      # TODO: Create collaboration templates
+        └── collaboration-structure/
+```
 
 ---
 
-**Current Status**: 
-- Core CLI: ✅ Working
-- Kits: ❌ Empty shells (READMEs only)
-- **Next Step**: Implement `/orient` command + update installer
-- **MVP Blockers**: None - ready to build!
+## 📈 Progress Summary
+
+**Overall**: 60% complete (estimated)
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| **Phase 1: Foundation** | ✅ Complete | 100% |
+| **Phase 2: Git Workflow** | ✅ Mostly Complete | 95% (needs kit boundary decisions) |
+| **Phase 3: Multiagent** | ❌ TODO | 29% (memory docs only) |
+| **Phase 4: Polish** | ❌ TODO | 0% |
+
+**By Kit**:
+- **Core CLI/Installer**: ✅ 100%
+- **Project Kit**: 25% (1/4 commands)
+- **Git Kit**: ✅ 100% (core solo workflows)
+- **Multiagent Kit**: 29% (memory docs, no commands/templates yet)
+
+---
+
+## 🎯 Next Steps
+
+### Immediate Decision Needed
+
+**Rethink kit boundaries** to prioritize solo agent development:
+1. Review current `/sync` design - is it solo or multi-agent?
+2. Decide where `/cleanup` belongs (solo branch cleanup vs multi worktree cleanup)
+3. Move multi-agent specific commands from git-kit to multiagent-kit
+
+### After Decision
+
+**Option A: Continue with git-kit polish** (if `/cleanup` stays in git-kit)
+- Implement `/cleanup` for solo agent branch management
+
+**Option B: Jump to Phase 3 multiagent** (if kit boundaries are clear)
+- Move `/sync` to multiagent-kit
+- Create collaboration templates
+- Implement handoff workflows
+
+**Option C: Complete project-kit** (round out solo agent tools)
+- Implement `/review` command
+- Implement `/audit` command
+- Implement `/stats` command
+
+### Recommendation
+
+**Clarify kit boundaries first**, then prioritize based on user needs:
+- If primarily solo development → Complete project-kit
+- If multi-agent coordination needed → Jump to Phase 3
+- If git workflow polish needed → Add `/cleanup` to git-kit
+
+---
+
+## 📚 Documentation References
+
+- `PHASE-1-AUDIT.md` - Audit of Phase 1 MVP against workflow pathways
+- `WORKFLOW-PATHWAYS.md` - Detailed workflow integration patterns
+- `ARCHITECTURE.md` - Add-on pattern rationale and design decisions
+- `IMPLEMENTATION-GUIDE.md` - Step-by-step build instructions
+
+---
+
+**Status**: Ready for Phase 3 OR project-kit completion (needs decision on priorities)
