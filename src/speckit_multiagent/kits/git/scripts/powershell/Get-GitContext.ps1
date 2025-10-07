@@ -36,7 +36,7 @@ param(
     [int]$IncludeCommits = 5,
 
     [Parameter()]
-    [switch]$IncludeDiff = $true,
+    [switch]$IncludeDiff,
 
     [Parameter()]
     [ValidateSet('Object', 'Json', 'Text')]
