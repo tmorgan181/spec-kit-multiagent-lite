@@ -224,7 +224,7 @@ description: Agent orientation protocol
 
    **Installed Kits**: project, git
 
-   **I am**: Claude Code (Primary)
+   **I am**: claude-sonnet-4.5 @ Claude Code (Primary)
    **Project**: [from copilot-instructions.md]
    **Stack**: [from copilot-instructions.md]
    **Branch**: dev/001-starter-kits

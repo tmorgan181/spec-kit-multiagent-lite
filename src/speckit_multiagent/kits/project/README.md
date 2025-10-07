@@ -78,7 +78,7 @@ your-project/
 
 ## Orientation Complete - Primary Agent
 
-**I am**: Claude Code (Primary)
+**I am**: claude-sonnet-4.5 @ Claude Code (Primary)
 
 **Project**: Pip-installable add-on for spec-kit
 

@@ -35,8 +35,10 @@ MULTIAGENT_KIT=false
 Identify which agent you are and your role:
 
 ```bash
-# You are Claude Code (primary implementation agent)
-AGENT_ROLE="Claude Code (Primary)"
+# Detect model and interface
+MODEL="claude-sonnet-4.5"  # Default Claude model, adjust based on actual model used
+INTERFACE="Claude Code"
+AGENT_ROLE="$MODEL @ $INTERFACE (Primary)"
 ```
 
 ### 3. Read Primary Documentation
@@ -108,7 +110,7 @@ Provide a **concise summary** (~150 words max) in this format:
 
 **Installed Kits**: [list detected kits or "vanilla only"]
 
-**I am**: Claude Code (Primary)
+**I am**: [AGENT_ROLE from step 2]
 **Project**: [project name from docs]
 **Stack**: [main technologies]
 **Branch**: [current branch]
@@ -148,7 +150,7 @@ Based on the state you discovered, suggest the next logical action:
 
 **Installed Kits**: project, git
 
-**I am**: Claude Code (Primary)
+**I am**: claude-sonnet-4.5 @ Claude Code (Primary)
 **Project**: Blog Platform API (TypeScript/Node.js)
 **Stack**: Node.js, Express, PostgreSQL, TypeScript
 **Branch**: dev/003-user-authentication

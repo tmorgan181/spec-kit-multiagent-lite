@@ -311,14 +311,91 @@ class Installer:
         Returns:
             Dictionary with success status and removed items
         """
-        # TODO: Implement removal logic
-        # - Remove orient commands
-        # - Remove memory guides
-        # - Remove multiagent sections from constitution
-        # - Preserve collaboration directories (user data)
         result = {
             "success": False,
             "removed": [],
-            "error": "Not yet implemented",
+            "error": None,
         }
+
+        try:
+            # Remove project kit files
+            if 'project' in self.kits:
+                removed = []
+                # Claude
+                orient_claude = self.target_dir / ".claude" / "commands" / "orient.md"
+                if orient_claude.exists():
+                    orient_claude.unlink()
+                    removed.append(".claude/commands/orient.md")
+
+                # Copilot
+                orient_copilot = self.target_dir / ".github" / "prompts" / "orient.prompt.md"
+                if orient_copilot.exists():
+                    orient_copilot.unlink()
+                    removed.append(".github/prompts/orient.prompt.md")
+
+                if removed:
+                    result["removed"].append(f"project-kit: {', '.join(removed)}")
+
+            # Remove git kit files
+            if 'git' in self.kits:
+                removed = []
+                git_commands = ['commit', 'pr', 'sync']
+
+                # Claude
+                for cmd in git_commands:
+                    cmd_file = self.target_dir / ".claude" / "commands" / f"{cmd}.md"
+                    if cmd_file.exists():
+                        cmd_file.unlink()
+                        removed.append(f".claude/commands/{cmd}.md")
+
+                # Copilot
+                for cmd in git_commands:
+                    cmd_file = self.target_dir / ".github" / "prompts" / f"{cmd}.prompt.md"
+                    if cmd_file.exists():
+                        cmd_file.unlink()
+                        removed.append(f".github/prompts/{cmd}.prompt.md")
+
+                if removed:
+                    result["removed"].append(f"git-kit: {', '.join(removed)}")
+
+            # Remove multiagent kit files
+            if 'multiagent' in self.kits:
+                removed = []
+
+                # Memory guides
+                memory_files = [
+                    'pr-workflow-guide.md',
+                    'git-worktrees-protocol.md',
+                    'parallel-work-protocol.md',
+                ]
+                for file in memory_files:
+                    file_path = self.target_dir / ".specify" / "memory" / file
+                    if file_path.exists():
+                        file_path.unlink()
+                        removed.append(f".specify/memory/{file}")
+
+                # Templates
+                template_files = [
+                    'session-log.md',
+                    'handoff.md',
+                    'decision.md',
+                    'collaboration-README.md',
+                ]
+                for file in template_files:
+                    file_path = self.target_dir / ".specify" / "templates" / file
+                    if file_path.exists():
+                        file_path.unlink()
+                        removed.append(f".specify/templates/{file}")
+
+                if removed:
+                    result["removed"].append(f"multiagent-kit: {', '.join(removed)}")
+
+            # Note: Preserve collaboration directories (user data)
+            # Note: Preserve vanilla spec-kit files
+
+            result["success"] = True
+
+        except Exception as e:
+            result["error"] = str(e)
+
         return result

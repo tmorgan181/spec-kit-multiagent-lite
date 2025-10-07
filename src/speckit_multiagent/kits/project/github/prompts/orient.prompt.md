@@ -35,8 +35,10 @@ if (Test-Path .specify/memory/pr-workflow-guide.md) { $MULTIAGENT_KIT = $true }
 Identify which agent you are and your role:
 
 ```powershell
-# You are GitHub Copilot CLI (specialist implementation agent)
-$AGENT_ROLE = "GitHub Copilot CLI (Specialist)"
+# Detect model and interface
+$MODEL = "Grok Code Fast 1"  # Default Grok model for GitHub Copilot, adjust based on actual model used
+$INTERFACE = "GitHub Copilot"
+$AGENT_ROLE = "$MODEL @ $INTERFACE (Specialist)"
 ```
 
 ### 3. Read Primary Documentation
@@ -108,7 +110,7 @@ Provide a **concise summary** (~150 words max) in this format:
 
 **Installed Kits**: [list detected kits or "vanilla only"]
 
-**I am**: GitHub Copilot CLI (Specialist)
+**I am**: [$AGENT_ROLE from step 2]
 **Project**: [project name from docs]
 **Stack**: [main technologies]
 **Branch**: [current branch]
@@ -148,7 +150,7 @@ Based on the state you discovered, suggest the next logical action:
 
 **Installed Kits**: project, git
 
-**I am**: GitHub Copilot CLI (Specialist)
+**I am**: Grok Code Fast 1 @ GitHub Copilot (Specialist)
 **Project**: Blog Platform API (TypeScript/Node.js)
 **Stack**: Node.js, Express, PostgreSQL, TypeScript
 **Branch**: dev/003-user-authentication

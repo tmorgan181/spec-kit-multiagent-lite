@@ -111,7 +111,7 @@ speckit-ma add --here             # Install
 Agent will:
 - Read project documentation
 - Check git state
-- Determine its role
+- Determine its role and model
 - Summarize next actions
 
 ### 3. Start coordinating
