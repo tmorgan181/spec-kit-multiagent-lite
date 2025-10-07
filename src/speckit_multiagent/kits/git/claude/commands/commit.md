@@ -10,23 +10,57 @@ description: Smart commit with agent attribution
 
 Execute the following steps to create a smart commit:
 
-### 1. Check for Staged Changes
+### 1. Validate Full Git Status
+
+**CRITICAL**: Always check the complete git status before committing to avoid missing files!
 
 ```bash
-# Check what's staged
+# Get complete status - staged, unstaged, and untracked
 git status --short
+```
 
-# Show staged diff
-git diff --staged
+**Analyze the output**:
+- Lines starting with `M ` or `A ` = Staged files (ready to commit)
+- Lines starting with ` M` = Modified but NOT staged
+- Lines starting with `??` = Untracked files
+- Lines starting with `MM` = Staged AND modified again
 
-# If nothing staged, show unstaged changes
-git diff --short
+**Auto-stage related files**:
+If you see unstaged changes that are clearly related to staged changes, automatically stage them:
+
+```bash
+# Example logic:
+# - If committing src/foo.py and tests/test_foo.py is unstaged → stage it
+# - If committing .claude/commands/X.md and src/kits/.../X.md is unstaged → stage it
+# - If committing any file and its test is unstaged → stage it
+
+git add <related-files>
+```
+
+**Alert user to unstaged changes**:
+If there are unstaged or untracked files that might be related:
+```
+WARNING: Found unstaged/untracked files that might be related:
+  M  src/related_file.py
+  ?? new_file.py
+
+Do you want to:
+  1. Stage ALL changes and include in this commit (git add .)
+  2. Stage specific files (specify which)
+  3. Continue with only currently staged files
+  4. Cancel and let me stage manually
 ```
 
 **If nothing is staged**:
-- Ask user if they want to stage all changes: `git add .`
-- Or ask which files to stage
-- Or exit with message: "No changes staged. Run `git add <files>` first."
+```
+No changes staged for commit.
+
+Unstaged changes found:
+  M  src/file1.py
+  M  src/file2.py
+
+Do you want to stage all changes? (y/n)
+```
 
 ### 2. Analyze Changes
 
@@ -50,69 +84,155 @@ Examine the staged changes to determine:
 - 1-2 sentences describing what changed
 - Focus on the "what" and "why", not the "how"
 
-### 3. Generate Commit Message
+### 3. Detect Feature Number
 
-Create a conventional commit message with agent attribution:
+**Check for feature number in order of priority**:
+
+1. **From branch name** (highest priority):
+```bash
+# Get current branch
+git branch --show-current
+
+# Extract feature number from patterns like:
+# - dev/001-feature-name → 001
+# - feature/002-auth → 002
+# - 003-bugfix → 003
+```
+
+2. **From specs directory** (if branch has no number):
+```bash
+# Look for specs directory with feature number
+ls specs/*/spec.md 2>/dev/null | head -1
+
+# Extract from pattern: specs/NNN-feature-name/spec.md → NNN
+```
+
+3. **Use component name** (fallback):
+- If no feature number found anywhere, use component/scope name
+- Examples: `cli`, `installer`, `git`, `multiagent`
+
+**Feature Number Format**:
+- Must be 3 digits: `001`, `002`, `042`, etc.
+- Branch pattern: `dev/NNN-*`, `feature/NNN-*`, `NNN-*`
+- Specs pattern: `specs/NNN-*`
+
+### 4. Generate Commit Message
+
+Create a beautiful, structured commit message with feature number and agent attribution:
 
 ```
-<type>(<scope>): <subject>
+<type>(NNN): <subject>
 
-<body>
+## Summary
+<Brief 1-2 sentence overview with enthusiasm>
 
-via <model> @ <agent>
+## Changes
+- **<file/component>**:
+  - <specific change>
+  - <specific change>
+
+- **<file/component>**:
+  - <specific change>
+
+## <Additional Section if Relevant>
+<Context, impacts, visual improvements, etc.>
+
+---
+🤖 Co-authored with claude sonnet 4.5 @ claude code via vscode
 ```
 
 **Format Rules**:
-- Subject: Max 72 chars, imperative mood ("Add" not "Added")
-- Body: Optional, wrap at 72 chars, explain context
-- Attribution: `via <model> @ <agent>` on last line
+- Subject: `feat(NNN):` format with feature number
+- Use feature number if available, otherwise component name
+- Summary: 1-2 sentences, be enthusiastic but genuine
+- Changes: Bulleted list grouped by file/component
+- Use markdown bold for file names
+- Add emoji where appropriate (sparingly)
+- Keep professional but friendly tone
+- Attribution: Claude Code standard footer
 
 **Examples**:
 
 ```
-feat(auth): Add JWT-based authentication
+feat(002): add beautiful colorful pytest output with pytest-sugar
 
-Implements token generation, validation, and refresh logic.
-Adds middleware for protected routes.
+## Summary
+Added pytest-sugar for gorgeous colorful test output with progress bars
+and instant failure reporting. MOAR GREEN! 🎉
 
-via claude-sonnet-4.5 @ claude-code
+## Changes
+- **pyproject.toml**:
+  - Added pytest-sugar dependency for beautiful output
+  - Configured pytest with --color=yes and markers
+  - Added -ra flag for summary of all outcomes
+
+- **quick-start.ps1**:
+  - Simplified pytest args to let pytest-sugar shine
+  - Verbose mode: -v flag shows test names
+  - Default mode: pytest-sugar progress bar (no -q)
+
+## Visual Improvements
+- ✨ Beautiful progress bar during test execution
+- 🟢 Green PASSED markers with percentages
+- 🟡 Yellow SKIPPED with clear reasons
+- 🔴 Red FAILED with instant feedback
+- 📊 Colored summary statistics
+
+---
+🤖 Co-authored with claude sonnet 4.5 @ claude code via vscode
 ```
 
 ```
-fix(api): Handle null values in user profile endpoint
+fix(003): handle null values in user profile endpoint
 
-Fixes TypeError when optional fields are missing.
-Adds null checks and default values.
+## Summary
+Fixed TypeError when optional profile fields are missing. Now handles
+null values gracefully with sensible defaults.
 
-via gpt-4 @ github-copilot-cli
+## Changes
+- **src/api/users.py**:
+  - Added null checks for optional fields
+  - Set default empty strings for missing values
+  - Added validation before JSON serialization
+
+- **tests/test_users.py**:
+  - Added test cases for null profile fields
+  - Verified default value behavior
+
+---
+🤖 Co-authored with claude sonnet 4.5 @ claude code via vscode
 ```
 
 ```
-docs: Update installation instructions
+docs(installer): update installation instructions
 
-Clarifies Python version requirement and adds troubleshooting section.
+## Summary
+Clarified Python version requirement and added comprehensive
+troubleshooting section for common installation issues.
 
-via claude-sonnet-4.5 @ claude-code
+## Changes
+- **README.md**:
+  - Added Python 3.8+ requirement
+  - Added pip install examples
+  - Linked to troubleshooting guide
+
+- **docs/TROUBLESHOOTING.md**:
+  - Added Windows-specific issues
+  - Added virtual environment setup
+  - Added common error solutions
+
+---
+🤖 Co-authored with claude sonnet 4.5 @ claude code via vscode
 ```
-
-### 4. Determine Agent Model
-
-**For Claude Code**:
-- Model: `claude-sonnet-4.5` (or current model)
-- Agent: `claude-code`
-
-**For GitHub Copilot CLI**:
-- Model: `gpt-4` (or current model)
-- Agent: `github-copilot-cli`
 
 ### 5. Present Commit Message
 
 Show the generated message to the user:
 
 ```
-═══════════════════════════════════════════════════════════
+===============================================================
 Suggested Commit Message:
-═══════════════════════════════════════════════════════════
+===============================================================
 
 feat(git): Add smart commit with agent attribution
 
@@ -121,12 +241,12 @@ attribution for multi-agent tracking.
 
 via claude-sonnet-4.5 @ claude-code
 
-═══════════════════════════════════════════════════════════
+===============================================================
 Staged files (3):
   M src/speckit_multiagent/cli.py
   M src/speckit_multiagent/installer.py
   A src/speckit_multiagent/kits/git/claude/commands/commit.md
-═══════════════════════════════════════════════════════════
+===============================================================
 ```
 
 ### 6. Confirm and Execute
@@ -216,7 +336,7 @@ $ git commit -m "..."
 [dev/001-starter-kits 53dd4ef] feat(git): Add smart commit...
  3 files changed, 142 insertions(+), 5 deletions(-)
 
-✓ Commit created: 53dd4ef
+Commit created: 53dd4ef
 Branch: dev/001-starter-kits
 Next: git push origin dev/001-starter-kits
 ```
