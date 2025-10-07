@@ -12,15 +12,31 @@ from typing import Dict, List, Optional
 class Installer:
     """Manages installation of multiagent features to spec-kit projects."""
 
-    def __init__(self, target_dir: Path):
+    def __init__(self, target_dir: Path, kits: Optional[List[str]] = None):
         """
         Initialize installer.
 
         Args:
             target_dir: Target spec-kit project directory
+            kits: List of kits to install (project, git, multiagent). Defaults to ['project']
         """
         self.target_dir = Path(target_dir).resolve()
-        self.templates_dir = Path(__file__).parent / "templates"
+        self.kits_dir = Path(__file__).parent / "kits"
+        self.kits = kits or ['project']  # Default to project kit only
+
+        # Validate kit names
+        valid_kits = {'project', 'git', 'multiagent'}
+        invalid = set(self.kits) - valid_kits
+        if invalid:
+            raise ValueError(f"Invalid kit(s): {invalid}. Valid: {valid_kits}")
+
+        # Auto-include dependencies
+        # multiagent requires both project and git
+        if 'multiagent' in self.kits:
+            if 'project' not in self.kits:
+                self.kits.append('project')
+            if 'git' not in self.kits:
+                self.kits.append('git')
 
     def is_spec_kit_project(self) -> bool:
         """
@@ -43,11 +59,27 @@ class Installer:
         Returns:
             True if multiagent features detected
         """
-        # Check for orient command in either Claude or GitHub Copilot location
-        claude_orient = self.target_dir / ".claude" / "commands" / "orient.md"
-        copilot_orient = self.target_dir / ".github" / "prompts" / "orient.prompt.md"
+        # Check for kit markers
+        markers = {
+            'project': [
+                self.target_dir / ".claude" / "commands" / "orient.md",
+                self.target_dir / ".github" / "prompts" / "orient.prompt.md",
+            ],
+            'git': [
+                self.target_dir / ".claude" / "commands" / "commit.md",
+                self.target_dir / ".github" / "prompts" / "commit.prompt.md",
+            ],
+            'multiagent': [
+                self.target_dir / ".specify" / "memory" / "pr-workflow-guide.md",
+            ],
+        }
 
-        return claude_orient.exists() or copilot_orient.exists()
+        # Check if any requested kit is already installed
+        for kit in self.kits:
+            if any(marker.exists() for marker in markers.get(kit, [])):
+                return True
+
+        return False
 
     def preview_installation(self) -> Dict[str, List[str]]:
         """
@@ -66,26 +98,29 @@ class Installer:
         has_claude = (self.target_dir / ".claude").exists()
         has_copilot = (self.target_dir / ".github" / "prompts").exists()
 
-        # Orient command
-        if has_claude:
-            changes["new_files"].append(".claude/commands/orient.md")
-        if has_copilot:
-            changes["new_files"].append(".github/prompts/orient.prompt.md")
+        # Project kit files
+        if 'project' in self.kits:
+            if has_claude:
+                changes["new_files"].append(".claude/commands/orient.md")
+            if has_copilot:
+                changes["new_files"].append(".github/prompts/orient.prompt.md")
 
-        # Memory guides
-        if (self.target_dir / ".specify").exists():
+        # Git kit files
+        if 'git' in self.kits:
+            if has_claude:
+                changes["new_files"].append(".claude/commands/commit.md")
+                changes["new_files"].append(".claude/commands/pr.md")
+            if has_copilot:
+                changes["new_files"].append(".github/prompts/commit.prompt.md")
+                changes["new_files"].append(".github/prompts/pr.prompt.md")
+
+        # Multiagent kit files
+        if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
             changes["new_files"].extend([
                 ".specify/memory/pr-workflow-guide.md",
                 ".specify/memory/git-worktrees-protocol.md",
             ])
-
-        # TODO: Check for constitution modifications
-        # if (self.target_dir / ".specify" / "memory" / "constitution.md").exists():
-        #     changes["modified_files"].append(".specify/memory/constitution.md")
-
-        # Collaboration structure (created on first /specify)
-        # Not created during install, just noted
-        changes["new_directories"].append("specs/*/collaboration/ (created with new features)")
+            changes["new_directories"].append("specs/*/collaboration/ (created with new features)")
 
         return changes
 
@@ -111,28 +146,47 @@ class Installer:
                 result["error"] = "No supported AI interface found (.claude or .github/prompts)"
                 return result
 
-            # Install orient command
-            if has_claude:
-                self._install_claude_orient()
-                result["installed"].append("Claude Code: /orient command")
+            # Install project kit
+            if 'project' in self.kits:
+                if has_claude:
+                    self._install_file('project/claude/commands/orient.md', '.claude/commands/orient.md')
+                    result["installed"].append("project-kit (Claude): /orient command")
 
-            if has_copilot:
-                self._install_copilot_orient()
-                result["installed"].append("GitHub Copilot: /orient command")
+                if has_copilot:
+                    self._install_file('project/github/prompts/orient.prompt.md', '.github/prompts/orient.prompt.md')
+                    result["installed"].append("project-kit (Copilot): /orient command")
 
-            # Install memory guides
-            if (self.target_dir / ".specify").exists():
-                self._install_memory_guides()
-                result["installed"].append("Memory: PR workflow guide")
-                result["installed"].append("Memory: Git worktrees protocol")
+            # Install git kit
+            if 'git' in self.kits:
+                if has_claude:
+                    self._install_file('git/claude/commands/commit.md', '.claude/commands/commit.md')
+                    self._install_file('git/claude/commands/pr.md', '.claude/commands/pr.md')
+                    self._install_file('git/claude/commands/sync.md', '.claude/commands/sync.md')
+                    result["installed"].append("git-kit (Claude): /commit, /pr, /sync commands")
 
-            # TODO: Merge constitution
-            # self._merge_constitution()
-            # result["installed"].append("Constitution: Multiagent sections")
+                if has_copilot:
+                    self._install_file('git/github/prompts/commit.prompt.md', '.github/prompts/commit.prompt.md')
+                    self._install_file('git/github/prompts/pr.prompt.md', '.github/prompts/pr.prompt.md')
+                    self._install_file('git/github/prompts/sync.prompt.md', '.github/prompts/sync.prompt.md')
+                    result["installed"].append("git-kit (Copilot): /commit, /pr, /sync commands")
 
-            # TODO: Create collaboration structure template
-            # self._install_collaboration_template()
-            # result["installed"].append("Templates: Collaboration directory structure")
+            # Install multiagent kit
+            if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
+                # Memory guides
+                self._install_file('multiagent/memory/pr-workflow-guide.md', '.specify/memory/pr-workflow-guide.md')
+                self._install_file('multiagent/memory/git-worktrees-protocol.md', '.specify/memory/git-worktrees-protocol.md')
+                self._install_file('multiagent/memory/parallel-work-protocol.md', '.specify/memory/parallel-work-protocol.md')
+
+                # Templates
+                templates_dir = self.target_dir / ".specify" / "templates"
+                templates_dir.mkdir(parents=True, exist_ok=True)
+                self._install_file('multiagent/templates/session-log.md', '.specify/templates/session-log.md')
+                self._install_file('multiagent/templates/handoff.md', '.specify/templates/handoff.md')
+                self._install_file('multiagent/templates/decision.md', '.specify/templates/decision.md')
+                self._install_file('multiagent/templates/collaboration-structure/README.md', '.specify/templates/collaboration-README.md')
+
+                result["installed"].append("multiagent-kit: Memory guides (PR workflow, git worktrees, parallel work)")
+                result["installed"].append("multiagent-kit: Templates (session-log, handoff, decision, collaboration)")
 
             result["success"] = True
 
@@ -198,36 +252,22 @@ class Installer:
 
     # Private installation methods
 
-    def _install_claude_orient(self):
-        """Install orient command for Claude Code."""
-        source = self.templates_dir / "commands" / "orient.md"
-        target = self.target_dir / ".claude" / "commands" / "orient.md"
+    def _install_file(self, kit_relative_path: str, target_relative_path: str):
+        """
+        Install a file from kits directory to target project.
+
+        Args:
+            kit_relative_path: Path relative to kits/ directory (e.g., 'project/claude/commands/orient.md')
+            target_relative_path: Path relative to target directory (e.g., '.claude/commands/orient.md')
+        """
+        source = self.kits_dir / kit_relative_path
+        target = self.target_dir / target_relative_path
+
+        if not source.exists():
+            raise FileNotFoundError(f"Kit file not found: {source}")
 
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
-
-    def _install_copilot_orient(self):
-        """Install orient command for GitHub Copilot."""
-        source = self.templates_dir / "commands" / "orient.md"
-        target = self.target_dir / ".github" / "prompts" / "orient.prompt.md"
-
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
-
-    def _install_memory_guides(self):
-        """Install memory guides (PR workflow, git worktrees)."""
-        memory_dir = self.target_dir / ".specify" / "memory"
-        memory_dir.mkdir(parents=True, exist_ok=True)
-
-        guides = [
-            "pr-workflow-guide.md",
-            "git-worktrees-protocol.md",
-        ]
-
-        for guide in guides:
-            source = self.templates_dir / "memory" / guide
-            target = memory_dir / guide
-            shutil.copy2(source, target)
 
     # TODO: Implement these methods
 
@@ -271,14 +311,91 @@ class Installer:
         Returns:
             Dictionary with success status and removed items
         """
-        # TODO: Implement removal logic
-        # - Remove orient commands
-        # - Remove memory guides
-        # - Remove multiagent sections from constitution
-        # - Preserve collaboration directories (user data)
         result = {
             "success": False,
             "removed": [],
-            "error": "Not yet implemented",
+            "error": None,
         }
+
+        try:
+            # Remove project kit files
+            if 'project' in self.kits:
+                removed = []
+                # Claude
+                orient_claude = self.target_dir / ".claude" / "commands" / "orient.md"
+                if orient_claude.exists():
+                    orient_claude.unlink()
+                    removed.append(".claude/commands/orient.md")
+
+                # Copilot
+                orient_copilot = self.target_dir / ".github" / "prompts" / "orient.prompt.md"
+                if orient_copilot.exists():
+                    orient_copilot.unlink()
+                    removed.append(".github/prompts/orient.prompt.md")
+
+                if removed:
+                    result["removed"].append(f"project-kit: {', '.join(removed)}")
+
+            # Remove git kit files
+            if 'git' in self.kits:
+                removed = []
+                git_commands = ['commit', 'pr', 'sync']
+
+                # Claude
+                for cmd in git_commands:
+                    cmd_file = self.target_dir / ".claude" / "commands" / f"{cmd}.md"
+                    if cmd_file.exists():
+                        cmd_file.unlink()
+                        removed.append(f".claude/commands/{cmd}.md")
+
+                # Copilot
+                for cmd in git_commands:
+                    cmd_file = self.target_dir / ".github" / "prompts" / f"{cmd}.prompt.md"
+                    if cmd_file.exists():
+                        cmd_file.unlink()
+                        removed.append(f".github/prompts/{cmd}.prompt.md")
+
+                if removed:
+                    result["removed"].append(f"git-kit: {', '.join(removed)}")
+
+            # Remove multiagent kit files
+            if 'multiagent' in self.kits:
+                removed = []
+
+                # Memory guides
+                memory_files = [
+                    'pr-workflow-guide.md',
+                    'git-worktrees-protocol.md',
+                    'parallel-work-protocol.md',
+                ]
+                for file in memory_files:
+                    file_path = self.target_dir / ".specify" / "memory" / file
+                    if file_path.exists():
+                        file_path.unlink()
+                        removed.append(f".specify/memory/{file}")
+
+                # Templates
+                template_files = [
+                    'session-log.md',
+                    'handoff.md',
+                    'decision.md',
+                    'collaboration-README.md',
+                ]
+                for file in template_files:
+                    file_path = self.target_dir / ".specify" / "templates" / file
+                    if file_path.exists():
+                        file_path.unlink()
+                        removed.append(f".specify/templates/{file}")
+
+                if removed:
+                    result["removed"].append(f"multiagent-kit: {', '.join(removed)}")
+
+            # Note: Preserve collaboration directories (user data)
+            # Note: Preserve vanilla spec-kit files
+
+            result["success"] = True
+
+        except Exception as e:
+            result["error"] = str(e)
+
         return result

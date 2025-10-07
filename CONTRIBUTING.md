@@ -1,9 +1,5 @@
 # Contributing to spec-kit-multiagent
 
-🚧 **Status**: Coming Soon
-
-Thank you for your interest in contributing!
-
 ## Quick Start
 
 ```bash
@@ -11,14 +7,15 @@ Thank you for your interest in contributing!
 git clone https://github.com/yourusername/spec-kit-multiagent-lite.git
 cd spec-kit-multiagent-lite
 
-# Install in development mode
+# Install dev mode
 pip install -e ".[dev]"
 
 # Make changes
 # ...
 
-# Run tests (when available)
-pytest
+# Test locally
+cd /tmp/test-vanilla-project
+speckit-ma install --kit=project
 
 # Submit PR
 ```
@@ -26,59 +23,112 @@ pytest
 ## What to Contribute
 
 ### High Priority
-- [ ] **Tests**: Unit tests for installer.py and cli.py
-- [ ] **Examples**: Complete minimal-todo-app and blog-with-auth
-- [ ] **Templates**: Collaboration directory templates
-- [ ] **Smart merge**: Constitution merge logic
+- [ ] Commands in empty kit directories
+- [ ] Tests for installer and CLI
+- [ ] Example project completions
+- [ ] Bug fixes
 
 ### Medium Priority
-- [ ] **Session helpers**: CLI for session management
-- [ ] **Agent detection**: Auto-detect Claude/Copilot/Cursor
-- [ ] **Validation**: Enhanced validation checks
-- [ ] **Documentation**: Tutorials, guides
+- [ ] New kit ideas
+- [ ] Documentation improvements
+- [ ] Script enhancements
 
-### Ideas Welcome
-- Better orient command customization
-- Integration with other AI coding tools
-- CI/CD workflows for multiagent projects
-- Dashboard for coordination status
+## Adding a New Command
 
-## Development Guidelines
+### 1. Create Command Files
 
-### Code Style
-- Python: Follow PEP 8, use `ruff` for linting
-- Type hints for all public functions
-- Docstrings (Google style) for modules and functions
-
-### Commit Messages
-Follow conventional commits:
-```
-feat: Add session management CLI
-fix: Resolve path traversal in installer
-docs: Update README with examples
-test: Add installer unit tests
+```bash
+# For both agents (Claude + Copilot)
+kits/YOUR-KIT/claude/commands/YOUR-COMMAND.md
+kits/YOUR-KIT/github/prompts/YOUR-COMMAND.prompt.md
 ```
 
-### Pull Requests
-- Create feature branch from main
-- Include tests if applicable
-- Update README/docs as needed
-- Reference related issues
+### 2. Command Structure
+
+```markdown
+# /your-command
+
+**Purpose**: Brief description
+
+**What it does**:
+1. Step one
+2. Step two
+3. Step three
+
+**Example usage**:
+\`\`\`
+/your-command
+
+[Example output]
+\`\`\`
+
+**When to use**: Clear use case
+```
+
+### 3. Update Kit README
+
+Add command to kit's README.md status table.
+
+### 4. Test Installation
+
+```bash
+# Test on vanilla project
+speckit-ma install --kit=YOUR-KIT
+ls .claude/commands/YOUR-COMMAND.md  # Verify installed
+```
+
+## Kit Design Principles
+
+### ✅ DO
+- Add new files only
+- Support both Claude + Copilot
+- Support both Bash + PowerShell
+- Keep commands simple
+- Write for users, not developers
+
+### ❌ DON'T
+- Modify vanilla spec-kit files
+- Add runtime dependencies
+- Create tight coupling between kits
+- Assume specific project structures
 
 ## Testing
 
-TODO: Add test guidelines once test suite exists
-
 ```bash
+# Run tests (when available)
 pytest
 pytest --cov=src/speckit_multiagent
+
+# Manual testing
+cp -r docs/vanilla-reference/claude-code-vanilla /tmp/test
+cd /tmp/test
+speckit-ma install --recommended
+# Verify files created correctly
 ```
+
+## Commit Messages
+
+Follow conventional commits:
+```
+feat(kit-name): Add /your-command
+fix(installer): Resolve path issue
+docs: Update README examples
+test: Add installer tests
+```
+
+## Pull Request Process
+
+1. Create feature branch from `main`
+2. Keep changes focused and minimal
+3. Update relevant documentation
+4. Reference related issues
+5. Request review
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/yourusername/spec-kit-multiagent-lite/discussions)
-- File an [Issue](https://github.com/yourusername/spec-kit-multiagent-lite/issues)
+- [Discussions](https://github.com/tmorgan181/spec-kit-multiagent-lite/discussions)
+- [Issues](https://github.com/tmorgan181/spec-kit-multiagent-lite/issues)
 
 ## License
 
-By contributing, you agree your contributions will be licensed under the MIT License.
+MIT - Your contributions will be licensed under MIT.
