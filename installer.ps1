@@ -200,9 +200,9 @@ function Invoke-LiteKitsInstall {
         return
     }
 
-    if ($PSCmdlet.ShouldProcess("Install Spec-Kit kits", "Run: python -m src.speckit_multiagent.cli $($cliArgs -join ' ')")) {
+    if ($PSCmdlet.ShouldProcess("Install Spec-Kit kits", "Run: lite-kits $($cliArgs -join ' ')")) {
         Write-Host ""
-        & python -m src.speckit_multiagent.cli @cliArgs 2>&1 | Out-Host
+        & lite-kits @cliArgs 2>&1 | Out-Host
 
         if ($LASTEXITCODE -eq 0) {
             Write-Host ""
@@ -260,9 +260,9 @@ function Invoke-LiteKitsRemove {
         return
     }
 
-    if ($Force -or $PSCmdlet.ShouldProcess("Remove Spec-Kit kits", "Run: python -m src.speckit_multiagent.cli $($cliArgs -join ' ')")) {
+    if ($Force -or $PSCmdlet.ShouldProcess("Remove Spec-Kit kits", "Run: lite-kits $($cliArgs -join ' ')")) {
         Write-Host ""
-        & python -m src.speckit_multiagent.cli @cliArgs 2>&1 | Out-Host
+        & lite-kits @cliArgs 2>&1 | Out-Host
 
         if ($LASTEXITCODE -eq 0) {
             Write-Host ""
