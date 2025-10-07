@@ -48,32 +48,125 @@ Then try /pr again.
 
 ### 2. Determine Base Branch
 
-**Default to `develop` branch**, then ask user for confirmation:
+**Enhanced base branch detection with remote-first priority**:
 
 ```bash
-# Try to find base branches in priority order (develop first!)
+# Step 1: Find base branch that exists on REMOTE (preferred)
 for base in develop main master; do
-  if git show-ref --verify --quiet refs/heads/$base; then
-    BASE_BRANCH=$base
+  if git ls-remote --heads origin "$base" | grep -q "$base"; then
+    BASE_BRANCH_REMOTE=$base
     break
   fi
 done
+
+# Step 2: If no remote base found, check LOCAL branches
+if [ -z "$BASE_BRANCH_REMOTE" ]; then
+  for base in develop main master; do
+    if git show-ref --verify --quiet refs/heads/$base; then
+      BASE_BRANCH_LOCAL=$base
+      break
+    fi
+  done
+fi
 ```
 
-**Ask user to confirm**:
-```
-Creating PR to merge into: develop
+**Present options to user**:
 
-Is this correct?
-  y - Yes, use develop
-  m - Use main instead
-  c - Use custom branch (specify name)
-  n - Cancel
-```
+```bash
+if [ -n "$BASE_BRANCH_REMOTE" ]; then
+  echo "Detected base branches:"
+  echo "  Remote: $BASE_BRANCH_REMOTE (exists on origin)"
+  if [ -n "$BASE_BRANCH_LOCAL" ] && [ "$BASE_BRANCH_LOCAL" != "$BASE_BRANCH_REMOTE" ]; then
+    echo "  Local:  $BASE_BRANCH_LOCAL (not pushed to remote)"
+  fi
+  echo ""
+  echo "Creating PR requires a remote base branch."
+  echo ""
+  echo "Options:"
+  echo "  1. Use existing remote: $BASE_BRANCH_REMOTE"
+  if [ "$BASE_BRANCH_REMOTE" = "main" ]; then
+    echo "     ⚠️  WARNING: This will PR into your default/production branch"
+  fi
+  echo "  2. Use custom branch (specify name)"
+  echo "  3. Cancel"
+  echo ""
+  read -p "Your choice (1-3): " -n 1 -r
+  echo ""
+  
+  case $REPLY in
+    1)
+      BASE_BRANCH=$BASE_BRANCH_REMOTE
+      if [ "$BASE_BRANCH" = "main" ]; then
+        echo "⚠️  WARNING: You're about to create a PR into 'main'"
+        echo ""
+        echo "This is your default/production branch. Are you sure?"
+        echo ""
+        echo "  y - Yes, PR into main (use sparingly!)"
+        echo "  n - Cancel"
+        echo ""
+        read -p "Confirm (y/n): " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+          echo "PR creation cancelled."
+          exit 0
+        fi
+      fi
+      ;;
+    2)
+      read -p "Enter base branch name: " BASE_BRANCH
+      # Check if it exists on remote
+      if ! git ls-remote --heads origin "$BASE_BRANCH" | grep -q "$BASE_BRANCH"; then
+        echo "Branch '$BASE_BRANCH' doesn't exist on remote."
+        echo "Create it? (y/n)"
+        read -p "" -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+          git push origin "$BASE_BRANCH"
+          echo "✓ Pushed $BASE_BRANCH to remote"
+        else
+          echo "PR creation cancelled."
+          exit 0
+        fi
+      fi
+      ;;
+    *)
+      echo "PR creation cancelled."
+      exit 0
+      ;;
+  esac
 
-**If user chooses custom**:
-```
-Enter base branch name: _____
+elif [ -n "$BASE_BRANCH_LOCAL" ]; then
+  echo "Detected base branches:"
+  echo "  Local: $BASE_BRANCH_LOCAL (not pushed to remote yet)"
+  echo ""
+  echo "Options:"
+  echo "  1. Push $BASE_BRANCH_LOCAL to remote and use it"
+  echo "  2. Use custom branch (specify name)"
+  echo "  3. Cancel"
+  echo ""
+  read -p "Your choice (1-3): " -n 1 -r
+  echo ""
+  
+  case $REPLY in
+    1)
+      git push -u origin "$BASE_BRANCH_LOCAL"
+      echo "✓ Pushed $BASE_BRANCH_LOCAL to origin"
+      BASE_BRANCH=$BASE_BRANCH_LOCAL
+      ;;
+    2)
+      read -p "Enter base branch name: " BASE_BRANCH
+      ;;
+    *)
+      echo "PR creation cancelled."
+      exit 0
+      ;;
+  esac
+
+else
+  echo "No base branches found (develop, main, or master)."
+  echo ""
+  read -p "Enter base branch name: " BASE_BRANCH
+fi
 ```
 
 ### 3. Analyze Commits Since Base Branch
@@ -234,19 +327,29 @@ gh pr create \
   --body "$PR_DESCRIPTION"
 ```
 
-**Alternative method if gh CLI not available**:
-```
-Open PR manually:
-https://github.com/[owner]/[repo]/compare/[base]...[head]
-
-Use the generated description above.
-```
-
 ### 9. Post-Creation Actions
 
 After PR is created:
 
 ```bash
+# Get PR number
+PR_NUM=$(gh pr view --json number -q .number)
+
+echo "✓ Pull Request created: #$PR_NUM"
+echo ""
+
+# Ask about branch auto-delete
+echo "Delete branch after merge? (y/n/later)"
+read -r DELETE_CHOICE
+
+if [ "$DELETE_CHOICE" = "y" ]; then
+  gh pr edit $PR_NUM --delete-branch
+  echo "✓ Branch will be auto-deleted after merge"
+elif [ "$DELETE_CHOICE" = "later" ]; then
+  echo "You can enable this later with:"
+  echo "  gh pr edit $PR_NUM --delete-branch"
+fi
+
 # Get PR URL
 PR_URL=$(gh pr view --json url -q .url)
 
