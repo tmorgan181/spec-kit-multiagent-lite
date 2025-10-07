@@ -156,26 +156,37 @@ class Installer:
                     self._install_file('project/github/prompts/orient.prompt.md', '.github/prompts/orient.prompt.md')
                     result["installed"].append("project-kit (Copilot): /orient command")
 
-            # Install git kit (not implemented yet, but structure ready)
+            # Install git kit
             if 'git' in self.kits:
-                # TODO: Implement git kit installation when files are ready
-                # if has_claude:
-                #     self._install_file('git/claude/commands/commit.md', '.claude/commands/commit.md')
-                #     self._install_file('git/claude/commands/pr.md', '.claude/commands/pr.md')
-                #     result["installed"].append("git-kit (Claude): /commit, /pr commands")
-                #
-                # if has_copilot:
-                #     self._install_file('git/github/prompts/commit.prompt.md', '.github/prompts/commit.prompt.md')
-                #     self._install_file('git/github/prompts/pr.prompt.md', '.github/prompts/pr.prompt.md')
-                #     result["installed"].append("git-kit (Copilot): /commit, /pr commands")
-                result["installed"].append("git-kit: (files not yet implemented)")
+                if has_claude:
+                    self._install_file('git/claude/commands/commit.md', '.claude/commands/commit.md')
+                    self._install_file('git/claude/commands/pr.md', '.claude/commands/pr.md')
+                    self._install_file('git/claude/commands/sync.md', '.claude/commands/sync.md')
+                    result["installed"].append("git-kit (Claude): /commit, /pr, /sync commands")
+
+                if has_copilot:
+                    self._install_file('git/github/prompts/commit.prompt.md', '.github/prompts/commit.prompt.md')
+                    self._install_file('git/github/prompts/pr.prompt.md', '.github/prompts/pr.prompt.md')
+                    self._install_file('git/github/prompts/sync.prompt.md', '.github/prompts/sync.prompt.md')
+                    result["installed"].append("git-kit (Copilot): /commit, /pr, /sync commands")
 
             # Install multiagent kit
             if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
+                # Memory guides
                 self._install_file('multiagent/memory/pr-workflow-guide.md', '.specify/memory/pr-workflow-guide.md')
                 self._install_file('multiagent/memory/git-worktrees-protocol.md', '.specify/memory/git-worktrees-protocol.md')
-                result["installed"].append("multiagent-kit: PR workflow guide")
-                result["installed"].append("multiagent-kit: Git worktrees protocol")
+                self._install_file('multiagent/memory/parallel-work-protocol.md', '.specify/memory/parallel-work-protocol.md')
+
+                # Templates
+                templates_dir = self.target_dir / ".specify" / "templates"
+                templates_dir.mkdir(parents=True, exist_ok=True)
+                self._install_file('multiagent/templates/session-log.md', '.specify/templates/session-log.md')
+                self._install_file('multiagent/templates/handoff.md', '.specify/templates/handoff.md')
+                self._install_file('multiagent/templates/decision.md', '.specify/templates/decision.md')
+                self._install_file('multiagent/templates/collaboration-structure/README.md', '.specify/templates/collaboration-README.md')
+
+                result["installed"].append("multiagent-kit: Memory guides (PR workflow, git worktrees, parallel work)")
+                result["installed"].append("multiagent-kit: Templates (session-log, handoff, decision, collaboration)")
 
             result["success"] = True
 
