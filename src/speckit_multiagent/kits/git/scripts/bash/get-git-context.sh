@@ -99,7 +99,7 @@ BEHIND=0
 
 if [[ -n "$TRACKING" ]]; then
     # Get ahead/behind counts
-    AHEAD_BEHIND=$(git rev-list --left-right --count HEAD..."$TRACKING" 2>/dev/null || echo "0 0")
+    AHEAD_BEHIND=$(git rev-list --left-right --count "$TRACKING"..HEAD 2>/dev/null || echo "0 0")
     AHEAD=$(echo "$AHEAD_BEHIND" | awk '{print $1}')
     BEHIND=$(echo "$AHEAD_BEHIND" | awk '{print $2}')
 fi
