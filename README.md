@@ -103,19 +103,19 @@ pip install -e .
 
 ## Quick Start
 
-### 1. Install kits to your spec-kit project
+### 1. Add kits to your spec-kit project
 
 ```bash
 cd your-spec-kit-project
-lite-kits install -Recommended -WhatIf  # Preview changes
-lite-kits install -Recommended          # Install
+lite-kits add --here --dry-run --recommended  # Preview changes
+lite-kits add --here --recommended            # Add project + git kits
 ```
 
-**What gets installed**:
+**What gets added**:
 - Git workflow commands (`/commit`, `/pr`, `/cleanup`)
 - Project orientation command (`/orient`)
-- Multi-agent coordination tools (`/sync`, collaboration structure)
-- Memory guides (PR workflow, git worktrees protocol)
+- Multi-agent coordination tools (`/sync`, collaboration structure) - optional
+- Memory guides (PR workflow, git worktrees protocol) - optional
 
 ### 2. Use the commands in your AI assistant
 
@@ -144,21 +144,34 @@ lite-kits install -Recommended          # Install
 
 ### CLI Commands
 
+**Kit Management:**
 ```bash
-# Install kits
-lite-kits install -Recommended [--WhatIf]
+# Add kits to a project
+lite-kits add --here --recommended           # Add project + git kits
+lite-kits add --here --kit project           # Add specific kit
+lite-kits add --here --dry-run --recommended # Preview changes
+
+# Check status
+lite-kits status --here                      # Show installed kits
 
 # Validate installation
-lite-kits validate
+lite-kits validate --here                    # Verify kit installation
 
-# Show project status
-lite-kits status
+# Remove kits
+lite-kits remove --here --kit git            # Remove specific kit
+lite-kits remove --here --all                # Remove all kits
+```
 
-# Remove kits (TODO)
-lite-kits remove -All
+**Package Management:**
+```bash
+# Get package info
+lite-kits info                               # Show version, kits, quick start
 
-# Show version
-lite-kits --version
+# Uninstall instructions
+lite-kits uninstall                          # How to remove package
+
+# Version
+lite-kits --version                          # Show version only
 ```
 
 ### Git Workflow Example
@@ -297,26 +310,31 @@ pytest --cov=src/lite_kits
 
 ## Roadmap
 
-### [OK] Phase 1: Foundation (Current - v0.1.0)
-- [x] Package structure
-- [x] Kit-based architecture
+### ✅ Phase 1: Foundation (v0.1.0)
+- [x] Package structure with constants and clean architecture
+- [x] Kit-based modular architecture
 - [x] Git-kit (/commit, /pr, /cleanup)
 - [x] Project-kit (/orient)
 - [x] Multiagent-kit (/sync, collaboration)
 - [x] Cross-platform support (Bash + PowerShell)
+- [x] Windows encoding fixes (ASCII-safe status indicators)
+- [x] CLI with Kit Management and Package Management sections
+- [x] Shell completion disabled (no profile modifications)
+- [x] Proper pip/uv tool installation
 
 ### Phase 2: Polish & Publish (Next - v0.2.0)
-- [ ] Fix Windows encoding issues
-- [ ] Complete documentation rebrand
-- [ ] Add examples
+- [x] Complete CLI rebrand (`install` → `add`, proper flags)
+- [x] Fix installer kit mappings (sync in multiagent, cleanup in git)
+- [ ] Add examples directory with sample projects
 - [ ] PyPI publication
-- [ ] Remove command implementation
+- [ ] Documentation improvements (architecture docs, guides)
 
 ### Phase 3: Expansion (Future - v0.3.0)
 - [ ] Additional kits for other vanilla tools
-- [ ] Template library
-- [ ] Test suite
+- [ ] Template library expansion
+- [ ] Test suite (pytest)
 - [ ] CI/CD automation
+- [ ] Plugin system for custom kits
 
 ## Contributing
 
