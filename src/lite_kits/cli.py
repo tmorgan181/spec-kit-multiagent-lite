@@ -423,7 +423,7 @@ def _display_installation_summary(result: dict):
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print(f"  1. Run: /orient (in your AI assistant)")
     console.print(f"  2. Check: {MARKER_PROJECT_KIT} or .github/prompts/orient.prompt.md")
-    console.print(f"  3. Validate: {APP_NAME} validate --here")
+    console.print(f"  3. Validate: {APP_NAME} validate")
 
 def _display_validation_results(result: dict):
     """Display validation results."""
