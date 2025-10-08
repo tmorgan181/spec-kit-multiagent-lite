@@ -492,7 +492,7 @@ def package_uninstall():
     console.print(f"  [dim]pip uninstall {APP_NAME}[/dim]\n")
 
     console.print("[bold]Note:[/bold] This will remove the package but NOT the kits you've added to projects.")
-    console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --here --all[/cyan]\n")
+    console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --all[/cyan]\n")
 
 @app.command(name="banner", hidden=True)
 def show_banner():
