@@ -65,10 +65,10 @@ git branch --show-current
 git log --oneline -5
 
 # Uncommitted changes
-git status --porcelain -uall
+git status --short
 
-# Changed files count
-(git status --porcelain -uall).Count
+# Untracked files count
+(git ls-files --others --exclude-standard).Count
 ```
 
 ### 5. Check Active Work
@@ -115,7 +115,7 @@ Provide a **concise summary** (~150 words max) in this format:
 **Stack**: [main technologies]
 **Branch**: [current branch]
 **Recent work**: [summary of last 1-2 commits]
-**Uncommitted changes**: [count of changed files]
+**Uncommitted changes**: [count of modified files]
 **Active feature**: [current spec if on feature branch]
 **Coordination**: [solo work / handoff pending / etc]
 
@@ -155,7 +155,7 @@ Based on the state you discovered, suggest the next logical action:
 **Stack**: Node.js, Express, PostgreSQL, TypeScript
 **Branch**: dev/003-user-authentication
 **Recent work**: Added JWT token validation (2 commits today)
-**Uncommitted changes**: 3 changed files
+**Uncommitted changes**: 3 modified files
 **Active feature**: specs/003-user-authentication/ (spec + plan complete)
 **Coordination**: Solo work
 

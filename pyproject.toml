@@ -3,16 +3,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "spec-kit-multiagent"
+name = "lite-kits"
 version = "0.1.0"
-description = "Lightweight multi-agent coordination add-on for GitHub spec-kit"
+description = "Lightweight enhancement kits for vanilla dev tools (spec-kit, etc.)"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "spec-kit-multiagent contributors" }
+    { name = "lite-kits contributors" }
 ]
-keywords = ["spec-kit", "multiagent", "ai", "coordination", "development-workflow"]
+keywords = ["spec-kit", "enhancement", "kits", "ai", "development-workflow", "git"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -36,16 +36,16 @@ dev = [
 ]
 
 [project.scripts]
-lite-kits = "speckit_multiagent.cli:app"
+lite-kits = "lite_kits.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/spec-kit-multiagent-lite"
-Documentation = "https://github.com/yourusername/spec-kit-multiagent-lite#readme"
-Repository = "https://github.com/yourusername/spec-kit-multiagent-lite"
-Issues = "https://github.com/yourusername/spec-kit-multiagent-lite/issues"
+Homepage = "https://github.com/tmorgan181/lite-kits"
+Documentation = "https://github.com/tmorgan181/lite-kits#readme"
+Repository = "https://github.com/tmorgan181/lite-kits"
+Issues = "https://github.com/tmorgan181/lite-kits/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/speckit_multiagent"]
+packages = ["src/lite_kits"]
 
 [tool.hatch.build.targets.sdist]
 include = [

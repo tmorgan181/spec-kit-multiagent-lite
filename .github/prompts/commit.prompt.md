@@ -10,9 +10,9 @@ description: Smart commit with agent attribution
 
 Execute the following steps to create a smart commit:
 
-### 1. Validate Full Git Status
+### 1. Analyze Git Status and Propose Staging Plan
 
-**CRITICAL**: Always check the complete git status before committing to avoid missing files!
+**CRITICAL**: Always analyze the complete git status and propose a staging plan BEFORE staging anything!
 
 ```powershell
 # Get complete status - staged, unstaged, and untracked
@@ -25,44 +25,274 @@ git status --short
 - Lines starting with `??` = Untracked files
 - Lines starting with `MM` = Staged AND modified again
 
-**Auto-stage related files**:
-If you see unstaged changes that are clearly related to staged changes, automatically stage them:
+**Step 1a: Analyze and Present Complete Commit Plan**
 
+**IMPORTANT**: Present BOTH staging plan AND commit message in a single prompt. User can approve both, edit staging, edit message, or cancel.
+
+**Scenario 1: Files already staged**
+```
+**📊 Git Status** (on: dev/001-feature-name)
+
+**Staged:**    2 files
+**Unstaged:**  1 file
+**Untracked:** 1 file
+
+===========================================================
+**📋 Staging Plan:**
+===========================================================
+
+Files to commit:
+1. M  src/file1.py
+2. M  src/file2.py
+
+Excluded from staging:
+  M  src/unrelated.py (unstaged)
+  ?? tests/new_test.py (untracked)
+
+===========================================================
+**💬 Commit Message:**
+===========================================================
+
+feat(001): add feature improvements
+
+## Summary
+Added improvements to src files for better functionality.
+
+## Changes
+- **src/file1.py**: Enhanced feature logic
+- **src/file2.py**: Updated implementation
+
+---
+🤖 Co-authored with gpt-4o @ github copilot via vscode
+
+===========================================================
+```
+
+**Approve commit?**
+- **y** - Yes, stage files and commit with this message
+- **n** - No, cancel
+- **es** - Edit staging (reply with numbers: e.g., "1 3" or "all")
+- **em** - Edit message (reply with new message)
+
+**Scenario 2: Nothing staged, propose intelligent staging**
+```
+**📊 Git Status** (on: dev/001-feature-name)
+
+**Staged:**    0 files
+**Modified:**  3 files
+**Untracked:** 1 file
+
+===========================================================
+**📋 Staging Proposal:**
+===========================================================
+
+Proposed plan: Stage related command files (3 files)
+
+Files to stage:
+
+1. M  src/commands/pr.md
+   → Command update for PR workflow
+
+2. M  src/commands/commit.md
+   → Related command improvements
+
+3. M  src/prompts/pr.prompt.md
+   → Matching prompt for GitHub Copilot
+
+Excluded from staging:
+
+  ?? docs/new_feature.md (unrelated documentation)
+
+Rationale: Logical commit unit - these files represent coordinated
+command workflow improvements that should be committed together to
+maintain consistency across Claude Code and GitHub Copilot.
+
+===========================================================
+**💬 Commit Message:**
+===========================================================
+
+feat(004): enhance PR and commit command workflows
+
+## Summary
+Updated PR and commit commands with better user experience and
+cross-platform consistency between Claude Code and GitHub Copilot.
+
+## Changes
+- **src/commands/pr.md**:
+  - Added base branch detection
+  - Enhanced user confirmation prompts
+
+- **src/commands/commit.md**:
+  - Improved staging proposal format
+  - Added better examples
+
+- **src/prompts/pr.prompt.md**:
+  - Mirrored Claude Code improvements
+  - PowerShell-specific enhancements
+
+---
+🤖 Co-authored with gpt-4o @ github copilot via vscode
+
+===========================================================
+```
+
+**Approve commit?**
+- **y** - Yes, stage files and commit with this message
+- **n** - No, cancel
+- **es** - Edit staging (reply with numbers: e.g., "1 3" or "all")
+- **em** - Edit message (reply with new message)
+
+**Scenario 3: Mixed state (some staged, related unstaged)**
+```
+**📊 Git Status** (on: dev/001-feature-name)
+
+**Staged:**    1 file
+**Modified:**  3 files
+**Untracked:** 1 file
+
+===========================================================
+**📋 Staging Proposal:**
+===========================================================
+
+Proposed plan: Add related command files (4 files total)
+
+Already staged:
+
+  M  src/commands/pr.md
+
+Related unstaged files to add:
+
+1. M  src/commands/commit.md (both are command files)
+2. M  src/prompts/pr.prompt.md (pr-related)
+3. M  src/prompts/commit.prompt.md (commit-related)
+
+Excluded from staging:
+
+  ?? random_file.txt (unrelated)
+
+Rationale: Creates cohesive commit for command improvements.
+
+===========================================================
+**💬 Commit Message:**
+===========================================================
+
+feat(004): improve command workflow consistency
+
+## Summary
+Enhanced PR and commit commands with consistent UX across both
+Claude Code and GitHub Copilot interfaces.
+
+## Changes
+- **src/commands/pr.md**: Added base branch detection
+- **src/commands/commit.md**: Improved staging workflow
+- **src/prompts/pr.prompt.md**: PowerShell version of PR enhancements
+- **src/prompts/commit.prompt.md**: PowerShell version of commit improvements
+
+---
+🤖 Co-authored with gpt-4o @ github copilot via vscode
+
+===========================================================
+```
+
+**Approve commit?**
+- **y** - Yes, add related files and commit with this message
+- **s** - Use only already-staged files and commit
+- **es** - Edit staging (reply with numbers: e.g., "1 3" or "all")
+- **em** - Edit message (reply with new message)
+- **n** - No, cancel
+
+**Scenario 4: Many changes - propose multiple modular commits**
+
+When there are many unrelated changes (10+ files, or changes spanning unrelated features), propose breaking into multiple logical commits:
+
+```
+**📊 Git Status** (on: dev/001-feature-name)
+
+**Staged:**    0 files
+**Modified:**  15 files
+**Untracked:** 3 files
+
+===========================================================
+**📋 Multi-Commit Proposal:**
+===========================================================
+
+Detected many changes across different areas. Proposing 3 modular commits:
+
+**Commit 1: Git workflow commands** (5 files)
+1. M  src/commands/commit.md
+2. M  src/commands/pr.md
+3. M  src/commands/cleanup.md
+4. M  src/prompts/commit.prompt.md
+5. M  src/prompts/pr.prompt.md
+
+Message:
+  feat(004): enhance git workflow commands
+
+  Updated commit, PR, and cleanup commands with better UX
+  and cross-platform consistency.
+
+---
+
+**Commit 2: Documentation updates** (4 files)
+6. M  docs/ARCHITECTURE.md
+7. M  docs/IMPLEMENTATION-GUIDE.md
+8. M  README.md
+9. ?? docs/new-guide.md
+
+Message:
+  docs(004): update documentation for git-kit
+
+  Added git workflow documentation and updated README
+  with new command examples.
+
+---
+
+**Commit 3: Status tracking** (2 files)
+10. M  docs/temp/PHASE-1-AUDIT.md
+11. M  docs/temp/kit-implementation-status.md
+
+Message:
+  chore(004): update implementation status tracking
+
+  Marked git-kit as complete in status docs.
+
+---
+
+**Excluded from commits:**
+  M  src/experimental/test.py (work in progress)
+  M  src/debug.log (debug file)
+  ?? temp/ (temporary directory)
+
+===========================================================
+```
+
+**Approve multi-commit plan?**
+- **y** - Yes, execute all commits in sequence
+- **n** - No, cancel
+- **ec** - Edit commits (specify which commits: e.g., "1 3")
+- **em** - Edit messages (will prompt for each)
+- **single** - Combine into single commit instead
+
+**Step 1b: Execute staging and commit based on user choice**
+
+After user approves (y), execute the plan:
 ```powershell
-# Example logic:
-# - If committing src/foo.py and tests/test_foo.py is unstaged → stage it
-# - If committing .claude/commands/X.md and src/kits/.../X.md is unstaged → stage it
-# - If committing any file and its test is unstaged → stage it
+# Stage files for approved commits
+git add <files-from-plan>
 
-git add <related-files>
+# Create commit with approved message
+git commit -m "<message-including-attribution>"
+
+# Show result
+git log -1 --oneline
 ```
 
-**Alert user to unstaged changes**:
-If there are unstaged or untracked files that might be related:
-```
-WARNING: Found unstaged/untracked files that might be related:
-  M  src/related_file.py
-  ?? new_file.py
+If user edits staging (es) or message (em):
+- Show updated plan
+- Ask for confirmation again
+- Then execute
 
-Do you want to:
-  1. Stage ALL changes and include in this commit (git add .)
-  2. Stage specific files (specify which)
-  3. Continue with only currently staged files
-  4. Cancel and let me stage manually
-```
-
-**If nothing is staged**:
-```
-No changes staged for commit.
-
-Unstaged changes found:
-  M  src/file1.py
-  M  src/file2.py
-
-Do you want to stage all changes? (y/n)
-```
-
-### 2. Analyze Changes
+### 2. Analyze Staged Changes
 
 Examine the staged changes to determine:
 
@@ -203,48 +433,29 @@ null values gracefully with sensible defaults.
 🤖 Co-authored with gpt-4o @ github copilot via vscode
 ```
 
-### 5. Present Commit Message
-
-Show the generated message to the user:
-
 ```
-===============================================================
-Suggested Commit Message:
-===============================================================
+docs(installer): update installation instructions
 
-feat(git): Add smart commit with agent attribution
+## Summary
+Clarified Python version requirement and added comprehensive
+troubleshooting section for common installation issues.
 
-Generates conventional commit messages and adds agent
-attribution for multi-agent tracking.
+## Changes
+- **README.md**:
+  - Added Python 3.8+ requirement
+  - Added pip install examples
+  - Linked to troubleshooting guide
 
-via gpt-4 @ github-copilot-cli
+- **docs/TROUBLESHOOTING.md**:
+  - Added Windows-specific issues
+  - Added virtual environment setup
+  - Added common error solutions
 
-===============================================================
-Staged files (3):
-  M src/speckit_multiagent/cli.py
-  M src/speckit_multiagent/installer.py
-  A src/speckit_multiagent/kits/git/github/prompts/commit.prompt.md
-===============================================================
+---
+🤖 Co-authored with gpt-4o @ github copilot via vscode
 ```
 
-### 6. Confirm and Execute
-
-**Ask user**:
-- **y** - Proceed with commit
-- **n** - Cancel
-- **e** - Edit message (allow user to modify)
-
-**If confirmed**:
-```powershell
-git commit -m "<full message including attribution>"
-```
-
-**If editing**:
-- Allow user to modify the message
-- Show updated version
-- Ask for confirmation again
-
-### 7. Post-Commit Actions
+### 5. Post-Commit Actions
 
 After successful commit:
 ```powershell
@@ -271,52 +482,94 @@ git status --short
 
 ## Error Handling
 
-**No changes staged**:
+**No changes at all**:
 ```
-No changes staged for commit.
+⚠️  No changes detected.
 
-Run one of these first:
-  git add <files>      # Stage specific files
-  git add .            # Stage all changes
-
-Or use: git commit -a -m "message"  # Stage and commit tracked files
+Working directory is clean - nothing to commit.
 ```
 
 **Commit failed** (e.g., pre-commit hook):
 ```
-Commit failed: [error message]
+❌ Commit failed: [error message]
 
 Check git output above for details.
-Fix issues and try again.
+Fix issues and run /commit again.
 ```
+
+**User cancels during approval**:
+- Don't stage anything if not already staged
+- Leave repository in clean state
+- Suggest: "Cancelled. Changes remain unstaged. Run /commit when ready."
 
 ## Example Workflow
 
 ```powershell
 # User: /commit
 
-# Agent checks staged changes
-> git diff --staged
-# (shows changes)
+# Agent checks git status
+> git status --short
+M  src/commands/commit.md
+M  src/prompts/commit.prompt.md
 
-# Agent analyzes and generates message
-feat(git): Add smart commit with agent attribution
+# Agent presents combined staging + commit plan
+**📊 Git Status** (on: dev/004-cleanup-command)
 
-Generates conventional commit messages...
+**Staged:**    0 files
+**Modified:**  2 files
 
-via gpt-4 @ github-copilot-cli
+===========================================================
+**📋 Staging Proposal:**
+===========================================================
 
-# Agent asks for confirmation
-Proceed with commit? (y/n/e): y
+Proposed plan: Stage commit command updates (2 files)
+
+Files to stage:
+1. M  src/commands/commit.md
+   → Simplified approval workflow
+2. M  src/prompts/commit.prompt.md
+   → PowerShell version of changes
+
+===========================================================
+**💬 Commit Message:**
+===========================================================
+
+feat(004): simplify commit approval workflow
+
+## Summary
+Combined staging proposal and commit message into single prompt
+for better UX. Fewer user interactions needed.
+
+## Changes
+- **src/commands/commit.md**:
+  - Show both staging and commit message together
+  - Single approval step with edit options
+
+- **src/prompts/commit.prompt.md**:
+  - Mirrored bash version improvements
+
+---
+🤖 Co-authored with gpt-4o @ github copilot via vscode
+
+===========================================================
+
+**Approve commit?**
+- **y** - Yes, stage files and commit with this message
+- **n** - No, cancel
+- **es** - Edit staging
+- **em** - Edit message
+
+# User: y
 
 # Agent executes
+> git add src/commands/commit.md src/prompts/commit.prompt.md
 > git commit -m "..."
-[dev/001-starter-kits 53dd4ef] feat(git): Add smart commit...
- 3 files changed, 142 insertions(+), 5 deletions(-)
+[dev/004-cleanup-command 8a3f2c1] feat(004): simplify commit...
+ 2 files changed, 87 insertions(+), 142 deletions(-)
 
-Commit created: 53dd4ef
-Branch: dev/001-starter-kits
-Next: git push origin dev/001-starter-kits
+✓ Commit created: 8a3f2c1
+Branch: dev/004-cleanup-command
+Next: git push origin dev/004-cleanup-command
 ```
 
 ## Multi-Agent Coordination

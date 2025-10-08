@@ -161,17 +161,23 @@ class Installer:
                 if has_claude:
                     self._install_file('git/claude/commands/commit.md', '.claude/commands/commit.md')
                     self._install_file('git/claude/commands/pr.md', '.claude/commands/pr.md')
-                    self._install_file('git/claude/commands/sync.md', '.claude/commands/sync.md')
-                    result["installed"].append("git-kit (Claude): /commit, /pr, /sync commands")
+                    self._install_file('git/claude/commands/cleanup.md', '.claude/commands/cleanup.md')
+                    result["installed"].append("git-kit (Claude): /commit, /pr, /cleanup commands")
 
                 if has_copilot:
                     self._install_file('git/github/prompts/commit.prompt.md', '.github/prompts/commit.prompt.md')
                     self._install_file('git/github/prompts/pr.prompt.md', '.github/prompts/pr.prompt.md')
-                    self._install_file('git/github/prompts/sync.prompt.md', '.github/prompts/sync.prompt.md')
-                    result["installed"].append("git-kit (Copilot): /commit, /pr, /sync commands")
+                    self._install_file('git/github/prompts/cleanup.prompt.md', '.github/prompts/cleanup.prompt.md')
+                    result["installed"].append("git-kit (Copilot): /commit, /pr, /cleanup commands")
 
             # Install multiagent kit
             if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
+                # Commands
+                if has_claude:
+                    self._install_file('multiagent/claude/commands/sync.md', '.claude/commands/sync.md')
+                if has_copilot:
+                    self._install_file('multiagent/github/prompts/sync.prompt.md', '.github/prompts/sync.prompt.md')
+
                 # Memory guides
                 self._install_file('multiagent/memory/pr-workflow-guide.md', '.specify/memory/pr-workflow-guide.md')
                 self._install_file('multiagent/memory/git-worktrees-protocol.md', '.specify/memory/git-worktrees-protocol.md')
@@ -185,6 +191,7 @@ class Installer:
                 self._install_file('multiagent/templates/decision.md', '.specify/templates/decision.md')
                 self._install_file('multiagent/templates/collaboration-structure/README.md', '.specify/templates/collaboration-README.md')
 
+                result["installed"].append("multiagent-kit: /sync command")
                 result["installed"].append("multiagent-kit: Memory guides (PR workflow, git worktrees, parallel work)")
                 result["installed"].append("multiagent-kit: Templates (session-log, handoff, decision, collaboration)")
 
@@ -197,53 +204,51 @@ class Installer:
 
     def validate(self) -> Dict:
         """
-        Validate multiagent installation.
+        Validate kit installation.
 
         Returns:
             Dictionary with validation results
         """
         checks = {}
 
-        # Check orient command exists
+        # Check project-kit files
         claude_orient = self.target_dir / ".claude" / "commands" / "orient.md"
         copilot_orient = self.target_dir / ".github" / "prompts" / "orient.prompt.md"
 
-        checks["orient_command"] = {
-            "passed": claude_orient.exists() or copilot_orient.exists(),
-            "message": "Orient command found" if (claude_orient.exists() or copilot_orient.exists())
-                      else "Orient command missing - run: lite-kits install -Recommended",
+        project_kit_installed = claude_orient.exists() or copilot_orient.exists()
+        checks["project_kit"] = {
+            "passed": project_kit_installed,
+            "message": "project-kit: /orient command found" if project_kit_installed
+                      else "project-kit not installed - run: lite-kits add --here --kit project",
         }
 
-        # Check memory guides
+        # Check git-kit files
+        claude_commit = self.target_dir / ".claude" / "commands" / "commit.md"
+        claude_pr = self.target_dir / ".claude" / "commands" / "pr.md"
+        claude_cleanup = self.target_dir / ".claude" / "commands" / "cleanup.md"
+
+        git_kit_installed = claude_commit.exists() or claude_pr.exists() or claude_cleanup.exists()
+        checks["git_kit"] = {
+            "passed": git_kit_installed,
+            "message": "git-kit: /commit, /pr, /cleanup commands found" if git_kit_installed
+                      else "git-kit not installed - run: lite-kits add --here --kit git",
+        }
+
+        # Check multiagent-kit files (only if user is checking for them)
+        claude_sync = self.target_dir / ".claude" / "commands" / "sync.md"
         pr_guide = self.target_dir / ".specify" / "memory" / "pr-workflow-guide.md"
         worktree_guide = self.target_dir / ".specify" / "memory" / "git-worktrees-protocol.md"
 
-        checks["pr_workflow_guide"] = {
-            "passed": pr_guide.exists(),
-            "message": "PR workflow guide found" if pr_guide.exists()
-                      else "PR workflow guide missing",
+        multiagent_kit_installed = claude_sync.exists() or pr_guide.exists() or worktree_guide.exists()
+        checks["multiagent_kit"] = {
+            "passed": multiagent_kit_installed,
+            "message": "multiagent-kit: /sync command and memory guides found" if multiagent_kit_installed
+                      else "multiagent-kit not installed - run: lite-kits add --here --kit multiagent",
         }
 
-        checks["git_worktrees_protocol"] = {
-            "passed": worktree_guide.exists(),
-            "message": "Git worktrees protocol found" if worktree_guide.exists()
-                      else "Git worktrees protocol missing",
-        }
-
-        # TODO: Check collaboration structure in existing specs
-        # specs_dir = self.target_dir / "specs"
-        # if specs_dir.exists():
-        #     for spec_dir in specs_dir.iterdir():
-        #         if spec_dir.is_dir():
-        #             collab_dir = spec_dir / "collaboration"
-        #             # Check structure...
-
-        # TODO: Check constitution has multiagent sections
-        # constitution = self.target_dir / ".specify" / "memory" / "constitution.md"
-        # if constitution.exists():
-        #     # Check for multiagent markers...
-
-        all_passed = all(check["passed"] for check in checks.values())
+        # Only fail validation if NO kits are installed
+        # If they only installed project+git, don't fail on missing multiagent
+        all_passed = checks["project_kit"]["passed"] or checks["git_kit"]["passed"] or checks["multiagent_kit"]["passed"]
 
         return {
             "valid": all_passed,
@@ -339,7 +344,7 @@ class Installer:
             # Remove git kit files
             if 'git' in self.kits:
                 removed = []
-                git_commands = ['commit', 'pr', 'sync']
+                git_commands = ['commit', 'pr', 'cleanup']
 
                 # Claude
                 for cmd in git_commands:
@@ -361,6 +366,17 @@ class Installer:
             # Remove multiagent kit files
             if 'multiagent' in self.kits:
                 removed = []
+
+                # Sync command
+                sync_claude = self.target_dir / ".claude" / "commands" / "sync.md"
+                if sync_claude.exists():
+                    sync_claude.unlink()
+                    removed.append(".claude/commands/sync.md")
+
+                sync_copilot = self.target_dir / ".github" / "prompts" / "sync.prompt.md"
+                if sync_copilot.exists():
+                    sync_copilot.unlink()
+                    removed.append(".github/prompts/sync.prompt.md")
 
                 # Memory guides
                 memory_files = [
