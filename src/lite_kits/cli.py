@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CLI for spec-kit-multiagent
+CLI for lite-kits
 
-Provides commands to add/remove multiagent coordination features to spec-kit projects.
+Provides commands to add/remove enhancement kits for vanilla dev tools.
 """
 
 import sys
@@ -19,7 +19,7 @@ from .installer import Installer
 
 app = typer.Typer(
     name="lite-kits",
-    help="Lightweight multi-agent coordination add-on for GitHub spec-kit",
+    help="Lightweight enhancement kits for vanilla dev tools",
     no_args_is_help=True,
 )
 console = Console()
@@ -28,7 +28,7 @@ console = Console()
 def version_callback(value: bool):
     """Print version and exit."""
     if value:
-        console.print(f"spec-kit-multiagent version {__version__}")
+        console.print(f"lite-kits version {__version__}")
         raise typer.Exit()
 
 
@@ -43,7 +43,7 @@ def main(
         is_eager=True,
     ),
 ):
-    """spec-kit-multiagent: Multi-agent coordination for spec-kit projects."""
+    """lite-kits: Lightweight enhancement kits for vanilla dev tools."""
     pass
 
 
