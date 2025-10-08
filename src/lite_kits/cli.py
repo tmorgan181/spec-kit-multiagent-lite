@@ -144,10 +144,10 @@ def add(
             result = installer.install()
 
         if result["success"]:
-            console.print("\n[bold green]✓ Installation complete![/bold green]\n")
+            console.print("\n[bold green][OK] Installation complete![/bold green]\n")
             _display_installation_summary(result)
         else:
-            console.print(f"\n[bold red]✗ Installation failed:[/bold red] {result['error']}\n")
+            console.print(f"\n[bold red][X] Installation failed:[/bold red] {result['error']}\n")
             raise typer.Exit(1)
 
 
@@ -275,7 +275,7 @@ def validate(
 
     # Check if it's a spec-kit project
     if not installer.is_spec_kit_project():
-        console.print("[red]✗ Not a spec-kit project[/red]")
+        console.print("[red][X] Not a spec-kit project[/red]")
         raise typer.Exit(1)
 
     # Check if multiagent is installed
@@ -291,10 +291,10 @@ def validate(
     _display_validation_results(validation_result)
 
     if validation_result["valid"]:
-        console.print("\n[bold green]✓ Validation passed![/bold green]")
+        console.print("\n[bold green][OK] Validation passed![/bold green]")
         raise typer.Exit(0)
     else:
-        console.print("\n[bold red]✗ Validation failed[/bold red]")
+        console.print("\n[bold red][X] Validation failed[/bold red]")
         raise typer.Exit(1)
 
 
@@ -337,8 +337,8 @@ def status(
     table.add_column("Item", style="cyan")
     table.add_column("Status")
 
-    table.add_row("Spec-kit project", "✓" if is_spec_kit else "✗")
-    table.add_row("Multiagent installed", "✓" if is_multiagent else "✗")
+    table.add_row("Spec-kit project", "[OK]" if is_spec_kit else "[X]")
+    table.add_row("Multiagent installed", "[OK]" if is_multiagent else "[X]")
 
     console.print(table)
     console.print()
@@ -368,7 +368,7 @@ def _display_installation_summary(result: dict):
     """Display installation summary."""
     console.print("[bold]Installed:[/bold]")
     for item in result.get("installed", []):
-        console.print(f"  ✓ {item}")
+        console.print(f"  [OK] {item}")
 
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print("  1. Run: /orient (in your AI assistant)")
@@ -379,7 +379,7 @@ def _display_installation_summary(result: dict):
 def _display_validation_results(result: dict):
     """Display validation results."""
     for check_name, check_result in result.get("checks", {}).items():
-        status = "✓" if check_result["passed"] else "✗"
+        status = "[OK]" if check_result["passed"] else "[X]"
         color = "green" if check_result["passed"] else "red"
         console.print(f"[{color}]{status}[/{color}] {check_name}")
 
