@@ -346,7 +346,7 @@ class Installer:
             # Remove git kit files
             if 'git' in self.kits:
                 removed = []
-                git_commands = ['commit', 'pr', 'sync']
+                git_commands = ['commit', 'pr', 'cleanup']
 
                 # Claude
                 for cmd in git_commands:
@@ -368,6 +368,17 @@ class Installer:
             # Remove multiagent kit files
             if 'multiagent' in self.kits:
                 removed = []
+
+                # Sync command
+                sync_claude = self.target_dir / ".claude" / "commands" / "sync.md"
+                if sync_claude.exists():
+                    sync_claude.unlink()
+                    removed.append(".claude/commands/sync.md")
+
+                sync_copilot = self.target_dir / ".github" / "prompts" / "sync.prompt.md"
+                if sync_copilot.exists():
+                    sync_copilot.unlink()
+                    removed.append(".github/prompts/sync.prompt.md")
 
                 # Memory guides
                 memory_files = [

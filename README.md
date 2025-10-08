@@ -109,11 +109,14 @@ pip install lite-kits
 git clone https://github.com/tmorgan181/lite-kits.git
 cd lite-kits
 
+# Build the package
+uv build
+
 # Install with uv (recommended)
-uv tool install .
+uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
 
 # Or with pip
-pip install -e .
+pip install dist/lite_kits-0.1.0-py3-none-any.whl
 ```
 
 ## Quick Start
