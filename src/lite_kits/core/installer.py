@@ -21,7 +21,7 @@ class Installer:
             kits: List of kits to install (project, git, multiagent). Defaults to ['project']
         """
         self.target_dir = Path(target_dir).resolve()
-        self.kits_dir = Path(__file__).parent / "kits"
+        self.kits_dir = Path(__file__).parent.parent / "kits"
         self.kits = kits or ['project']  # Default to project kit only
 
         # Validate kit names

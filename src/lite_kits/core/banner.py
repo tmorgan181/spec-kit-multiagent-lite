@@ -66,7 +66,7 @@ def apply_diagonal_gradient(text=BANNER, offset=0, steps_override=None):
         result.append('\n')
     return result
 
-def typewriter_effect(text=TAGLINE, delay=0.03, cursor_blink_rate=0.4, blink_cycles=2):
+def typewriter_effect(text=TAGLINE, delay=0.02, cursor_blink_rate=0.4, blink_cycles=2):
     """Display retro terminal typewriter animation with dim text via ANSI codes."""
     DIM = '\033[2m'
     RESET = '\033[0m'
@@ -134,42 +134,27 @@ def diagonal_reveal_banner(text=BANNER, steps_override=None, fps=56):
         result.append('\n')
     console.print(result)
     typewriter_effect()
-    console.print()
 
-def show_status_banner(kits_installed=["git", "project", "multiagent"]):
+def show_static_banner():
     console.print()
     steps = get_diagonal_steps()
     gradient_text = apply_diagonal_gradient(offset=0, steps_override=steps)
     console.print(gradient_text)
-    console.print(f"{TAGLINE}\n", style="dim")
-    if kits_installed:
-        console.print("Installed kits:", style="bold")
-        kit_icons = {
-            "git": "🔧",
-            "project": "🎯",
-            "multiagent": "🤝"
-        }
-        for kit in kits_installed:
-            icon = kit_icons.get(kit, "📦")
-            console.print(f"  {icon} {kit}-kit", style="green")
-    else:
-        console.print("No kits installed", style="dim yellow")
-    console.print()
+    console.print(f"{TAGLINE}", style="dim")
 
 def show_loading_spinner(message="Loading kits..."):
-    console.print()
     with console.status(f"[bold bright_cyan]{message}", spinner="dots"):
         time.sleep(1.5)
     console.print("[green]✓ Done![/green]")
-    console.print()
 
 if __name__ == "__main__":
     console.clear()
-    console.print("[bold yellow]\nDemo 1: Loading Spinner[/bold yellow]")
+    console.print("[bold yellow]\nDemo 1: Loading Spinner[/bold yellow]\n")
     show_loading_spinner()
     time.sleep(1)
-    console.print("[bold yellow]Demo 2: Diagonal Reveal Animation[/bold yellow]")
+    console.print("[bold yellow]Demo 2: Diagonal Reveal Animation[/bold yellow]\n")
     diagonal_reveal_banner()
     time.sleep(1)
-    console.print("[bold yellow]Demo 3: Status Banner[/bold yellow]")
-    show_status_banner()
+    console.print("[bold yellow]Demo 3: Status Banner[/bold yellow]\n")
+    show_static_banner()
+    console.print()
