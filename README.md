@@ -1,8 +1,8 @@
 # lite-kits
 
-**Lightweight enhancement kits for vanilla dev tools**
+**Lightweight enhancement kits for spec-driven development**
 
-Add modular enhancement kits to vanilla projects (spec-kit, etc.) without forking or replacing core files.
+Add modular enhancement kits to vanilla [GitHub Spec-Kit](https://github.com/github/spec-kit) projects without forking or replacing core files.
 
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/tmorgan181/lite-kits)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -10,15 +10,17 @@ Add modular enhancement kits to vanilla projects (spec-kit, etc.) without forkin
 
 ## What is this?
 
-**lite-kits** is a collection of lightweight, modular enhancement kits that add useful features to vanilla development tools without replacing them.
+**lite-kits** enhances spec-driven development workflows built on [GitHub Spec-Kit](https://github.com/github/spec-kit).
 
-Currently supports:
-- **spec-kit** - GitHub's framework for spec-driven development with AI agents
+Spec-Kit is a framework for AI-driven collaborative development (spec → plan → tasks → implement) using markdown prompts and scripts. Think "vibe coding" but with structure.
 
-Available kits:
-- 🎯 **project-kit** - Project orientation and context (`/orient` command)
+**lite-kits** adds three optional enhancement kits to vanilla spec-kit projects:
+
+- 🎯 **project-kit** - Agent orientation (`/orient` command)
 - 🔧 **git-kit** - Smart git workflows (`/commit`, `/pr`, `/cleanup`)
 - 🤝 **multiagent-kit** - Multi-agent coordination (`/sync`, collaboration directories)
+
+Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot, Cursor) and optional scripts.
 
 ## Key Features
 
@@ -77,18 +79,31 @@ specs/NNN-feature/collaboration/
 
 ### Prerequisites
 
-- Python 3.11+
-- Existing spec-kit project (or create one first)
-- At least one AI interface: Claude Code, GitHub Copilot, or Cursor
+1. **GitHub Spec-Kit** - Install the `specify` CLI tool:
+   ```bash
+   # See: https://github.com/github/spec-kit
+   npm install -g @github/specify
+   # Or use pipx, etc.
+   ```
 
-### Install via pip
+2. **Create a spec-kit project** (if you don't have one):
+   ```bash
+   specify init my-project
+   cd my-project
+   ```
 
+3. **Python 3.11+** - For lite-kits itself
+
+4. **AI Assistant** - At least one: Claude Code, GitHub Copilot, or Cursor
+
+### Install lite-kits
+
+**Via pip** (when published):
 ```bash
 pip install lite-kits
 ```
 
-### Install from source
-
+**From source** (current):
 ```bash
 # Clone repository
 git clone https://github.com/tmorgan181/lite-kits.git
@@ -239,26 +254,29 @@ lite-kits --version                          # Show version only
 
 ### Add-on Design (Not a Fork)
 
-This package is an **add-on**, not a fork:
-- [OK] Vanilla tools stay vanilla
-- [OK] Users get vanilla updates automatically
-- [OK] Kits can be added/removed independently
-- [OK] No core file replacement
+**lite-kits** is an **add-on** for vanilla spec-kit, not a fork or replacement:
+
+- ✅ **Vanilla spec-kit stays vanilla** - Your `specify` workflow is unchanged
+- ✅ **Get upstream updates** - Benefit from spec-kit improvements automatically
+- ✅ **Modular kits** - Add/remove individual kits as needed
+- ✅ **No file replacements** - Only adds new files, never modifies spec-kit core
 
 ### What Gets Added
 
-**New files** (kit commands):
-- `.claude/commands/*.md` (Claude Code versions)
-- `.github/prompts/*.prompt.md` (GitHub Copilot versions)
+When you run `lite-kits add`, it installs `.md` prompt files and optional scripts:
 
-**New files** (memory guides):
-- `.specify/memory/pr-workflow-guide.md`
-- `.specify/memory/git-worktrees-protocol.md`
+**Kit commands** (markdown prompts for AI assistants):
+- `.claude/commands/*.md` - Claude Code slash commands
+- `.github/prompts/*.prompt.md` - GitHub Copilot prompt files
 
-**New structure** (when creating features):
-- `specs/NNN-feature/collaboration/` directories
+**Memory guides** (multiagent-kit only):
+- `.specify/memory/pr-workflow-guide.md` - How AI agents should create PRs
+- `.specify/memory/git-worktrees-protocol.md` - Parallel dev with worktrees
 
-**No modifications** to existing vanilla files.
+**Collaboration structure** (multiagent-kit only):
+- `specs/NNN-feature/collaboration/` - Session logs, handoffs, decisions
+
+**No modifications** to existing spec-kit files like `.specify/`, vanilla prompts, etc.
 
 ## Project Structure
 
@@ -357,10 +375,10 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-Built to enhance [GitHub spec-kit](https://github.com/github/spec-kit) and other vanilla dev tools.
+Built to enhance [GitHub Spec-Kit](https://github.com/github/spec-kit), a framework for spec-driven development with AI agents.
 
 ---
 
 **Status**: Alpha (v0.1.0) - APIs may change
 
-**Philosophy**: Lightweight enhancement kits, not framework replacements
+**Philosophy**: Enhance, don't replace. lite-kits adds features to vanilla spec-kit without forking or modifying core files.
