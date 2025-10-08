@@ -24,7 +24,7 @@ gh --version
 gh auth status
 
 # Check current branch
-git branch --show-current
+$CurrentBranch = git branch --show-current
 
 # Check if branch has remote tracking
 git rev-parse --abbrev-ref --symbolic-full-name '@{u}'
@@ -44,6 +44,68 @@ Current branch not pushed to remote.
 
 Run: git push -u origin <branch-name>
 Then try /pr again.
+```
+
+### 1a. Check Existing PR Status
+
+**CRITICAL**: Always check if a PR already exists for this branch before creating a new one!
+
+```powershell
+# Check for existing PR (open or closed)
+$ExistingPR = gh pr list --head $CurrentBranch --json number,state,url | ConvertFrom-Json
+
+if ($ExistingPR) {
+    $PRNumber = $ExistingPR[0].number
+    $PRState = $ExistingPR[0].state
+    $PRUrl = $ExistingPR[0].url
+}
+```
+
+**If PR exists and is OPEN**:
+```
+✓ Pull Request #5 already exists for this branch.
+
+State: OPEN
+URL: https://github.com/owner/repo/pull/5
+
+New commits will automatically appear in the PR.
+
+Options:
+  - Push new commits: git push
+  - Update PR description: gh pr edit 5 --body "new description"
+  - View PR: gh pr view --web
+
+Continue anyway to update PR description? (y/n): _____
+```
+
+**If PR exists and is MERGED**:
+```
+✓ Pull Request #5 for this branch was already MERGED.
+
+URL: https://github.com/owner/repo/pull/5
+
+You have new commits since the merge.
+
+Options:
+  1. Create NEW PR for additional changes
+  2. Switch to develop and create new feature branch
+  3. Cancel
+
+Choice (1-3): _____
+```
+
+**If PR exists and is CLOSED (not merged)**:
+```
+⚠️  Pull Request #5 for this branch exists but was CLOSED (not merged).
+
+URL: https://github.com/owner/repo/pull/5
+
+Options:
+  1. Reopen existing PR: gh pr reopen 5
+  2. Create new PR (not recommended - will conflict)
+  3. Cancel
+
+Choice (1-3): _____
 ```
 
 ### 2. Determine Base Branch
