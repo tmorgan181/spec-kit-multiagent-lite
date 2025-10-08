@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Spec-Kit Multiagent Add-on** is a pip-installable enhancement that layers multi-agent coordination capabilities onto vanilla [GitHub spec-kit](https://github.com/github/spec-kit) projects. This is an **add-on**, not a fork—it works alongside vanilla spec-kit without replacing any core files.
+**lite-kits** is a pip-installable collection of lightweight enhancement kits for vanilla dev tools. This is an **add-on** framework, not a fork—it works alongside vanilla tools (like [GitHub spec-kit](https://github.com/github/spec-kit)) without replacing any core files.
 
 **Current Status**: Pre-release (v0.1.0 in development)
 
@@ -24,10 +24,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 uv tool install -e .
 
 # Install from built package
-uv tool install dist/spec_kit_multiagent-0.1.0-py3-none-any.whl
+uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
 
 # Uninstall
-uv tool uninstall spec-kit-multiagent
+uv tool uninstall lite-kits
 ```
 
 ### Testing Installation
@@ -115,19 +115,17 @@ specs/NNN-feature-name/
 ### Package Structure
 
 ```
-src/speckit_multiagent/
+src/lite_kits/
 ├── __init__.py          # Package exports
 ├── cli.py               # Entry point: lite-kits command
 ├── installer.py         # Installation logic
-└── templates/           # Files added to target projects
-    ├── commands/        # Slash commands (orient)
-    ├── memory/          # Memory documents (PR guide, git protocol)
-    ├── enhancements/    # Sections to merge into existing files
-    ├── collaboration/   # Template for new feature collaboration dirs
-    └── scripts/         # PowerShell validation/setup scripts
+└── kits/                # Enhancement kits
+    ├── git/             # Git workflow commands (/commit, /pr, /cleanup)
+    ├── project/         # Project commands (/orient)
+    └── multiagent/      # Multi-agent tools (/sync, collaboration)
 ```
 
-**Important**: The package is currently in **Phase 1** of implementation (see `docs/IMPLEMENTATION-GUIDE.md`). Python source code (`src/speckit_multiagent/`) does not yet exist—only templates and documentation.
+**Current Status**: Package is functional with git-kit, project-kit, and multiagent-kit fully implemented.
 
 ## Multi-Agent Workflow
 
@@ -201,17 +199,15 @@ CI workflow tracks agent/model attribution for transparency.
 - ❌ PyPI publication
 - ❌ Examples directory
 
-### Key Files for Implementation
+### Building and Publishing
 
-When building the Python package:
-1. **Extract multiagent content** to `src/speckit_multiagent/templates/`
-2. **Create package skeleton**: `pyproject.toml`, `src/speckit_multiagent/__init__.py`
-3. **Implement CLI**: `src/speckit_multiagent/cli.py` with `add` and `validate` commands
-4. **Implement installer**: `src/speckit_multiagent/installer.py` with merge logic
-5. **Write tests**: `tests/test_installer.py`
-6. **Build and publish**: `uv build`, `uv publish`
+To build and test the package:
+1. **Build**: `uv build` creates wheel and source dist
+2. **Test locally**: `uv tool install dist/lite_kits-0.1.0-py3-none-any.whl`
+3. **Test commands**: `lite-kits --help`, `lite-kits status`
+4. **Publish** (when ready): `uv publish`
 
-See `docs/IMPLEMENTATION-GUIDE.md` for step-by-step instructions.
+See `README.md` for full installation and usage instructions.
 
 ## Language & Style Guidelines
 
