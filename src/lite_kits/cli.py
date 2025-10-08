@@ -39,9 +39,9 @@ KIT_DESC_GIT = "/commit, /pr, /cleanup commands with smart workflows"
 KIT_DESC_MULTIAGENT = "/sync, collaboration directories, memory guides"
 
 # Status indicators
-STATUS_OK = "[green][OK][/green]"
-STATUS_NOT_FOUND = "[dim][--][/dim]"
-STATUS_ERROR = "[red][X][/red]"
+STATUS_OK = "[OK]"
+STATUS_NOT_FOUND = "[--]"
+STATUS_ERROR = "[X]"
 
 # Marker files for kit detection
 MARKER_PROJECT_KIT = ".claude/commands/orient.md"
