@@ -2,7 +2,7 @@
 """
 CLI for lite-kits
 
-Provides commands to add/remove enhancement kits for vanilla dev tools.
+An extremely fast spec-kit enhancement manager.
 """
 
 import sys
@@ -19,8 +19,7 @@ from .core import diagonal_reveal_banner, show_loading_spinner, show_status_bann
 
 # Constants
 APP_NAME = "lite-kits"
-APP_DESCRIPTION = "Lightweight enhancement kits for spec-driven development"
-HELP_TIP = "Tip: Run 'lite-kits COMMAND --help' for detailed help on each command"
+APP_DESCRIPTION = "An extremely fast spec-kit enhancement manager."
 
 # Kit names
 KIT_PROJECT = "project"
@@ -29,19 +28,22 @@ KIT_MULTIAGENT = "multiagent"
 KITS_ALL = [KIT_PROJECT, KIT_GIT, KIT_MULTIAGENT]
 KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
 
-# Help panel names
-PANEL_KIT_MANAGEMENT = "Kit Management"
-PANEL_PACKAGE_MANAGEMENT = "Package Management"
+# Kit names and collections
+KIT_PROJECT = "project"
+KIT_GIT = "git"
+KIT_MULTIAGENT = "multiagent"
+KITS_ALL = [KIT_PROJECT, KIT_GIT, KIT_MULTIAGENT]
+KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
 
-# Kit descriptions
-KIT_DESC_PROJECT = "/orient command, project orientation features"
-KIT_DESC_GIT = "/commit, /pr, /cleanup commands with smart workflows"
-KIT_DESC_MULTIAGENT = "/sync, collaboration directories, memory guides"
+# Kit descriptions for help
+KIT_DESC_PROJECT = "Agent orientation and project management features"
+KIT_DESC_GIT = "Smart git workflows with AI-powered commit messages"
+KIT_DESC_MULTIAGENT = "Multi-agent coordination and collaboration protocols"
 
 # Status indicators
-STATUS_OK = "[OK]"
-STATUS_NOT_FOUND = "[--]"
-STATUS_ERROR = "[X]"
+STATUS_OK = "[green]✓[/green]"
+STATUS_NOT_FOUND = "[dim]–[/dim]"
+STATUS_ERROR = "[red]✗[/red]"
 
 # Marker files for kit detection
 MARKER_PROJECT_KIT = ".claude/commands/orient.md"
@@ -49,15 +51,14 @@ MARKER_GIT_KIT = ".claude/commands/commit.md"
 MARKER_MULTIAGENT_KIT = ".specify/memory/pr-workflow-guide.md"
 
 # Error messages
-ERROR_NO_TARGET = "Either --here or a target directory must be specified"
 ERROR_NOT_SPEC_KIT = "does not appear to be a spec-kit project"
 ERROR_SPEC_KIT_HINT = "Looking for one of: .specify/, .claude/, or .github/prompts/"
 
 app = typer.Typer(
     name=APP_NAME,
-    help=f"{APP_DESCRIPTION}\n\n[dim]{HELP_TIP}[/dim]",
+    help=APP_DESCRIPTION,
     no_args_is_help=True,
-    add_completion=False,  # Disable shell completion to avoid modifying user profiles
+    add_completion=False,
     rich_markup_mode="rich",
 )
 console = Console()
@@ -70,42 +71,75 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
+def banner_callback(value: bool):
+    """Show banner and exit."""
+    if value:
+        diagonal_reveal_banner()
+        raise typer.Exit()
+
+
 @app.callback()
 def main(
     version: Optional[bool] = typer.Option(
         None,
         "--version",
-        "-v",
-        help="Show version and exit",
+        "-V", 
+        help="Display the lite-kits version",
         callback=version_callback,
         is_eager=True,
     ),
+    banner: Optional[bool] = typer.Option(
+        None,
+        "--banner",
+        help="Show the lite-kits banner",
+        callback=banner_callback,
+        is_eager=True,
+    ),
+    quiet: Optional[bool] = typer.Option(
+        None,
+        "--quiet",
+        "-q",
+        help="Use quiet output",
+    ),
+    verbose: Optional[bool] = typer.Option(
+        None,
+        "--verbose", 
+        "-v",
+        help="Use verbose output",
+    ),
+    directory: Optional[Path] = typer.Option(
+        None,
+        "--directory",
+        help="Change to the given directory prior to running the command",
+    ),
 ):
-    f"""{APP_NAME}: {APP_DESCRIPTION}"""
-    pass
+    """An extremely fast spec-kit enhancement manager.
+    
+    Usage: lite-kits [OPTIONS] <COMMAND>
+    
+    Use `lite-kits help` for more details.
+    """
+    if directory:
+        import os
+        os.chdir(directory)
 
 
-@app.command(name="add", rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command(name="add")
 def add_kits(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Add to current directory",
-    ),
-    dry_run: bool = typer.Option(
-        False,
-        "--dry-run",
-        help="Preview changes without applying them",
-    ),
     kit: Optional[str] = typer.Option(
         None,
         "--kit",
-        help=f"Comma-separated list of kits to add: {','.join(KITS_ALL)} (default: {KIT_PROJECT})",
+        help=f"Comma-separated list of kits to add: {','.join(KITS_ALL)}",
     ),
     recommended: bool = typer.Option(
         False,
         "--recommended",
         help=f"Add recommended kits: {' + '.join(KITS_RECOMMENDED)}",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview changes without applying them",
     ),
     target: Optional[Path] = typer.Argument(
         None,
@@ -113,14 +147,9 @@ def add_kits(
     ),
 ):
     """Add enhancement kits to a spec-kit project."""
-    if not here and target is None:
-        console.print(
-            f"[red]Error:[/red] {ERROR_NO_TARGET}",
-            style="bold",
-        )
-        raise typer.Exit(1)
+    target_dir = Path.cwd() if target is None else target
 
-    target_dir = Path.cwd() if here else target
+    # Removed redundant line - target_dir already set above
 
     # Determine which kits to install
     kits = None
@@ -178,16 +207,11 @@ def add_kits(
             raise typer.Exit(1)
 
 
-@app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command()
 def remove(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Remove from current directory",
-    ),
     kit: Optional[str] = typer.Option(
         None,
-        "--kit",
+        "--kit", 
         help=f"Comma-separated list of kits to remove: {','.join(KITS_ALL)}",
     ),
     all_kits: bool = typer.Option(
@@ -200,24 +224,16 @@ def remove(
         help="Target directory (defaults to current directory)",
     ),
 ):
-    """
-    Remove enhancement kits from a spec-kit project.
+    """Remove enhancement kits from a spec-kit project.
 
     Returns the project to vanilla spec-kit state.
 
     Examples:
-        lite-kits remove --here --kit git                # Remove git-kit only
-        lite-kits remove --here --kit project,git        # Remove specific kits
-        lite-kits remove --here --all                    # Remove all kits
+        lite-kits remove --kit git                # Remove git-kit only
+        lite-kits remove --kit project,git        # Remove specific kits
+        lite-kits remove --all                    # Remove all kits
     """
-    if not here and target is None:
-        console.print(
-            "[red]Error:[/red] Either --here or a target directory must be specified",
-            style="bold",
-        )
-        raise typer.Exit(1)
-
-    target_dir = Path.cwd() if here or target is None else target
+    target_dir = Path.cwd() if target is None else target
 
     # Determine which kits to remove
     kits = None
@@ -269,35 +285,25 @@ def remove(
         raise typer.Exit(1)
 
 
-@app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command()
 def validate(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Validate current directory",
-    ),
     target: Optional[Path] = typer.Argument(
         None,
         help="Target directory (defaults to current directory)",
     ),
 ):
-    """
-    Validate enhancement kit installation.
+    """Validate enhancement kit installation.
 
     Checks:
     - Kit files are present and correctly installed
-    - Collaboration directory structure (if multiagent-kit installed)
+    - Collaboration directory structure (if multiagent-kit installed)  
     - Required files present
     - Cross-kit consistency
 
     Example:
-        lite-kits validate --here
+        lite-kits validate
     """
-    # Default to current directory if no target specified
-    if here or target is None:
-        target_dir = Path.cwd()
-    else:
-        target_dir = target
+    target_dir = Path.cwd() if target is None else target
 
     # For validation, we don't know which kits are installed yet, so check for all
     installer = Installer(target_dir, kits=KITS_ALL)
@@ -329,34 +335,24 @@ def validate(
         raise typer.Exit(1)
 
 
-@app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command()
 def status(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Check current directory",
-    ),
     target: Optional[Path] = typer.Argument(
         None,
         help="Target directory (defaults to current directory)",
     ),
 ):
-    """
-    Show enhancement kit installation status for the project.
+    """Show enhancement kit installation status for the project.
 
     Displays:
     - Spec-kit project detection
-    - Installed kits
+    - Installed kits  
     - Installation health
 
     Example:
-        lite-kits status --here
+        lite-kits status
     """
-    # Default to current directory if no target specified
-    if here or target is None:
-        target_dir = Path.cwd()
-    else:
-        target_dir = target
+    target_dir = Path.cwd() if target is None else target
 
     # For status, check for all possible kits
     installer = Installer(target_dir, kits=KITS_ALL)
@@ -435,7 +431,7 @@ def _display_validation_results(result: dict):
             console.print(f"  {check_result['message']}", style="dim")
 
 
-@app.command(name="info", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
+@app.command(name="info")
 def package_info():
     """Show package information and installation details."""
     # Show the beautiful banner for visual appeal
@@ -479,7 +475,7 @@ def package_info():
     console.print()
 
 
-@app.command(name="uninstall", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
+@app.command(name="uninstall")
 def package_uninstall():
     """Instructions for uninstalling the lite-kits package."""
     console.print(f"\n[bold yellow]Uninstall {APP_NAME}[/bold yellow]\n")
@@ -494,7 +490,7 @@ def package_uninstall():
     console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --here --all[/cyan]\n")
 
 
-@app.command(name="banner", rich_help_panel=PANEL_PACKAGE_MANAGEMENT, hidden=True)
+@app.command(name="banner", hidden=True)
 def show_banner():
     """Show the lite-kits banner (hidden easter egg command)."""
     diagonal_reveal_banner()
