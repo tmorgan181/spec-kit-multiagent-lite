@@ -14,7 +14,7 @@ description: Create pull request with smart description generation
 
 ## Execution Steps
 
-### 1. Verify Prerequisites
+### 1. Verify Prerequisites and Push Branch
 
 ```bash
 # Check if gh CLI is available
@@ -24,10 +24,7 @@ gh --version
 gh auth status
 
 # Check current branch
-git branch --show-current
-
-# Check if branch has remote tracking
-git rev-parse --abbrev-ref --symbolic-full-name @{u}
+CURRENT_BRANCH=$(git branch --show-current)
 ```
 
 **If not authenticated**:
@@ -38,12 +35,106 @@ Run: gh auth login
 Follow the prompts to authenticate.
 ```
 
-**If branch not pushed**:
-```
-Current branch not pushed to remote.
+**Check if branch needs pushing**:
+```bash
+# Check if branch has remote tracking
+if ! git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null; then
+  # No upstream - need initial push
+  NEEDS_PUSH=true
+  PUSH_TYPE="initial"
+else
+  # Check if local is ahead of remote
+  LOCAL=$(git rev-parse HEAD)
+  REMOTE=$(git rev-parse @{u})
 
-Run: git push -u origin <branch-name>
-Then try /pr again.
+  if [ "$LOCAL" != "$REMOTE" ]; then
+    NEEDS_PUSH=true
+    PUSH_TYPE="update"
+  fi
+fi
+```
+
+**If branch needs pushing, push automatically**:
+```bash
+if [ "$NEEDS_PUSH" = true ]; then
+  if [ "$PUSH_TYPE" = "initial" ]; then
+    echo "📤 Pushing branch to remote for the first time..."
+    git push -u origin $CURRENT_BRANCH
+  else
+    echo "📤 Pushing new commits to remote..."
+    git push
+  fi
+
+  # Verify push succeeded
+  if [ $? -eq 0 ]; then
+    echo "✓ Branch pushed successfully"
+  else
+    echo "❌ Push failed. Please resolve and try again."
+    exit 1
+  fi
+fi
+```
+
+### 1a. Check Existing PR Status
+
+**CRITICAL**: Always check if a PR already exists for this branch before creating a new one!
+
+```bash
+# Check for existing PR (open or closed)
+EXISTING_PR=$(gh pr list --head $CURRENT_BRANCH --json number,state,url --jq '.[0]')
+
+if [ -n "$EXISTING_PR" ]; then
+  PR_NUMBER=$(echo "$EXISTING_PR" | jq -r '.number')
+  PR_STATE=$(echo "$EXISTING_PR" | jq -r '.state')
+  PR_URL=$(echo "$EXISTING_PR" | jq -r '.url')
+fi
+```
+
+**If PR exists and is OPEN**:
+```
+✓ Pull Request #5 already exists for this branch.
+
+State: OPEN
+URL: https://github.com/owner/repo/pull/5
+
+New commits will automatically appear in the PR.
+
+Options:
+  - Push new commits: git push
+  - Update PR description: gh pr edit 5 --body "new description"
+  - View PR: gh pr view --web
+
+Continue anyway to update PR description? (y/n): _____
+```
+
+**If PR exists and is MERGED**:
+```
+✓ Pull Request #5 for this branch was already MERGED.
+
+URL: https://github.com/owner/repo/pull/5
+
+You have new commits since the merge.
+
+Options:
+  1. Create NEW PR for additional changes
+  2. Switch to develop and create new feature branch
+  3. Cancel
+
+Choice (1-3): _____
+```
+
+**If PR exists and is CLOSED (not merged)**:
+```
+⚠️  Pull Request #5 for this branch exists but was CLOSED (not merged).
+
+URL: https://github.com/owner/repo/pull/5
+
+Options:
+  1. Reopen existing PR: gh pr reopen 5
+  2. Create new PR (not recommended - will conflict)
+  3. Cancel
+
+Choice (1-3): _____
 ```
 
 ### 2. Determine Base Branch
@@ -171,18 +262,22 @@ fi
 
 ### 3. Analyze Commits Since Base Branch
 
+**IMPORTANT**: Only analyze commits that will be included in THIS PR (commits since divergence from base branch). Do NOT include commits that are already in the base branch or from previous merged PRs.
+
 Once base branch is confirmed, analyze commits:
 
 ```bash
-# Get commits since divergence
+# Get commits since divergence (ONLY commits in this PR)
 git log $BASE_BRANCH..HEAD --oneline
 
-# Get full commit messages
+# Get full commit messages (ONLY for commits in this PR)
 git log $BASE_BRANCH..HEAD --format="%s%n%b"
 
-# Get file changes
+# Get file changes (ONLY changes in this PR)
 git diff $BASE_BRANCH...HEAD --stat
 ```
+
+**These are the ONLY commits to describe in the PR**. Previous work is already merged and documented in earlier PRs.
 
 ### 4. Detect Multi-Agent Collaboration
 
@@ -198,6 +293,8 @@ git log $BASE_BRANCH..HEAD --format="%b" | grep "via.*@" || echo "No attribution
 - Highlight collaboration in PR description
 
 ### 5. Generate PR Description
+
+**CRITICAL**: The PR description should ONLY cover the commits identified in Step 3 (commits since base branch). This PR is one modular piece of work - don't describe previous merged work.
 
 Create a comprehensive PR description:
 

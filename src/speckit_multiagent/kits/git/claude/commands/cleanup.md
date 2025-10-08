@@ -6,10 +6,18 @@ description: Clean up merged branches
 
 **Purpose**: Safely delete local branches that have been merged, keeping your workspace clean.
 
+## Usage
+
+```bash
+/cleanup                    # Clean up local branches only
+/cleanup --remote           # Also delete from remote
+/cleanup --include-current  # Include current branch if PR merged
+```
+
 ## Prerequisites
 
 - Git repository
-- On a safe branch (not the branch you want to delete)
+- On a safe branch (not the branch you want to delete, unless using --include-current)
 
 ## Execution Steps
 
@@ -29,6 +37,45 @@ done
 
 echo "Current branch: $CURRENT_BRANCH"
 echo "Base branch: $BASE_BRANCH"
+```
+
+### 1a. Check if Current Branch Should Be Included
+
+**If `--include-current` flag is present OR current branch is merged with no uncommitted work**:
+
+```bash
+# Check if current branch is merged into base
+if git merge-base --is-ancestor HEAD origin/$BASE_BRANCH 2>/dev/null; then
+  # Check if there are any commits ahead of base
+  COMMITS_AHEAD=$(git rev-list --count origin/$BASE_BRANCH..HEAD)
+
+  if [ $COMMITS_AHEAD -eq 0 ]; then
+    # PR was merged, current branch is fully in base
+    echo "✓ Current branch PR appears to be merged (no commits ahead of $BASE_BRANCH)"
+
+    # Check for uncommitted changes
+    if git diff-index --quiet HEAD --; then
+      INCLUDE_CURRENT=true
+      echo "⚠️  Current branch can be deleted (will switch to $BASE_BRANCH first)"
+    else
+      echo "⚠️  Current branch has uncommitted changes - won't auto-delete"
+      INCLUDE_CURRENT=false
+    fi
+  fi
+fi
+```
+
+**If current branch should be included**:
+```
+⚠️  Your current branch (dev/004-cleanup-command) appears to be merged!
+
+The PR has been merged into develop with no additional commits.
+
+Include current branch in cleanup?
+  - Will switch to develop first
+  - Then delete dev/004-cleanup-command
+
+Include? (y/n): _____
 ```
 
 **Safety check**:
@@ -109,6 +156,19 @@ Show branches in a code block with clear formatting:
 
 ### 4. Execute Cleanup
 
+**If current branch should be deleted, switch first**:
+```bash
+if [ "$INCLUDE_CURRENT" = true ]; then
+  echo "Switching to $BASE_BRANCH..."
+  git checkout $BASE_BRANCH
+  git pull origin $BASE_BRANCH
+
+  # Add current branch to cleanup list
+  MERGED_BRANCHES="$MERGED_BRANCHES
+$CURRENT_BRANCH"
+fi
+```
+
 **If user selects specific branches (e.g., "1 3")**:
 ```bash
 # Parse selection
@@ -119,10 +179,23 @@ for num in $SELECTED; do
   # Get branch name from list
   BRANCH=$(echo "$MERGED_BRANCHES" | sed -n "${num}p")
 
+  # Delete local branch
   git branch -d $BRANCH
 
   if [ $? -eq 0 ]; then
-    echo "✓ Deleted: $BRANCH"
+    echo "✓ Deleted local: $BRANCH"
+
+    # If --remote flag, also delete from remote
+    if [ "$DELETE_REMOTE" = true ]; then
+      if git ls-remote --heads origin $BRANCH | grep -q $BRANCH; then
+        git push origin --delete $BRANCH
+        if [ $? -eq 0 ]; then
+          echo "✓ Deleted remote: $BRANCH"
+        else
+          echo "✗ Failed to delete remote: $BRANCH"
+        fi
+      fi
+    fi
   else
     echo "✗ Failed to delete: $BRANCH"
   fi
@@ -133,10 +206,23 @@ done
 ```bash
 # Delete all merged branches
 for branch in $MERGED_BRANCHES; do
+  # Delete local branch
   git branch -d $branch
 
   if [ $? -eq 0 ]; then
-    echo "✓ Deleted: $branch"
+    echo "✓ Deleted local: $branch"
+
+    # If --remote flag, also delete from remote
+    if [ "$DELETE_REMOTE" = true ]; then
+      if git ls-remote --heads origin $branch | grep -q $branch; then
+        git push origin --delete $branch
+        if [ $? -eq 0 ]; then
+          echo "✓ Deleted remote: $branch"
+        else
+          echo "✗ Failed to delete remote: $branch"
+        fi
+      fi
+    fi
   else
     echo "✗ Failed to delete: $branch"
   fi
@@ -172,16 +258,21 @@ After cleanup, show what was done:
 ## Important Notes
 
 **Safety Features**:
-- Never deletes current branch
+- Never deletes current branch (unless `--include-current` and PR is merged)
 - Never deletes base branches (main, develop, master)
 - Only deletes branches that are fully merged
 - Uses `git branch -d` (safe delete, will fail if unmerged changes)
 - Always asks for confirmation before deletion
+- Remote deletion is opt-in with `--remote` flag
 
-**Protected Branches** (never deleted):
-- Current branch (wherever you are)
+**Protected Branches** (never deleted automatically):
+- Current branch (unless `--include-current` and PR merged with no new commits)
 - `main`, `master`, `develop` (common base branches)
 - Any branch that hasn't been merged
+
+**Flags**:
+- `--remote`: Also delete branches from remote repository
+- `--include-current`: Allow deletion of current branch if PR is merged
 
 **Error Handling**:
 ```bash
@@ -227,30 +318,6 @@ $ git branch -d dev/002-installer-polish
 Deleted branch dev/002-installer-polish (was 9cd3690)
 
 ✓ Cleanup complete: 2 branches deleted
-```
-
-## Advanced Options
-
-**Check remote tracking**:
-```bash
-# Show if branch still exists on remote
-for branch in $MERGED_BRANCHES; do
-  REMOTE=$(git config branch.$branch.remote 2>/dev/null)
-  if [ -n "$REMOTE" ]; then
-    echo "⚠️  Branch '$branch' still has remote: $REMOTE"
-    echo "   Consider: git push origin --delete $branch"
-  fi
-done
-```
-
-**Suggest remote cleanup** (informational only, don't execute):
-```
-📝 Note: Some deleted branches may still exist on remote.
-
-To remove from remote:
-  git push origin --delete <branch-name>
-
-Or delete via GitHub/GitLab UI after PR merge.
 ```
 
 ## Multi-Agent Considerations

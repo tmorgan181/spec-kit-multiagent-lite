@@ -6,10 +6,18 @@ description: Clean up merged branches
 
 **Purpose**: Safely delete local branches that have been merged, keeping your workspace clean.
 
+## Usage
+
+```powershell
+/cleanup                    # Clean up local branches only
+/cleanup -Remote            # Also delete from remote
+/cleanup -IncludeCurrent    # Include current branch if PR merged
+```
+
 ## Prerequisites
 
 - Git repository
-- On a safe branch (not the branch you want to delete)
+- On a safe branch (not the branch you want to delete, unless using -IncludeCurrent)
 
 ## Execution Steps
 
@@ -30,6 +38,47 @@ foreach ($base in @('develop', 'main', 'master')) {
 
 Write-Host "Current branch: $CurrentBranch"
 Write-Host "Base branch: $BaseBranch"
+```
+
+### 1a. Check if Current Branch Should Be Included
+
+**If `-IncludeCurrent` flag is present OR current branch is merged with no uncommitted work**:
+
+```powershell
+# Check if current branch is merged into base
+$IsMerged = git merge-base --is-ancestor HEAD "origin/$BaseBranch" 2>$null
+if ($LASTEXITCODE -eq 0) {
+    # Check if there are any commits ahead of base
+    $CommitsAhead = (git rev-list --count "origin/$BaseBranch..HEAD") -as [int]
+
+    if ($CommitsAhead -eq 0) {
+        # PR was merged, current branch is fully in base
+        Write-Host "✓ Current branch PR appears to be merged (no commits ahead of $BaseBranch)"
+
+        # Check for uncommitted changes
+        git diff-index --quiet HEAD -- 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $IncludeCurrent = $true
+            Write-Host "⚠️  Current branch can be deleted (will switch to $BaseBranch first)" -ForegroundColor Yellow
+        } else {
+            Write-Host "⚠️  Current branch has uncommitted changes - won't auto-delete" -ForegroundColor Yellow
+            $IncludeCurrent = $false
+        }
+    }
+}
+```
+
+**If current branch should be included**:
+```
+⚠️  Your current branch (dev/004-cleanup-command) appears to be merged!
+
+The PR has been merged into develop with no additional commits.
+
+Include current branch in cleanup?
+  - Will switch to develop first
+  - Then delete dev/004-cleanup-command
+
+Include? (y/n): _____
 ```
 
 **Safety check**:
@@ -116,6 +165,18 @@ Show branches in a code block with clear formatting:
 
 ### 4. Execute Cleanup
 
+**If current branch should be deleted, switch first**:
+```powershell
+if ($IncludeCurrent) {
+    Write-Host "Switching to $BaseBranch..."
+    git checkout $BaseBranch
+    git pull origin $BaseBranch
+
+    # Add current branch to cleanup list
+    $MergedBranches += $CurrentBranch
+}
+```
+
 **If user selects specific branches (e.g., "1 3")**:
 ```powershell
 # Parse selection
@@ -126,10 +187,24 @@ foreach ($num in $Selected) {
     $index = [int]$num - 1
     $branch = $MergedBranches[$index]
 
+    # Delete local branch
     try {
         git branch -d $branch 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✓ Deleted: $branch" -ForegroundColor Green
+            Write-Host "✓ Deleted local: $branch" -ForegroundColor Green
+
+            # If -Remote flag, also delete from remote
+            if ($DeleteRemote) {
+                $remoteExists = git ls-remote --heads origin $branch 2>$null
+                if ($remoteExists) {
+                    git push origin --delete $branch 2>&1 | Out-Null
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "✓ Deleted remote: $branch" -ForegroundColor Green
+                    } else {
+                        Write-Host "✗ Failed to delete remote: $branch" -ForegroundColor Red
+                    }
+                }
+            }
         } else {
             Write-Host "✗ Failed to delete: $branch" -ForegroundColor Red
         }
@@ -143,10 +218,24 @@ foreach ($num in $Selected) {
 ```powershell
 # Delete all merged branches
 foreach ($branch in $MergedBranches) {
+    # Delete local branch
     try {
         git branch -d $branch 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✓ Deleted: $branch" -ForegroundColor Green
+            Write-Host "✓ Deleted local: $branch" -ForegroundColor Green
+
+            # If -Remote flag, also delete from remote
+            if ($DeleteRemote) {
+                $remoteExists = git ls-remote --heads origin $branch 2>$null
+                if ($remoteExists) {
+                    git push origin --delete $branch 2>&1 | Out-Null
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "✓ Deleted remote: $branch" -ForegroundColor Green
+                    } else {
+                        Write-Host "✗ Failed to delete remote: $branch" -ForegroundColor Red
+                    }
+                }
+            }
         } else {
             Write-Host "✗ Failed to delete: $branch" -ForegroundColor Red
         }
@@ -185,16 +274,21 @@ After cleanup, show what was done:
 ## Important Notes
 
 **Safety Features**:
-- Never deletes current branch
+- Never deletes current branch (unless `-IncludeCurrent` and PR is merged)
 - Never deletes base branches (main, develop, master)
 - Only deletes branches that are fully merged
 - Uses `git branch -d` (safe delete, will fail if unmerged changes)
 - Always asks for confirmation before deletion
+- Remote deletion is opt-in with `-Remote` flag
 
-**Protected Branches** (never deleted):
-- Current branch (wherever you are)
+**Protected Branches** (never deleted automatically):
+- Current branch (unless `-IncludeCurrent` and PR merged with no new commits)
 - `main`, `master`, `develop` (common base branches)
 - Any branch that hasn't been merged
+
+**Flags**:
+- `-Remote`: Also delete branches from remote repository
+- `-IncludeCurrent`: Allow deletion of current branch if PR is merged
 
 **Error Handling**:
 ```powershell
@@ -245,30 +339,6 @@ Deleted branch dev/001-starter-kits (was 5b1ad35)
 Deleted branch dev/002-installer-polish (was 9cd3690)
 
 ✓ Cleanup complete: 2 branches deleted
-```
-
-## Advanced Options
-
-**Check remote tracking**:
-```powershell
-# Show if branch still exists on remote
-foreach ($branch in $MergedBranches) {
-    $remote = git config "branch.$branch.remote" 2>$null
-    if ($remote) {
-        Write-Host "⚠️  Branch '$branch' still has remote: $remote" -ForegroundColor Yellow
-        Write-Host "   Consider: git push origin --delete $branch"
-    }
-}
-```
-
-**Suggest remote cleanup** (informational only, don't execute):
-```
-📝 Note: Some deleted branches may still exist on remote.
-
-To remove from remote:
-  git push origin --delete <branch-name>
-
-Or delete via GitHub/GitLab UI after PR merge.
 ```
 
 ## Multi-Agent Considerations
