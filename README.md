@@ -4,7 +4,7 @@
 
 Add modular enhancement kits to vanilla [GitHub Spec-Kit](https://github.com/github/spec-kit) projects without forking or replacing core files.
 
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/tmorgan181/lite-kits)
+[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.1.1)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -21,6 +21,18 @@ Spec-Kit is a framework for AI-driven collaborative development (spec → plan �
 - 🤝 **multiagent-kit** - Multi-agent coordination (`/sync`, collaboration directories)
 
 Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot, Cursor) and optional scripts.
+
+## ✨ Beautiful CLI Experience
+
+**lite-kits** v0.1.1 features a stunning ASCII banner system with UV-inspired modern CLI patterns:
+
+- 🎨 **Beautiful ASCII Art** - LITE-KITS branding with professional charm
+- ⚡ **Smart Display Modes** - Static banners for daily use, animated for special moments
+- 🚀 **UV-Style Commands** - Modern global options (`--version/-V`, `--quiet/-q`, `--verbose/-v`)
+- 📊 **Professional Tables** - Clean information displays and status reports
+- 🎯 **Context-Aware** - Shows installed kits and project status intelligently
+
+**Vibe coding with professional polish!** ✨
 
 ## Key Features
 
@@ -162,34 +174,51 @@ lite-kits add --here --recommended            # Add project + git kits
 
 ### CLI Commands
 
+**Beautiful Banner Experience:**
+```bash
+# Welcome screen with static banner + quick start
+lite-kits                                    # Show banner and quick start guide
+
+# Animated celebration banner
+lite-kits --banner                           # Special animated ASCII art
+
+# Banner integrated into all commands
+lite-kits status                             # Beautiful status display
+lite-kits info                               # Professional info tables
+```
+
 **Kit Management:**
 ```bash
-# Add kits to a project
-lite-kits add --here --recommended           # Add project + git kits
-lite-kits add --here --kit project           # Add specific kit
-lite-kits add --here --dry-run --recommended # Preview changes
+# Add kits to a project (working directory by default)
+lite-kits add --recommended                  # Add project + git kits
+lite-kits add --kit project                  # Add specific kit
+lite-kits add --dry-run --recommended        # Preview changes
+lite-kits add --directory /path/to/project   # Specify different directory
 
-# Check status
-lite-kits status --here                      # Show installed kits
+# Check status with beautiful display
+lite-kits status                             # Show installed kits with banner
 
 # Validate installation
-lite-kits validate --here                    # Verify kit installation
+lite-kits validate                           # Verify kit installation
 
 # Remove kits
-lite-kits remove --here --kit git            # Remove specific kit
-lite-kits remove --here --all                # Remove all kits
+lite-kits remove --kit git                   # Remove specific kit
+lite-kits remove --all                       # Remove all kits
 ```
 
 **Package Management:**
 ```bash
-# Get package info
+# Get package info with professional tables
 lite-kits info                               # Show version, kits, quick start
 
 # Uninstall instructions
 lite-kits uninstall                          # How to remove package
 
-# Version
-lite-kits --version                          # Show version only
+# Version and global options (UV-style)
+lite-kits --version / -V                     # Show version only
+lite-kits --quiet / -q                       # Suppress banners
+lite-kits --verbose / -v                     # Extra output
+lite-kits --directory <path>                 # Set working directory
 ```
 
 ### Git Workflow Example
