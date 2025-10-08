@@ -270,7 +270,7 @@ def remove(
 @app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
 def validate(
     here: bool = typer.Option(
-        True,
+        False,
         "--here",
         help="Validate current directory",
     ),
@@ -291,7 +291,11 @@ def validate(
     Example:
         lite-kits validate --here
     """
-    target_dir = Path.cwd() if here else target
+    # Default to current directory if no target specified
+    if here or target is None:
+        target_dir = Path.cwd()
+    else:
+        target_dir = target
 
     # For validation, we don't know which kits are installed yet, so check for all
     installer = Installer(target_dir, kits=KITS_ALL)
@@ -326,7 +330,7 @@ def validate(
 @app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
 def status(
     here: bool = typer.Option(
-        True,
+        False,
         "--here",
         help="Check current directory",
     ),
@@ -346,7 +350,11 @@ def status(
     Example:
         lite-kits status --here
     """
-    target_dir = Path.cwd() if here else target
+    # Default to current directory if no target specified
+    if here or target is None:
+        target_dir = Path.cwd()
+    else:
+        target_dir = target
 
     # For status, check for all possible kits
     installer = Installer(target_dir, kits=KITS_ALL)
@@ -410,6 +418,62 @@ def _display_validation_results(result: dict):
 
         if not check_result["passed"] and "message" in check_result:
             console.print(f"  {check_result['message']}", style="dim")
+
+
+@app.command(name="info", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
+def package_info():
+    """Show package information and installation details."""
+    # Use __version__ from package instead of importlib.metadata
+    console.print(f"\n[bold cyan]{APP_NAME} v{__version__}[/bold cyan]")
+    console.print(f"[dim]{APP_DESCRIPTION}[/dim]\n")
+
+    # Package info
+    info_table = Table(show_header=False, box=None, padding=(0, 2))
+    info_table.add_column("Key", style="cyan")
+    info_table.add_column("Value")
+
+    info_table.add_row("Version", __version__)
+    info_table.add_row("Repository", "https://github.com/tmorgan181/lite-kits")
+    info_table.add_row("License", "MIT")
+
+    console.print(info_table)
+    console.print()
+
+    # Available kits
+    console.print("[bold]Available Kits:[/bold]")
+    console.print(f"  • [cyan]{KIT_PROJECT}[/cyan]: {KIT_DESC_PROJECT}")
+    console.print(f"  • [cyan]{KIT_GIT}[/cyan]: {KIT_DESC_GIT}")
+    console.print(f"  • [cyan]{KIT_MULTIAGENT}[/cyan]: {KIT_DESC_MULTIAGENT}")
+    console.print()
+
+    # Quick start
+    console.print("[bold]Quick Start:[/bold]")
+    console.print(f"  1. [cyan]{APP_NAME} add --here --recommended[/cyan]  # Add project + git kits")
+    console.print(f"  2. [cyan]{APP_NAME} status --here[/cyan]             # Check installation")
+    console.print(f"  3. [cyan]/orient[/cyan]                        # Run in your AI assistant")
+    console.print()
+
+    # Package management
+    console.print("[bold]Package Management:[/bold]")
+    console.print(f"  Install:   [dim]uv tool install {APP_NAME}[/dim]")
+    console.print(f"  Update:    [dim]uv tool install --upgrade {APP_NAME}[/dim]")
+    console.print(f"  Uninstall: [dim]uv tool uninstall {APP_NAME}[/dim]")
+    console.print()
+
+
+@app.command(name="uninstall", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
+def package_uninstall():
+    """Instructions for uninstalling the lite-kits package."""
+    console.print(f"\n[bold yellow]Uninstall {APP_NAME}[/bold yellow]\n")
+
+    console.print("To uninstall the package, run:\n")
+    console.print(f"  [cyan]uv tool uninstall {APP_NAME}[/cyan]\n")
+
+    console.print("[dim]Or with pip:[/dim]\n")
+    console.print(f"  [dim]pip uninstall {APP_NAME}[/dim]\n")
+
+    console.print("[bold]Note:[/bold] This will remove the package but NOT the kits you've added to projects.")
+    console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --here --all[/cyan]\n")
 
 
 if __name__ == "__main__":
