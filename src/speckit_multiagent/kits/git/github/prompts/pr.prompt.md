@@ -14,7 +14,7 @@ description: Create pull request with smart description generation
 
 ## Execution Steps
 
-### 1. Verify Prerequisites
+### 1. Verify Prerequisites and Push Branch
 
 ```powershell
 # Check if gh CLI is available
@@ -25,9 +25,6 @@ gh auth status
 
 # Check current branch
 $CurrentBranch = git branch --show-current
-
-# Check if branch has remote tracking
-git rev-parse --abbrev-ref --symbolic-full-name '@{u}'
 ```
 
 **If not authenticated**:
@@ -38,12 +35,48 @@ Run: gh auth login
 Follow the prompts to authenticate.
 ```
 
-**If branch not pushed**:
-```
-Current branch not pushed to remote.
+**Check if branch needs pushing**:
+```powershell
+# Check if branch has remote tracking
+$HasUpstream = git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null
+$NeedsPush = $false
+$PushType = $null
 
-Run: git push -u origin <branch-name>
-Then try /pr again.
+if ($LASTEXITCODE -ne 0) {
+    # No upstream - need initial push
+    $NeedsPush = $true
+    $PushType = "initial"
+} else {
+    # Check if local is ahead of remote
+    $Local = git rev-parse HEAD
+    $Remote = git rev-parse '@{u}'
+
+    if ($Local -ne $Remote) {
+        $NeedsPush = $true
+        $PushType = "update"
+    }
+}
+```
+
+**If branch needs pushing, push automatically**:
+```powershell
+if ($NeedsPush) {
+    if ($PushType -eq "initial") {
+        Write-Host "📤 Pushing branch to remote for the first time..."
+        git push -u origin $CurrentBranch
+    } else {
+        Write-Host "📤 Pushing new commits to remote..."
+        git push
+    }
+
+    # Verify push succeeded
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✓ Branch pushed successfully" -ForegroundColor Green
+    } else {
+        Write-Host "❌ Push failed. Please resolve and try again." -ForegroundColor Red
+        exit 1
+    }
+}
 ```
 
 ### 1a. Check Existing PR Status
@@ -230,18 +263,22 @@ if ($BASE_BRANCH_REMOTE) {
 
 ### 3. Analyze Commits Since Base Branch
 
+**IMPORTANT**: Only analyze commits that will be included in THIS PR (commits since divergence from base branch). Do NOT include commits that are already in the base branch or from previous merged PRs.
+
 Once base branch is confirmed, analyze commits:
 
 ```powershell
-# Get commits since divergence
+# Get commits since divergence (ONLY commits in this PR)
 git log "$BASE_BRANCH..HEAD" --oneline
 
-# Get full commit messages
+# Get full commit messages (ONLY for commits in this PR)
 git log "$BASE_BRANCH..HEAD" --format="%s%n%b"
 
-# Get file changes
+# Get file changes (ONLY changes in this PR)
 git diff "$BASE_BRANCH...HEAD" --stat
 ```
+
+**These are the ONLY commits to describe in the PR**. Previous work is already merged and documented in earlier PRs.
 
 ### 4. Detect Multi-Agent Collaboration
 
@@ -257,6 +294,8 @@ git log "$BASE_BRANCH..HEAD" --format="%b" | Select-String "via.*@"
 - Highlight collaboration in PR description
 
 ### 5. Generate PR Description
+
+**CRITICAL**: The PR description should ONLY cover the commits identified in Step 3 (commits since base branch). This PR is one modular piece of work - don't describe previous merged work.
 
 Create a comprehensive PR description:
 
