@@ -19,8 +19,10 @@ from .installer import Installer
 
 app = typer.Typer(
     name="lite-kits",
-    help="Lightweight enhancement kits for vanilla dev tools",
+    help="Lightweight enhancement kits for vanilla dev tools\n\n[dim]Tip: Run 'lite-kits COMMAND --help' for detailed help on each command[/dim]",
     no_args_is_help=True,
+    add_completion=False,  # Disable shell completion to avoid modifying user profiles
+    rich_markup_mode="rich",
 )
 console = Console()
 
@@ -48,7 +50,7 @@ def main(
 
 
 @app.command()
-def add(
+def install(
     here: bool = typer.Option(
         False,
         "--here",
@@ -75,18 +77,18 @@ def add(
     ),
 ):
     """
-    Add multiagent coordination features to a spec-kit project.
+    Install enhancement kits to a spec-kit project.
 
-    Kits:
-    - project: /orient command, project management features
-    - git: /commit, /pr commands with agent attribution
-    - multiagent: Collaboration structure, PR workflow guides
+    Available kits:
+    - project: /orient command, project orientation features
+    - git: /commit, /pr, /cleanup commands with smart workflows
+    - multiagent: /sync, collaboration directories, memory guides
 
     Examples:
-        lite-kits install -Kit project           # Install project kit only
-        lite-kits install -Recommended           # Install project + git kits
-        lite-kits install -Kit multiagent        # Install all kits (auto-includes deps)
-        lite-kits install -Recommended -WhatIf   # Preview changes
+        lite-kits install --here --kit project           # Install project kit only
+        lite-kits install --here --recommended           # Install project + git kits
+        lite-kits install --here --kit multiagent        # Install all kits (auto-includes deps)
+        lite-kits install --here --dry-run --recommended # Preview changes
     """
     if not here and target is None:
         console.print(
@@ -126,7 +128,7 @@ def add(
     # Check if already installed
     if installer.is_multiagent_installed():
         console.print(
-            "[yellow]Warning:[/yellow] Multiagent features appear to be already installed",
+            "[yellow]Warning:[/yellow] Enhancement kits appear to be already installed",
             style="bold",
         )
         if not typer.confirm("Reinstall anyway?"):
@@ -138,7 +140,7 @@ def add(
         changes = installer.preview_installation()
         _display_changes(changes)
     else:
-        console.print(f"\n[bold green]Installing multiagent features to {target_dir}[/bold green]\n")
+        console.print(f"\n[bold green]Installing enhancement kits to {target_dir}[/bold green]\n")
 
         with console.status("[bold green]Installing..."):
             result = installer.install()
@@ -174,14 +176,14 @@ def remove(
     ),
 ):
     """
-    Remove kit features from a spec-kit project.
+    Remove enhancement kits from a spec-kit project.
 
     Returns the project to vanilla spec-kit state.
 
     Examples:
-        lite-kits remove -Kit git                # Remove git-kit only
-        lite-kits remove -Kit project,git        # Remove specific kits
-        lite-kits remove -All                    # Remove all kits
+        lite-kits remove --here --kit git                # Remove git-kit only
+        lite-kits remove --here --kit project,git        # Remove specific kits
+        lite-kits remove --here --all                    # Remove all kits
     """
     if not here and target is None:
         console.print(
@@ -201,8 +203,8 @@ def remove(
     else:
         console.print("[yellow]Error:[/yellow] Specify --kit or --all", style="bold")
         console.print("\nExamples:", style="dim")
-        console.print("  lite-kits remove -Kit git", style="dim")
-        console.print("  lite-kits remove -All", style="dim")
+        console.print("  lite-kits remove --here --kit git", style="dim")
+        console.print("  lite-kits remove --here --all", style="dim")
         raise typer.Exit(1)
 
     try:
@@ -255,16 +257,16 @@ def validate(
     ),
 ):
     """
-    Validate multiagent coordination structure.
+    Validate enhancement kit installation.
 
     Checks:
-    - Collaboration directory structure
+    - Kit files are present and correctly installed
+    - Collaboration directory structure (if multiagent-kit installed)
     - Required files present
-    - Constitution consistency
-    - Command synchronization
+    - Cross-kit consistency
 
     Example:
-        lite-kits validate
+        lite-kits validate --here
     """
     target_dir = Path.cwd() if here else target
 
@@ -278,10 +280,10 @@ def validate(
         console.print("[red][X] Not a spec-kit project[/red]")
         raise typer.Exit(1)
 
-    # Check if multiagent is installed
+    # Check if any kits are installed
     if not installer.is_multiagent_installed():
-        console.print("[yellow]⚠ Multiagent features not installed[/yellow]")
-        console.print("  Run: lite-kits install -Recommended", style="dim")
+        console.print("[yellow]⚠ No enhancement kits installed[/yellow]")
+        console.print("  Run: lite-kits install --here --recommended", style="dim")
         raise typer.Exit(1)
 
     # Validate structure
@@ -311,16 +313,15 @@ def status(
     ),
 ):
     """
-    Show coordination status for the project.
+    Show enhancement kit installation status for the project.
 
     Displays:
-    - Installation status
-    - Active collaboration directories
-    - Recent coordination activity
-    - Agent attribution
+    - Spec-kit project detection
+    - Installed kits
+    - Installation health
 
     Example:
-        lite-kits status
+        lite-kits status --here
     """
     target_dir = Path.cwd() if here else target
 
@@ -331,22 +332,23 @@ def status(
 
     # Basic checks
     is_spec_kit = installer.is_spec_kit_project()
-    is_multiagent = installer.is_multiagent_installed()
+
+    # Check individual kits
+    project_kit_installed = (target_dir / ".claude" / "commands" / "orient.md").exists()
+    git_kit_installed = (target_dir / ".claude" / "commands" / "commit.md").exists()
+    multiagent_kit_installed = (target_dir / ".specify" / "memory" / "pr-workflow-guide.md").exists()
 
     table = Table(show_header=False, box=None)
     table.add_column("Item", style="cyan")
     table.add_column("Status")
 
-    table.add_row("Spec-kit project", "[OK]" if is_spec_kit else "[X]")
-    table.add_row("Multiagent installed", "[OK]" if is_multiagent else "[X]")
+    table.add_row("Spec-kit project", "[green][OK][/green]" if is_spec_kit else "[red][X][/red]")
+    table.add_row("project-kit", "[green][OK][/green]" if project_kit_installed else "[dim][--][/dim]")
+    table.add_row("git-kit", "[green][OK][/green]" if git_kit_installed else "[dim][--][/dim]")
+    table.add_row("multiagent-kit", "[green][OK][/green]" if multiagent_kit_installed else "[dim][--][/dim]")
 
     console.print(table)
     console.print()
-
-    # TODO: Add more status information
-    # - Active collaboration directories
-    # - Recent sessions
-    # - Agent attribution from git log
 
 
 def _display_changes(changes: dict):

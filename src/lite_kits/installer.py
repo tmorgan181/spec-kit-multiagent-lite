@@ -161,17 +161,23 @@ class Installer:
                 if has_claude:
                     self._install_file('git/claude/commands/commit.md', '.claude/commands/commit.md')
                     self._install_file('git/claude/commands/pr.md', '.claude/commands/pr.md')
-                    self._install_file('git/claude/commands/sync.md', '.claude/commands/sync.md')
-                    result["installed"].append("git-kit (Claude): /commit, /pr, /sync commands")
+                    self._install_file('git/claude/commands/cleanup.md', '.claude/commands/cleanup.md')
+                    result["installed"].append("git-kit (Claude): /commit, /pr, /cleanup commands")
 
                 if has_copilot:
                     self._install_file('git/github/prompts/commit.prompt.md', '.github/prompts/commit.prompt.md')
                     self._install_file('git/github/prompts/pr.prompt.md', '.github/prompts/pr.prompt.md')
-                    self._install_file('git/github/prompts/sync.prompt.md', '.github/prompts/sync.prompt.md')
-                    result["installed"].append("git-kit (Copilot): /commit, /pr, /sync commands")
+                    self._install_file('git/github/prompts/cleanup.prompt.md', '.github/prompts/cleanup.prompt.md')
+                    result["installed"].append("git-kit (Copilot): /commit, /pr, /cleanup commands")
 
             # Install multiagent kit
             if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
+                # Commands
+                if has_claude:
+                    self._install_file('multiagent/claude/commands/sync.md', '.claude/commands/sync.md')
+                if has_copilot:
+                    self._install_file('multiagent/github/prompts/sync.prompt.md', '.github/prompts/sync.prompt.md')
+
                 # Memory guides
                 self._install_file('multiagent/memory/pr-workflow-guide.md', '.specify/memory/pr-workflow-guide.md')
                 self._install_file('multiagent/memory/git-worktrees-protocol.md', '.specify/memory/git-worktrees-protocol.md')
@@ -185,6 +191,7 @@ class Installer:
                 self._install_file('multiagent/templates/decision.md', '.specify/templates/decision.md')
                 self._install_file('multiagent/templates/collaboration-structure/README.md', '.specify/templates/collaboration-README.md')
 
+                result["installed"].append("multiagent-kit: /sync command")
                 result["installed"].append("multiagent-kit: Memory guides (PR workflow, git worktrees, parallel work)")
                 result["installed"].append("multiagent-kit: Templates (session-log, handoff, decision, collaboration)")
 
