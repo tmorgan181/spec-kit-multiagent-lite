@@ -19,7 +19,7 @@ from .installer import Installer
 
 # Constants
 APP_NAME = "lite-kits"
-APP_DESCRIPTION = "Lightweight enhancement kits for vanilla dev tools"
+APP_DESCRIPTION = "Lightweight enhancement kits for spec-driven development"
 HELP_TIP = "Tip: Run 'lite-kits COMMAND --help' for detailed help on each command"
 
 # Kit names
