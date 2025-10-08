@@ -29,11 +29,6 @@ KITS_ALL = [KIT_PROJECT, KIT_GIT, KIT_MULTIAGENT]
 KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
 
 # Kit names and collections
-KIT_PROJECT = "project"
-KIT_GIT = "git"
-KIT_MULTIAGENT = "multiagent"
-KITS_ALL = [KIT_PROJECT, KIT_GIT, KIT_MULTIAGENT]
-KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
 
 # Kit descriptions for help
 KIT_DESC_PROJECT = "Agent orientation and project management features"
