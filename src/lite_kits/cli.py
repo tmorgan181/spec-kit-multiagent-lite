@@ -2,7 +2,7 @@
 """
 CLI for lite-kits
 
-Provides commands to add/remove enhancement kits for vanilla dev tools.
+Lightweight enhancement kits for spec-driven development.
 """
 
 import sys
@@ -15,12 +15,11 @@ from rich.panel import Panel
 from rich.table import Table
 
 from . import __version__
-from .installer import Installer
+from .core import diagonal_reveal_banner, show_loading_spinner, show_static_banner, Installer
 
 # Constants
 APP_NAME = "lite-kits"
-APP_DESCRIPTION = "Lightweight enhancement kits for spec-driven development"
-HELP_TIP = "Tip: Run 'lite-kits COMMAND --help' for detailed help on each command"
+APP_DESCRIPTION = "Lightweight enhancement kits for spec-driven development."
 
 # Kit names
 KIT_PROJECT = "project"
@@ -29,19 +28,12 @@ KIT_MULTIAGENT = "multiagent"
 KITS_ALL = [KIT_PROJECT, KIT_GIT, KIT_MULTIAGENT]
 KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
 
-# Help panel names
-PANEL_KIT_MANAGEMENT = "Kit Management"
-PANEL_PACKAGE_MANAGEMENT = "Package Management"
+# Kit names and collections
 
-# Kit descriptions
-KIT_DESC_PROJECT = "/orient command, project orientation features"
-KIT_DESC_GIT = "/commit, /pr, /cleanup commands with smart workflows"
-KIT_DESC_MULTIAGENT = "/sync, collaboration directories, memory guides"
-
-# Status indicators
-STATUS_OK = "[OK]"
-STATUS_NOT_FOUND = "[--]"
-STATUS_ERROR = "[X]"
+# Kit descriptions for help
+KIT_DESC_PROJECT = "Agent orientation and project management features"
+KIT_DESC_GIT = "Smart git workflows with AI-powered commit messages"
+KIT_DESC_MULTIAGENT = "Multi-agent coordination and collaboration protocols"
 
 # Marker files for kit detection
 MARKER_PROJECT_KIT = ".claude/commands/orient.md"
@@ -49,63 +41,132 @@ MARKER_GIT_KIT = ".claude/commands/commit.md"
 MARKER_MULTIAGENT_KIT = ".specify/memory/pr-workflow-guide.md"
 
 # Error messages
-ERROR_NO_TARGET = "Either --here or a target directory must be specified"
-ERROR_NOT_SPEC_KIT = "does not appear to be a spec-kit project"
+ERROR_NOT_SPEC_KIT = "does not appear to be a spec-kit project!"
 ERROR_SPEC_KIT_HINT = "Looking for one of: .specify/, .claude/, or .github/prompts/"
 
 app = typer.Typer(
     name=APP_NAME,
-    help=f"{APP_DESCRIPTION}\n\n[dim]{HELP_TIP}[/dim]",
-    no_args_is_help=True,
-    add_completion=False,  # Disable shell completion to avoid modifying user profiles
+    help=APP_DESCRIPTION,  # Restore original description for --help
+    no_args_is_help=False,  # We'll handle no-args case ourselves
+    add_completion=False,
     rich_markup_mode="rich",
 )
 console = Console()
 
+def print_help_hint():
+    console.print(f"[dim]See [bold cyan]--help[/bold cyan] for all options and commands.[/dim]\n")
+
+def print_version_info():
+    """Print version information."""
+    console.print(f"[bold]Version:[/bold]")
+    console.print(f"  [bold cyan]{APP_NAME} version {__version__}[/bold cyan]\n")
+
+def print_quick_start():
+    console.print("[bold]Quick Start:[/bold]")
+    console.print(f"  [cyan]1. {APP_NAME} add --recommended[/cyan]  # Add project + git kits")
+    console.print(f"  [cyan]2. {APP_NAME} status[/cyan]             # Check installation")
+    console.print(f"  [cyan]3. {APP_NAME} info[/cyan]               # Package details\n")
+
+def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
+    """Print kit installation info."""
+    console.print()
+    if is_spec_kit:
+        console.print(f"[bold green][OK] Spec-kit project detected in {target_dir}.[/bold green]\n")
+        if installed_kits:
+            console.print("Installed kits:", style="bold")
+            kit_icons = {
+                "project": "🎯",
+                "git": "🔧",
+                "multiagent": "🤝"
+            }
+            for kit in installed_kits:
+                icon = kit_icons.get(kit, "📦")
+                console.print(f"  {icon} {kit}-kit", style="green")
+        else:
+            console.print("No kits installed.", style="dim yellow")
+    else:
+        console.print(f"[bold red][X] {target_dir} {ERROR_NOT_SPEC_KIT}[/bold red]")
+        console.print(f"{ERROR_SPEC_KIT_HINT}", style="dim")
+    console.print()
 
 def version_callback(value: bool):
     """Print version and exit."""
     if value:
-        console.print(f"{APP_NAME} version {__version__}")
+        console.print()
+        print_version_info()
         raise typer.Exit()
 
+def banner_callback(value: bool):
+    """Show banner + hint and exit."""
+    if value:
+        diagonal_reveal_banner()
+        print_help_hint()
+        print_quick_start()
+        raise typer.Exit()
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
     version: Optional[bool] = typer.Option(
         None,
         "--version",
-        "-v",
-        help="Show version and exit",
+        "-V", 
+        help="Display the lite-kits version",
         callback=version_callback,
         is_eager=True,
     ),
+    banner: Optional[bool] = typer.Option(
+        None,
+        "--banner",
+        help="Show the lite-kits banner",
+        callback=banner_callback,
+        is_eager=True,
+    ),
+    quiet: Optional[bool] = typer.Option(
+        None,
+        "--quiet",
+        "-q",
+        help="Use quiet output",
+    ),
+    verbose: Optional[bool] = typer.Option(
+        None,
+        "--verbose", 
+        "-v",
+        help="Use verbose output",
+    ),
+    directory: Optional[Path] = typer.Option(
+        None,
+        "--directory",
+        help="Change to the given directory prior to running the command",
+    ),
 ):
-    f"""{APP_NAME}: {APP_DESCRIPTION}"""
-    pass
+    """Main CLI entry point."""
+    if directory:
+        import os
+        os.chdir(directory)
+    
+    # Show banner + hint and quick-start when no command is given
+    if ctx.invoked_subcommand is None:
+        show_static_banner()
+        print_help_hint()
+        print_quick_start()
 
-
-@app.command(name="add", rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command(name="add")
 def add_kits(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Add to current directory",
-    ),
-    dry_run: bool = typer.Option(
-        False,
-        "--dry-run",
-        help="Preview changes without applying them",
-    ),
     kit: Optional[str] = typer.Option(
         None,
         "--kit",
-        help=f"Comma-separated list of kits to add: {','.join(KITS_ALL)} (default: {KIT_PROJECT})",
+        help=f"Comma-separated list of kits to add: {','.join(KITS_ALL)}",
     ),
     recommended: bool = typer.Option(
         False,
         "--recommended",
         help=f"Add recommended kits: {' + '.join(KITS_RECOMMENDED)}",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview changes without applying them",
     ),
     target: Optional[Path] = typer.Argument(
         None,
@@ -113,14 +174,7 @@ def add_kits(
     ),
 ):
     """Add enhancement kits to a spec-kit project."""
-    if not here and target is None:
-        console.print(
-            f"[red]Error:[/red] {ERROR_NO_TARGET}",
-            style="bold",
-        )
-        raise typer.Exit(1)
-
-    target_dir = Path.cwd() if here else target
+    target_dir = Path.cwd() if target is None else target
 
     # Determine which kits to install
     kits = None
@@ -165,27 +219,23 @@ def add_kits(
     else:
         console.print(f"\n[bold green]Adding enhancement kits to {target_dir}[/bold green]\n")
 
-        with console.status("[bold green]Adding kits..."):
-            result = installer.install()
+        show_loading_spinner("Adding kits...")
+        result = installer.install()
 
         if result["success"]:
             console.print("\n[bold green][OK] Kits added successfully![/bold green]\n")
             _display_installation_summary(result)
+            # Show static banner after successful install
+            show_static_banner()
         else:
             console.print(f"\n[bold red][X] Failed to add kits:[/bold red] {result['error']}\n")
             raise typer.Exit(1)
 
-
-@app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command()
 def remove(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Remove from current directory",
-    ),
     kit: Optional[str] = typer.Option(
         None,
-        "--kit",
+        "--kit", 
         help=f"Comma-separated list of kits to remove: {','.join(KITS_ALL)}",
     ),
     all_kits: bool = typer.Option(
@@ -198,24 +248,16 @@ def remove(
         help="Target directory (defaults to current directory)",
     ),
 ):
-    """
-    Remove enhancement kits from a spec-kit project.
+    """Remove enhancement kits from a spec-kit project.
 
     Returns the project to vanilla spec-kit state.
 
     Examples:
-        lite-kits remove --here --kit git                # Remove git-kit only
-        lite-kits remove --here --kit project,git        # Remove specific kits
-        lite-kits remove --here --all                    # Remove all kits
+        lite-kits remove --kit git                # Remove git-kit only
+        lite-kits remove --kit project,git        # Remove specific kits
+        lite-kits remove --all                    # Remove all kits
     """
-    if not here and target is None:
-        console.print(
-            "[red]Error:[/red] Either --here or a target directory must be specified",
-            style="bold",
-        )
-        raise typer.Exit(1)
-
-    target_dir = Path.cwd() if here else target
+    target_dir = Path.cwd() if target is None else target
 
     # Determine which kits to remove
     kits = None
@@ -266,36 +308,25 @@ def remove(
         console.print(f"\n[bold red]Removal failed:[/bold red] {result['error']}\n")
         raise typer.Exit(1)
 
-
-@app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command()
 def validate(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Validate current directory",
-    ),
     target: Optional[Path] = typer.Argument(
         None,
         help="Target directory (defaults to current directory)",
     ),
 ):
-    """
-    Validate enhancement kit installation.
+    """Validate enhancement kit installation.
 
     Checks:
     - Kit files are present and correctly installed
-    - Collaboration directory structure (if multiagent-kit installed)
+    - Collaboration directory structure (if multiagent-kit installed)  
     - Required files present
     - Cross-kit consistency
 
     Example:
-        lite-kits validate --here
+        lite-kits validate
     """
-    # Default to current directory if no target specified
-    if here or target is None:
-        target_dir = Path.cwd()
-    else:
-        target_dir = target
+    target_dir = Path.cwd() if target is None else target
 
     # For validation, we don't know which kits are installed yet, so check for all
     installer = Installer(target_dir, kits=KITS_ALL)
@@ -326,40 +357,27 @@ def validate(
         console.print("\n[bold red][X] Validation failed[/bold red]")
         raise typer.Exit(1)
 
-
-@app.command(rich_help_panel=PANEL_KIT_MANAGEMENT)
+@app.command()
 def status(
-    here: bool = typer.Option(
-        False,
-        "--here",
-        help="Check current directory",
-    ),
     target: Optional[Path] = typer.Argument(
         None,
         help="Target directory (defaults to current directory)",
     ),
 ):
-    """
-    Show enhancement kit installation status for the project.
+    """Show enhancement kit installation status for the project.
 
     Displays:
     - Spec-kit project detection
-    - Installed kits
+    - Installed kits  
     - Installation health
 
     Example:
-        lite-kits status --here
+        lite-kits status
     """
-    # Default to current directory if no target specified
-    if here or target is None:
-        target_dir = Path.cwd()
-    else:
-        target_dir = target
+    target_dir = Path.cwd() if target is None else target
 
     # For status, check for all possible kits
     installer = Installer(target_dir, kits=KITS_ALL)
-
-    console.print(f"\n[bold cyan]Project Status: {target_dir}[/bold cyan]\n")
 
     # Basic checks
     is_spec_kit = installer.is_spec_kit_project()
@@ -369,18 +387,18 @@ def status(
     git_kit_installed = (target_dir / MARKER_GIT_KIT).exists()
     multiagent_kit_installed = (target_dir / MARKER_MULTIAGENT_KIT).exists()
 
-    table = Table(show_header=False, box=None)
-    table.add_column("Item", style="cyan")
-    table.add_column("Status")
+    # Build list of installed kits for banner
+    installed_kits = []
+    if project_kit_installed:
+        installed_kits.append("project")
+    if git_kit_installed:
+        installed_kits.append("git")
+    if multiagent_kit_installed:
+        installed_kits.append("multiagent")
 
-    table.add_row("Spec-kit project", STATUS_OK if is_spec_kit else STATUS_ERROR)
-    table.add_row(f"{KIT_PROJECT}-kit", STATUS_OK if project_kit_installed else STATUS_NOT_FOUND)
-    table.add_row(f"{KIT_GIT}-kit", STATUS_OK if git_kit_installed else STATUS_NOT_FOUND)
-    table.add_row(f"{KIT_MULTIAGENT}-kit", STATUS_OK if multiagent_kit_installed else STATUS_NOT_FOUND)
-
-    console.print(table)
-    console.print()
-
+    # Show banner + kit info
+    show_static_banner()
+    print_kit_info(target_dir, is_spec_kit, installed_kits)
 
 def _display_changes(changes: dict):
     """Display preview of changes."""
@@ -396,7 +414,6 @@ def _display_changes(changes: dict):
     for dir in changes.get("new_directories", []):
         console.print(f"  [blue]+[/blue] {dir}")
 
-
 def _display_installation_summary(result: dict):
     """Display kit addition summary."""
     console.print("[bold]Added:[/bold]")
@@ -404,10 +421,9 @@ def _display_installation_summary(result: dict):
         console.print(f"  [OK] {item}")
 
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
-    console.print("  1. Run: /orient (in your AI assistant)")
+    console.print(f"  1. Run: /orient (in your AI assistant)")
     console.print(f"  2. Check: {MARKER_PROJECT_KIT} or .github/prompts/orient.prompt.md")
-    console.print(f"  3. Validate: {APP_NAME} validate --here")
-
+    console.print(f"  3. Validate: {APP_NAME} validate")
 
 def _display_validation_results(result: dict):
     """Display validation results."""
@@ -419,15 +435,15 @@ def _display_validation_results(result: dict):
         if not check_result["passed"] and "message" in check_result:
             console.print(f"  {check_result['message']}", style="dim")
 
-
-@app.command(name="info", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
+@app.command(name="info")
 def package_info():
     """Show package information and installation details."""
-    # Use __version__ from package instead of importlib.metadata
-    console.print(f"\n[bold cyan]{APP_NAME} v{__version__}[/bold cyan]")
-    console.print(f"[dim]{APP_DESCRIPTION}[/dim]\n")
+    # Show the static banner for visual appeal
+    show_static_banner()
+    console.print()
 
     # Package info
+    console.print("[bold]Info:[/bold]")
     info_table = Table(show_header=False, box=None, padding=(0, 2))
     info_table.add_column("Key", style="cyan")
     info_table.add_column("Value")
@@ -441,27 +457,30 @@ def package_info():
 
     # Available kits
     console.print("[bold]Available Kits:[/bold]")
-    console.print(f"  • [cyan]{KIT_PROJECT}[/cyan]: {KIT_DESC_PROJECT}")
-    console.print(f"  • [cyan]{KIT_GIT}[/cyan]: {KIT_DESC_GIT}")
-    console.print(f"  • [cyan]{KIT_MULTIAGENT}[/cyan]: {KIT_DESC_MULTIAGENT}")
-    console.print()
-
-    # Quick start
-    console.print("[bold]Quick Start:[/bold]")
-    console.print(f"  1. [cyan]{APP_NAME} add --here --recommended[/cyan]  # Add project + git kits")
-    console.print(f"  2. [cyan]{APP_NAME} status --here[/cyan]             # Check installation")
-    console.print(f"  3. [cyan]/orient[/cyan]                        # Run in your AI assistant")
+    kits_table = Table(show_header=False, box=None, padding=(0, 2))
+    kits_table.add_column("Kit", style="cyan")
+    kits_table.add_column("Description")
+    
+    kits_table.add_row(KIT_PROJECT, KIT_DESC_PROJECT)
+    kits_table.add_row(KIT_GIT, KIT_DESC_GIT)
+    kits_table.add_row(KIT_MULTIAGENT, KIT_DESC_MULTIAGENT)
+    
+    console.print(kits_table)
     console.print()
 
     # Package management
     console.print("[bold]Package Management:[/bold]")
-    console.print(f"  Install:   [dim]uv tool install {APP_NAME}[/dim]")
-    console.print(f"  Update:    [dim]uv tool install --upgrade {APP_NAME}[/dim]")
-    console.print(f"  Uninstall: [dim]uv tool uninstall {APP_NAME}[/dim]")
+    package_table = Table(show_header=False, box=None, padding=(0, 2))
+    package_table.add_column("Action", style="cyan")
+    package_table.add_column("Command")
+    
+    package_table.add_row("Update", f"[dim]uv tool install --upgrade {APP_NAME}[/dim]")
+    package_table.add_row("Uninstall", f"[dim]uv tool uninstall {APP_NAME}[/dim]")
+    
+    console.print(package_table)
     console.print()
 
-
-@app.command(name="uninstall", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
+@app.command(name="uninstall")
 def package_uninstall():
     """Instructions for uninstalling the lite-kits package."""
     console.print(f"\n[bold yellow]Uninstall {APP_NAME}[/bold yellow]\n")
@@ -473,8 +492,12 @@ def package_uninstall():
     console.print(f"  [dim]pip uninstall {APP_NAME}[/dim]\n")
 
     console.print("[bold]Note:[/bold] This will remove the package but NOT the kits you've added to projects.")
-    console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --here --all[/cyan]\n")
+    console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --all[/cyan]\n")
 
+@app.command(name="banner", hidden=True)
+def show_banner():
+    """Show the lite-kits banner (hidden easter egg command)."""
+    diagonal_reveal_banner()
 
 if __name__ == "__main__":
     app()
