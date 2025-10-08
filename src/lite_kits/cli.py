@@ -15,7 +15,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from . import __version__
-from .installer import Installer
+from .core import diagonal_reveal_banner, show_loading_spinner, show_status_banner, Installer
 
 # Constants
 APP_NAME = "lite-kits"
@@ -165,12 +165,14 @@ def add_kits(
     else:
         console.print(f"\n[bold green]Adding enhancement kits to {target_dir}[/bold green]\n")
 
-        with console.status("[bold green]Adding kits..."):
-            result = installer.install()
+        show_loading_spinner("Adding kits...")
+        result = installer.install()
 
         if result["success"]:
             console.print("\n[bold green][OK] Kits added successfully![/bold green]\n")
             _display_installation_summary(result)
+            # Show celebration banner after successful install
+            diagonal_reveal_banner()
         else:
             console.print(f"\n[bold red][X] Failed to add kits:[/bold red] {result['error']}\n")
             raise typer.Exit(1)
@@ -215,7 +217,7 @@ def remove(
         )
         raise typer.Exit(1)
 
-    target_dir = Path.cwd() if here else target
+    target_dir = Path.cwd() if here or target is None else target
 
     # Determine which kits to remove
     kits = None
@@ -369,6 +371,19 @@ def status(
     git_kit_installed = (target_dir / MARKER_GIT_KIT).exists()
     multiagent_kit_installed = (target_dir / MARKER_MULTIAGENT_KIT).exists()
 
+    # Build list of installed kits for banner
+    installed_kits = []
+    if project_kit_installed:
+        installed_kits.append("project")
+    if git_kit_installed:
+        installed_kits.append("git")
+    if multiagent_kit_installed:
+        installed_kits.append("multiagent")
+
+    # Show beautiful status banner
+    show_status_banner(installed_kits)
+
+    # Show detailed status table
     table = Table(show_header=False, box=None)
     table.add_column("Item", style="cyan")
     table.add_column("Status")
@@ -423,6 +438,9 @@ def _display_validation_results(result: dict):
 @app.command(name="info", rich_help_panel=PANEL_PACKAGE_MANAGEMENT)
 def package_info():
     """Show package information and installation details."""
+    # Show the beautiful banner for visual appeal
+    diagonal_reveal_banner()
+    
     # Use __version__ from package instead of importlib.metadata
     console.print(f"\n[bold cyan]{APP_NAME} v{__version__}[/bold cyan]")
     console.print(f"[dim]{APP_DESCRIPTION}[/dim]\n")
@@ -474,6 +492,12 @@ def package_uninstall():
 
     console.print("[bold]Note:[/bold] This will remove the package but NOT the kits you've added to projects.")
     console.print(f"To remove kits from a project, first run: [cyan]{APP_NAME} remove --here --all[/cyan]\n")
+
+
+@app.command(name="banner", rich_help_panel=PANEL_PACKAGE_MANAGEMENT, hidden=True)
+def show_banner():
+    """Show the lite-kits banner (hidden easter egg command)."""
+    diagonal_reveal_banner()
 
 
 if __name__ == "__main__":
