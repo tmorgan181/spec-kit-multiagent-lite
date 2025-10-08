@@ -200,8 +200,8 @@ def add_kits(
         if result["success"]:
             console.print("\n[bold green][OK] Kits added successfully![/bold green]\n")
             _display_installation_summary(result)
-            # Show celebration banner after successful install
-            diagonal_reveal_banner()
+            # Show static banner after successful install
+            show_status_banner([])
         else:
             console.print(f"\n[bold red][X] Failed to add kits:[/bold red] {result['error']}\n")
             raise typer.Exit(1)
@@ -434,14 +434,12 @@ def _display_validation_results(result: dict):
 @app.command(name="info")
 def package_info():
     """Show package information and installation details."""
-    # Show the beautiful banner for visual appeal
-    diagonal_reveal_banner()
+    # Show the static banner for visual appeal
+    show_status_banner([])
     
-    # Use __version__ from package instead of importlib.metadata
-    console.print(f"\n[bold cyan]{APP_NAME} v{__version__}[/bold cyan]")
-    console.print(f"[dim]{APP_DESCRIPTION}[/dim]\n")
 
     # Package info
+    console.print("[bold]Info:[/bold]")
     info_table = Table(show_header=False, box=None, padding=(0, 2))
     info_table.add_column("Key", style="cyan")
     info_table.add_column("Value")
@@ -455,23 +453,35 @@ def package_info():
 
     # Available kits
     console.print("[bold]Available Kits:[/bold]")
-    console.print(f"  • [cyan]{KIT_PROJECT}[/cyan]: {KIT_DESC_PROJECT}")
-    console.print(f"  • [cyan]{KIT_GIT}[/cyan]: {KIT_DESC_GIT}")
-    console.print(f"  • [cyan]{KIT_MULTIAGENT}[/cyan]: {KIT_DESC_MULTIAGENT}")
+    kits_table = Table(show_header=False, box=None, padding=(0, 2))
+    kits_table.add_column("Kit", style="cyan")
+    kits_table.add_column("Description")
+    
+    kits_table.add_row(KIT_PROJECT, KIT_DESC_PROJECT)
+    kits_table.add_row(KIT_GIT, KIT_DESC_GIT)
+    kits_table.add_row(KIT_MULTIAGENT, KIT_DESC_MULTIAGENT)
+    
+    console.print(kits_table)
     console.print()
 
     # Quick start
     console.print("[bold]Quick Start:[/bold]")
-    console.print(f"  1. [cyan]{APP_NAME} add --here --recommended[/cyan]  # Add project + git kits")
-    console.print(f"  2. [cyan]{APP_NAME} status --here[/cyan]             # Check installation")
-    console.print(f"  3. [cyan]/orient[/cyan]                        # Run in your AI assistant")
+    console.print(f"  1. [cyan]{APP_NAME} add --recommended[/cyan]")
+    console.print(f"  2. [cyan]{APP_NAME} status[/cyan]")
+    console.print(f"  3. [cyan]/orient[/cyan] (in your AI assistant)")
     console.print()
 
     # Package management
     console.print("[bold]Package Management:[/bold]")
-    console.print(f"  Install:   [dim]uv tool install {APP_NAME}[/dim]")
-    console.print(f"  Update:    [dim]uv tool install --upgrade {APP_NAME}[/dim]")
-    console.print(f"  Uninstall: [dim]uv tool uninstall {APP_NAME}[/dim]")
+    package_table = Table(show_header=False, box=None, padding=(0, 2))
+    package_table.add_column("Action", style="cyan")
+    package_table.add_column("Command")
+    
+    package_table.add_row("Install", f"[dim]uv tool install {APP_NAME}[/dim]")
+    package_table.add_row("Update", f"[dim]uv tool install --upgrade {APP_NAME}[/dim]")
+    package_table.add_row("Uninstall", f"[dim]uv tool uninstall {APP_NAME}[/dim]")
+    
+    console.print(package_table)
     console.print()
 
 
