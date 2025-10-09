@@ -156,7 +156,7 @@ class Installer:
                 result["error"] = "No supported AI interface found (.claude or .github/prompts)"
                 return result
 
-# Install project kit
+            # Install project kit
             if 'project' in self.kits:
                 if has_claude:
                     self._install_file('project/claude/commands/orient.md', '.claude/commands/orient.md')
