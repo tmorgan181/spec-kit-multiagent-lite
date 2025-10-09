@@ -1,16 +1,18 @@
-# lite-kits
-
-**Lightweight enhancement kits for spec-driven development**
-
-Add modular enhancement kits to vanilla [GitHub Spec-Kit](https://github.com/github/spec-kit) projects without forking or replacing core files.
+# 🌈 LITE-KITS 🎒
 
 [![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.1.1)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Spec-Kit](https://img.shields.io/badge/spec--kit-compatible-purple.svg)](https://github.com/github/spec-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**Lightweight enhancement kits for spec-driven development.**
+
+<img width="2096" height="1383" alt="image" src="https://github.com/user-attachments/assets/8ee06b31-d492-4add-bd60-8b60d8b88357" />
 
 ## What is this?
 
-**lite-kits** enhances spec-driven development workflows built on [GitHub Spec-Kit](https://github.com/github/spec-kit).
+**`lite-kits`** adds modular enhancement kits to vanilla spec-driven development workflows built on [GitHub Spec-Kit](https://github.com/github/spec-kit).
 
 Spec-Kit is a framework for AI-driven collaborative development (spec → plan → tasks → implement) using markdown prompts and scripts. Think "vibe coding" but with structure.
 
@@ -20,7 +22,51 @@ Spec-Kit is a framework for AI-driven collaborative development (spec → plan �
 - 🔧 **git-kit** - Smart git workflows (`/commit`, `/pr`, `/cleanup`)
 - 🤝 **multiagent-kit** - Multi-agent coordination (`/sync`, collaboration directories)
 
-Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot) and optional scripts.
+Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot, Copilot CLI) and optional scripts.
+
+## Installation
+
+### Prerequisites
+
+1. **GitHub Spec-Kit** - Install the `specify` CLI tool:
+   ```bash
+   # See: https://github.com/github/spec-kit
+   npm install -g @github/specify
+   # Or use pipx, etc.
+   ```
+
+2. **Create a spec-kit project** (if you don't have one):
+   ```bash
+   specify init my-project
+   cd my-project
+   ```
+
+3. **Python 3.11+** - For lite-kits itself
+
+4. **AI Assistant** - At least one: GitHub Copilot, GitHub Copilot CLI, Claude Code, Claude Code VSCode Extension
+
+### Install lite-kits
+
+**Via pip** (when published):
+```bash
+pip install lite-kits
+```
+
+**From source** (current):
+```bash
+# Clone repository
+git clone https://github.com/tmorgan181/lite-kits.git
+cd lite-kits
+
+# Build the package
+uv build
+
+# Install with uv (recommended)
+uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
+
+# Or with pip
+pip install dist/lite_kits-0.1.0-py3-none-any.whl
+```
 
 ## ✨ Beautiful CLI Experience
 
@@ -86,50 +132,6 @@ specs/NNN-feature/collaboration/
 **Memory guides**:
 - PR Workflow Guide - How AI agents create pull requests
 - Git Worktrees Protocol - Parallel development with worktrees
-
-## Installation
-
-### Prerequisites
-
-1. **GitHub Spec-Kit** - Install the `specify` CLI tool:
-   ```bash
-   # See: https://github.com/github/spec-kit
-   npm install -g @github/specify
-   # Or use pipx, etc.
-   ```
-
-2. **Create a spec-kit project** (if you don't have one):
-   ```bash
-   specify init my-project
-   cd my-project
-   ```
-
-3. **Python 3.11+** - For lite-kits itself
-
-4. **AI Assistant** - At least one: Claude Code, GitHub Copilot
-
-### Install lite-kits
-
-**Via pip** (when published):
-```bash
-pip install lite-kits
-```
-
-**From source** (current):
-```bash
-# Clone repository
-git clone https://github.com/tmorgan181/lite-kits.git
-cd lite-kits
-
-# Build the package
-uv build
-
-# Install with uv (recommended)
-uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
-
-# Or with pip
-pip install dist/lite_kits-0.1.0-py3-none-any.whl
-```
 
 ## Quick Start
 
