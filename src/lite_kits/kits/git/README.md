@@ -2,7 +2,7 @@
 
 **Status**: ✅ Recommended (Default)
 
-Git workflow automation with smart commits, PR creation, code review, sync visualization, and cleanup operations. Includes ASCII visualization for better readability.
+Git workflow automation with smart commits, PR creation, code review, and cleanup operations. Includes ASCII visualization for better readability.
 
 ## What It Adds
 
@@ -13,7 +13,6 @@ Git workflow automation with smart commits, PR creation, code review, sync visua
 | `/commit` | 🚧 | 🚧 | Smart commit with agent attribution |
 | `/pr` | 🚧 | 🚧 | Create PR with auto-generated description |
 | `/review` | 🚧 | 🚧 | Review staged changes against best practices |
-| `/sync` | 🚧 | 🚧 | Show sync status with ASCII visualization |
 | `/cleanup` | 🚧 | 🚧 | Clean merged branches, stale worktrees |
 
 🚧 = Coming Soon
@@ -38,13 +37,11 @@ your-project/
 │   ├── commit.md
 │   ├── pr.md
 │   ├── review.md
-│   ├── sync.md
 │   └── cleanup.md
 └── .github/prompts/           # If GitHub Copilot detected
     ├── commit.prompt.md
     ├── pr.prompt.md
     ├── review.prompt.md
-    ├── sync.prompt.md
     └── cleanup.prompt.md
 ```
 
@@ -218,64 +215,6 @@ via claude-sonnet-4.5 @ claude-code
 
 ---
 
-### `/sync` - Sync Status with Visualization (Coming Soon)
-
-**Purpose**: Show git sync status with ASCII visualization.
-
-**Problem**: `git status` output is text-heavy and hard to parse visually.
-
-**Solution**: ASCII tree diagrams and colorized status.
-
-**Example usage** (planned):
-```
-/sync
-
-## Git Sync Status
-
-**Branch**: dev/003-auth
-**Tracking**: origin/dev/003-auth
-
-**Local vs Remote**:
-
-    origin/main ─────────────┬──────> main (up to date)
-                              │
-                              ├──────> dev/003-auth (5 commits ahead)
-                              │        ↑ PUSH NEEDED
-                              │
-    Your commits:             │
-    ├─ a1b2c3d feat: Add auth│
-    ├─ b2c3d4e feat: Add user│
-    ├─ c3d4e5f test: Add auth│
-    ├─ d4e5f6g docs: Update  │
-    └─ e5f6g7h fix: Resolve  │
-                              │
-**Status**:
-✓ No uncommitted changes
-⚠ 5 commits not pushed
-✓ Up to date with remote (fetched 2m ago)
-
-**Actions**:
-1. git push origin dev/003-auth
-2. git fetch (refresh remote status)
-3. /pr (create pull request)
-
-**Worktrees** (if any):
-None active
-
-**Branches** (recent):
-- dev/003-auth (current) ← 5 commits ahead
-- main (up to date)
-- dev/002-blog (merged, can cleanup)
-```
-
-**Benefits**:
-- Visual understanding at a glance
-- Clear action items
-- Worktree awareness
-- Branch cleanup suggestions
-
----
-
 ### `/cleanup` - Git Cleanup (Coming Soon)
 
 **Purpose**: Clean up merged branches, stale worktrees, and old features.
@@ -369,17 +308,17 @@ Commits ahead of main:
 ## Use Cases
 
 ### Daily Development
-**Use**: `/review` before committing, `/commit` for every commit, `/sync` multiple times per day
+**Use**: `/review` before committing, `/commit` for every commit
 
 ### Before Creating PR
-**Use**: `/review` final check, `/sync` to ensure up to date, `/pr` to create pull request
+**Use**: `/review` final check, `/pr` to create pull request
 
 ### Weekly Maintenance
 **Use**: `/cleanup` to remove merged branches and free up space
 
 ### Multi-Agent Projects
-**Combine with**: multiagent-kit for coordination
-**Use**: `/review` for agent-to-agent code review, `/sync` shows worktree status for parallel development
+**Combine with**: multiagent-kit for coordination and `/sync` command
+**Use**: `/review` for agent-to-agent code review
 
 ---
 
@@ -409,8 +348,8 @@ lite-kits remove -Kit git
 ```
 
 Removes:
-- `.claude/commands/{commit,pr,review,sync,cleanup}.md`
-- `.github/prompts/{commit,pr,review,sync,cleanup}.prompt.md`
+- `.claude/commands/{commit,pr,review,cleanup}.md`
+- `.github/prompts/{commit,pr,review,cleanup}.prompt.md`
 
 ---
 

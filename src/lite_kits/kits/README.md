@@ -57,8 +57,8 @@ Multi-agent coordination structure for complex projects with multiple AI agents 
 | Kit | Default | Target Users | Adds | Dependencies |
 |-----|---------|--------------|------|--------------|
 | **project** | ✅ Yes | Everyone | 3 commands + enhanced scripts | None |
-| **git** | ✅ Yes | Everyone | 5 commands with ASCII viz | None |
-| **multiagent** | ❌ No | Multi-agent projects | Collaboration structure | None |
+| **git** | ✅ Yes | Everyone | 4 commands with ASCII viz | None |
+| **multiagent** | ❌ No | Multi-agent projects | Collaboration structure + /sync | None |
 
 ## Kit Structure
 
@@ -154,7 +154,6 @@ lite-kits remove -Kit git,project
 | `/commit` | Smart commit with agent attribution |
 | `/pr` | Create pull request with auto-generated description |
 | `/review` | Code review of staged changes against best practices |
-| `/sync` | Show sync status with ASCII visualization |
 | `/cleanup` | Clean merged branches, stale worktrees |
 
 ### project-kit Enhancements
