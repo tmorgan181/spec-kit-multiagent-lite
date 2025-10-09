@@ -351,7 +351,7 @@ No configuration needed - works out of the box.
 
 ## Compatibility
 
-- ✅ **Agents**: Claude Code, GitHub Copilot, Cursor
+- ✅ **Agents**: Claude Code, GitHub Copilot
 - ✅ **Platforms**: Linux, macOS, Windows
 - ✅ **Shells**: Bash, PowerShell
 - ✅ **Vanilla safe**: Only adds new files, never modifies existing

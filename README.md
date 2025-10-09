@@ -20,7 +20,7 @@ Spec-Kit is a framework for AI-driven collaborative development (spec → plan �
 - 🔧 **git-kit** - Smart git workflows (`/commit`, `/pr`, `/cleanup`)
 - 🤝 **multiagent-kit** - Multi-agent coordination (`/sync`, collaboration directories)
 
-Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot, Cursor) and optional scripts.
+Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot) and optional scripts.
 
 ## ✨ Beautiful CLI Experience
 
@@ -106,7 +106,7 @@ specs/NNN-feature/collaboration/
 
 3. **Python 3.11+** - For lite-kits itself
 
-4. **AI Assistant** - At least one: Claude Code, GitHub Copilot, or Cursor
+4. **AI Assistant** - At least one: Claude Code, GitHub Copilot
 
 ### Install lite-kits
 
