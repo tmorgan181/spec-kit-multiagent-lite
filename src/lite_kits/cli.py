@@ -345,16 +345,14 @@ def validate(
         raise typer.Exit(1)
 
     # Validate structure
-    with console.status("[bold cyan]Validating..."):
-        validation_result = installer.validate()
-
+    validation_result = installer.validate()
     _display_validation_results(validation_result)
 
     if validation_result["valid"]:
-        console.print("\n[bold green][OK] Validation passed![/bold green]")
+        console.print("\n[bold green][OK] Validation passed![/bold green]\n")
         raise typer.Exit(0)
     else:
-        console.print("\n[bold red][X] Validation failed[/bold red]")
+        console.print("\n[bold red][X] Validation failed[/bold red]\n")
         raise typer.Exit(1)
 
 @app.command()
