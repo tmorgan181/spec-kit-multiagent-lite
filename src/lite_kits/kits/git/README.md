@@ -2,7 +2,7 @@
 
 **Status**: ✅ Recommended (Default)
 
-Git workflow automation with smart commits, PR creation, sync visualization, and cleanup operations. Includes ASCII visualization for better readability.
+Git workflow automation with smart commits, PR creation, code review, sync visualization, and cleanup operations. Includes ASCII visualization for better readability.
 
 ## What It Adds
 
@@ -12,6 +12,7 @@ Git workflow automation with smart commits, PR creation, sync visualization, and
 |---------|-------------|----------------|-------------|
 | `/commit` | 🚧 | 🚧 | Smart commit with agent attribution |
 | `/pr` | 🚧 | 🚧 | Create PR with auto-generated description |
+| `/review` | 🚧 | 🚧 | Review staged changes against best practices |
 | `/sync` | 🚧 | 🚧 | Show sync status with ASCII visualization |
 | `/cleanup` | 🚧 | 🚧 | Clean merged branches, stale worktrees |
 
@@ -36,11 +37,13 @@ your-project/
 ├── .claude/commands/          # If Claude Code detected
 │   ├── commit.md
 │   ├── pr.md
+│   ├── review.md
 │   ├── sync.md
 │   └── cleanup.md
 └── .github/prompts/           # If GitHub Copilot detected
     ├── commit.prompt.md
     ├── pr.prompt.md
+    ├── review.prompt.md
     ├── sync.prompt.md
     └── cleanup.prompt.md
 ```
@@ -99,6 +102,55 @@ via claude-sonnet-4.5 @ claude-code
 - Auto-attribution for AI-generated code
 - Follows conventional commits
 - Saves time thinking about messages
+
+---
+
+### `/review` - Code Review (Coming Soon)
+
+**Purpose**: Review staged changes against best practices and project standards.
+
+**What it will do**:
+1. Run `git diff --staged` to see changes
+2. Check changes against common best practices
+3. Identify potential code smells
+4. Suggest improvements
+5. Verify consistent formatting
+6. Check for common issues (hardcoded secrets, TODO comments, etc.)
+
+**Example usage** (planned):
+```
+/review
+
+## Code Review
+
+**Staged files**: 3
+- src/auth.py (new)
+- src/models.py (modified)
+- tests/test_auth.py (new)
+
+**Analysis**:
+
+✅ **Good practices**:
+- Clear function names and docstrings
+- Comprehensive test coverage (94%)
+- Type hints used throughout
+- No hardcoded credentials
+
+⚠ **Suggestions**:
+- src/auth.py:45: Consider extracting hash_password to utils
+- src/models.py:12: TODO comment should be tracked in issue
+- tests/test_auth.py: Add edge case for empty passwords
+
+**Overall**: Ready to commit with minor suggestions
+
+**Approve?** (y/n): y
+```
+
+**Benefits**:
+- Catch issues before committing
+- Consistent code quality
+- Learn best practices
+- Agent-to-agent code review support
 
 ---
 
@@ -317,17 +369,17 @@ Commits ahead of main:
 ## Use Cases
 
 ### Daily Development
-**Use**: `/commit` for every commit, `/sync` multiple times per day
+**Use**: `/review` before committing, `/commit` for every commit, `/sync` multiple times per day
 
 ### Before Creating PR
-**Use**: `/sync` to ensure up to date, `/pr` to create pull request
+**Use**: `/review` final check, `/sync` to ensure up to date, `/pr` to create pull request
 
 ### Weekly Maintenance
 **Use**: `/cleanup` to remove merged branches and free up space
 
 ### Multi-Agent Projects
 **Combine with**: multiagent-kit for coordination
-**Use**: `/sync` shows worktree status for parallel development
+**Use**: `/review` for agent-to-agent code review, `/sync` shows worktree status for parallel development
 
 ---
 
@@ -357,8 +409,8 @@ lite-kits remove -Kit git
 ```
 
 Removes:
-- `.claude/commands/{commit,pr,sync,cleanup}.md`
-- `.github/prompts/{commit,pr,sync,cleanup}.prompt.md`
+- `.claude/commands/{commit,pr,review,sync,cleanup}.md`
+- `.github/prompts/{commit,pr,review,sync,cleanup}.prompt.md`
 
 ---
 

@@ -23,26 +23,23 @@ Multi-agent coordination structure for projects with multiple AI agents working 
 
 ## Dependencies
 
-⚠️ **multiagent-kit requires**:
-- **project-kit**: For `/review` command and best practices
-- **git-kit**: For `/commit`, `/pr` commands used in workflows
+**None** - multiagent-kit is standalone.
 
 **Recommended installation**:
 ```bash
-lite-kits install -Recommended -Kit multiagent
-# Installs: project + git + multiagent
+lite-kits install -Kit multiagent
 ```
 
-**Note**: Installer will automatically install dependencies if missing.
+**Note**: Works best when combined with project-kit and git-kit, but they are not required.
 
 ## Installation
 
-### With dependencies (recommended):
+### As part of recommended kits:
 ```bash
-lite-kits install -Recommended -Kit multiagent
+lite-kits install -Recommended -Kit multiagent  # project + git + multiagent
 ```
 
-### Individually (installs dependencies automatically):
+### Individually:
 ```bash
 lite-kits install -Kit multiagent
 ```
@@ -301,14 +298,13 @@ Backend authentication complete. Need frontend integration.
 
 ## Integration with Other Kits
 
-### With project-kit
+### With project-kit (optional)
 - Use `/orient` for each agent to understand their role
-- Use `/review` for agent-to-agent code review
 
-### With git-kit
+### With git-kit (optional)
 - Use `/commit` for agent-attributed commits
 - Use `/pr` to create PRs with multi-agent summary
-- Use `/sync` to visualize worktree status
+- Use `/review` for agent-to-agent code review
 - Use `/cleanup` to remove stale worktrees
 
 ---
