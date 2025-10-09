@@ -91,7 +91,7 @@ Using single project structure from plan.md:
   - Document purpose, usage, and output format
   - Include cross-references to contracts
 
-- [ ] T011 Execute manual testing via `specs/001-complete-project-kit/quickstart.md`
+- [x] T011 Execute manual testing via `specs/001-complete-project-kit/quickstart.md`
   - Test Scenario 1: `/review` with uncommitted changes
   - Test Scenario 2: `/audit` with test dependencies
   - Test Scenario 3: `/stats` on lite-kits repo
