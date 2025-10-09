@@ -11,9 +11,9 @@ Essential project-level utilities and enhancements for vanilla spec-kit. Include
 | Command | Claude Code | GitHub Copilot | Description |
 |---------|-------------|----------------|-------------|
 | `/orient` | ✅ | ✅ | Agent orientation protocol (most essential!) |
-| `/review` | 🚧 | 🚧 | Code review helper |
-| `/audit` | 🚧 | 🚧 | Security & quality audit |
-| `/stats` | 🚧 | 🚧 | Project statistics |
+| `/review` | ✅ | ✅ | Code review helper |
+| `/audit` | ✅ | ✅ | Security & quality audit |
+| `/stats` | ✅ | ✅ | Project statistics |
 
 ### Scripts (Enhanced Vanilla)
 
@@ -41,14 +41,14 @@ lite-kits install -Kit project
 your-project/
 ├── .claude/commands/              # If Claude Code detected
 │   ├── orient.md                  # ✅ Essential!
-│   ├── review.md                  # 🚧 Coming Soon
-│   ├── audit.md                   # 🚧 Coming Soon
-│   └── stats.md                   # 🚧 Coming Soon
+│   ├── review.md                  # ✅ Code review
+│   ├── audit.md                   # ✅ Security audit
+│   └── stats.md                   # ✅ Project stats
 ├── .github/prompts/               # If GitHub Copilot detected
 │   ├── orient.prompt.md           # ✅ Essential!
-│   ├── review.prompt.md           # 🚧 Coming Soon
-│   ├── audit.prompt.md            # 🚧 Coming Soon
-│   └── stats.prompt.md            # 🚧 Coming Soon
+│   ├── review.prompt.md           # ✅ Code review
+│   ├── audit.prompt.md            # ✅ Security audit
+│   └── stats.prompt.md            # ✅ Project stats
 └── .specify/scripts/              # Enhanced vanilla scripts
     ├── bash/
     │   └── create-feature-enhanced.sh      # 🚧 Coming Soon
@@ -102,11 +102,11 @@ your-project/
 
 ---
 
-### `/review` - Code Review (Coming Soon)
+### `/review` - Code Review
 
 **Purpose**: Review code changes against project constitution and best practices.
 
-**What it will do**:
+**What it does**:
 - Check staged changes against constitution principles
 - Identify common code smells
 - Suggest improvements
@@ -115,11 +115,11 @@ your-project/
 
 ---
 
-### `/audit` - Security & Quality Audit (Coming Soon)
+### `/audit` - Security & Quality Audit
 
 **Purpose**: Scan for security issues and quality problems.
 
-**What it will do**:
+**What it does**:
 - Scan for hardcoded secrets/credentials
 - Check for common vulnerabilities (SQL injection, XSS, CSRF)
 - Analyze dependencies for known CVEs
@@ -128,11 +128,11 @@ your-project/
 
 ---
 
-### `/stats` - Project Statistics (Coming Soon)
+### `/stats` - Project Statistics
 
 **Purpose**: Show project health metrics.
 
-**What it will do**:
+**What it does**:
 - Lines of code by language
 - Test coverage percentage
 - Git activity with agent attribution

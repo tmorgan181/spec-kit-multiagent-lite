@@ -101,9 +101,19 @@ class Installer:
         # Project kit files
         if 'project' in self.kits:
             if has_claude:
-                changes["new_files"].append(".claude/commands/orient.md")
+                changes["new_files"].extend([
+                    ".claude/commands/orient.md",
+                    ".claude/commands/review.md",
+                    ".claude/commands/audit.md",
+                    ".claude/commands/stats.md",
+                ])
             if has_copilot:
-                changes["new_files"].append(".github/prompts/orient.prompt.md")
+                changes["new_files"].extend([
+                    ".github/prompts/orient.prompt.md",
+                    ".github/prompts/review.prompt.md",
+                    ".github/prompts/audit.prompt.md",
+                    ".github/prompts/stats.prompt.md",
+                ])
 
         # Git kit files
         if 'git' in self.kits:
@@ -150,11 +160,17 @@ class Installer:
             if 'project' in self.kits:
                 if has_claude:
                     self._install_file('project/claude/commands/orient.md', '.claude/commands/orient.md')
-                    result["installed"].append("project-kit (Claude): /orient command")
+                    self._install_file('project/claude/commands/review.md', '.claude/commands/review.md')
+                    self._install_file('project/claude/commands/audit.md', '.claude/commands/audit.md')
+                    self._install_file('project/claude/commands/stats.md', '.claude/commands/stats.md')
+                    result["installed"].append("project-kit (Claude): /orient, /review, /audit, /stats commands")
 
                 if has_copilot:
                     self._install_file('project/github/prompts/orient.prompt.md', '.github/prompts/orient.prompt.md')
-                    result["installed"].append("project-kit (Copilot): /orient command")
+                    self._install_file('project/github/prompts/review.prompt.md', '.github/prompts/review.prompt.md')
+                    self._install_file('project/github/prompts/audit.prompt.md', '.github/prompts/audit.prompt.md')
+                    self._install_file('project/github/prompts/stats.prompt.md', '.github/prompts/stats.prompt.md')
+                    result["installed"].append("project-kit (Copilot): /orient, /review, /audit, /stats commands")
 
             # Install git kit
             if 'git' in self.kits:
@@ -326,17 +342,21 @@ class Installer:
             # Remove project kit files
             if 'project' in self.kits:
                 removed = []
+                project_commands = ['orient', 'review', 'audit', 'stats']
+                
                 # Claude
-                orient_claude = self.target_dir / ".claude" / "commands" / "orient.md"
-                if orient_claude.exists():
-                    orient_claude.unlink()
-                    removed.append(".claude/commands/orient.md")
+                for cmd in project_commands:
+                    cmd_file = self.target_dir / ".claude" / "commands" / f"{cmd}.md"
+                    if cmd_file.exists():
+                        cmd_file.unlink()
+                        removed.append(f".claude/commands/{cmd}.md")
 
                 # Copilot
-                orient_copilot = self.target_dir / ".github" / "prompts" / "orient.prompt.md"
-                if orient_copilot.exists():
-                    orient_copilot.unlink()
-                    removed.append(".github/prompts/orient.prompt.md")
+                for cmd in project_commands:
+                    cmd_file = self.target_dir / ".github" / "prompts" / f"{cmd}.prompt.md"
+                    if cmd_file.exists():
+                        cmd_file.unlink()
+                        removed.append(f".github/prompts/{cmd}.prompt.md")
 
                 if removed:
                     result["removed"].append(f"project-kit: {', '.join(removed)}")
