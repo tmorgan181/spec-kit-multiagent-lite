@@ -51,42 +51,42 @@ Using single project structure from plan.md:
 **Note**: No traditional tests for markdown templates. Manual testing via quickstart.md happens in Phase 3.4.
 
 ### Claude Code Templates (can run in parallel)
-- [ ] T003 [P] Create `/review` command at `src/lite_kits/kits/project/claude/commands/review.md`
+- [x] T003 [P] Create `/review` command at `src/lite_kits/kits/project/claude/commands/review.md`
   - Follow contract: `specs/001-complete-project-kit/contracts/review-command.md`
   - Pattern: YAML frontmatter + execution steps + example output
   - Content: Git diff analysis, linting suggestions, concise output
 
-- [ ] T004 [P] Create `/audit` command at `src/lite_kits/kits/project/claude/commands/audit.md`
+- [x] T004 [P] Create `/audit` command at `src/lite_kits/kits/project/claude/commands/audit.md`
   - Follow contract: `specs/001-complete-project-kit/contracts/audit-command.md`
   - Pattern: YAML frontmatter + execution steps + example output
   - Content: Dependency scanning, security patterns, graceful fallbacks
 
-- [ ] T005 [P] Create `/stats` command at `src/lite_kits/kits/project/claude/commands/stats.md`
+- [x] T005 [P] Create `/stats` command at `src/lite_kits/kits/project/claude/commands/stats.md`
   - Follow contract: `specs/001-complete-project-kit/contracts/stats-command.md`
   - Pattern: YAML frontmatter + execution steps + example output
   - Content: LOC counts, git history, concise table format
 
 ### GitHub Copilot Templates (can run in parallel)
-- [ ] T006 [P] Create `/review` prompt at `src/lite_kits/kits/project/github/prompts/review.prompt.md`
+- [x] T006 [P] Create `/review` prompt at `src/lite_kits/kits/project/github/prompts/review.prompt.md`
   - Mirror T003 content with Copilot-specific format
   - Follow existing `orient.prompt.md` structure
 
-- [ ] T007 [P] Create `/audit` prompt at `src/lite_kits/kits/project/github/prompts/audit.prompt.md`
+- [x] T007 [P] Create `/audit` prompt at `src/lite_kits/kits/project/github/prompts/audit.prompt.md`
   - Mirror T004 content with Copilot-specific format
   - Follow existing `orient.prompt.md` structure
 
-- [ ] T008 [P] Create `/stats` prompt at `src/lite_kits/kits/project/github/prompts/stats.prompt.md`
+- [x] T008 [P] Create `/stats` prompt at `src/lite_kits/kits/project/github/prompts/stats.prompt.md`
   - Mirror T005 content with Copilot-specific format
   - Follow existing `orient.prompt.md` structure
 
 ## Phase 3.3: Integration & Verification
-- [ ] T009 Verify installer includes new commands in project-kit mapping
+- [x] T009 Verify installer includes new commands in project-kit mapping
   - Check `src/lite_kits/installer.py` project-kit kit definition
   - Ensure `review.md`, `audit.md`, `stats.md` will be copied on install
   - No code changes needed (installer already handles all .md files)
 
 ## Phase 3.4: Documentation & Testing
-- [ ] T010 Update `src/lite_kits/kits/project/README.md` with new commands
+- [x] T010 Update `src/lite_kits/kits/project/README.md` with new commands
   - Add `/review`, `/audit`, `/stats` descriptions
   - Document purpose, usage, and output format
   - Include cross-references to contracts
