@@ -345,7 +345,7 @@ def validate(
         raise typer.Exit(1)
 
     # Validate structure
-    validation_result = installer.validate()
+    validation_result = show_loading_spinner("Validating...", installer.validate)
     _display_validation_results(validation_result)
 
     if validation_result["valid"]:
