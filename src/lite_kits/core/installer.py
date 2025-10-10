@@ -168,7 +168,10 @@ class Installer:
                     name for name, config in self.manifest.manifest.get('agents', {}).items()
                     if config.get('supported', False)
                 ]
-                result["error"] = f"No supported AI interface found. Supported: {', '.join(supported)}"
+                result["error"] = (
+                    f"No supported AI interface found. Supported: {', '.join(supported)}. "
+                    "To enable AI interface support, create a '.claude/' or '.github/prompts/' directory in your project."
+                )
                 return result
 
             if not self.force:
