@@ -30,13 +30,7 @@ class Installer:
         if invalid:
             raise ValueError(f"Invalid kit(s): {invalid}. Valid: {valid_kits}")
 
-        # Auto-include dependencies
-        # multiagent requires both project and git
-        if 'multiagent' in self.kits:
-            if 'project' not in self.kits:
-                self.kits.append('project')
-            if 'git' not in self.kits:
-                self.kits.append('git')
+        # No auto-dependencies - all kits are independent
 
     def is_spec_kit_project(self) -> bool:
         """
@@ -68,6 +62,7 @@ class Installer:
             'git': [
                 self.target_dir / ".claude" / "commands" / "commit.md",
                 self.target_dir / ".github" / "prompts" / "commit.prompt.md",
+                self.target_dir / ".claude" / "commands" / "review.md",
             ],
             'multiagent': [
                 self.target_dir / ".specify" / "memory" / "pr-workflow-guide.md",
@@ -120,9 +115,11 @@ class Installer:
             if has_claude:
                 changes["new_files"].append(".claude/commands/commit.md")
                 changes["new_files"].append(".claude/commands/pr.md")
+                changes["new_files"].append(".claude/commands/review.md")
             if has_copilot:
                 changes["new_files"].append(".github/prompts/commit.prompt.md")
                 changes["new_files"].append(".github/prompts/pr.prompt.md")
+                changes["new_files"].append(".github/prompts/review.prompt.md")
 
         # Multiagent kit files
         if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
@@ -177,14 +174,16 @@ class Installer:
                 if has_claude:
                     self._install_file('git/claude/commands/commit.md', '.claude/commands/commit.md')
                     self._install_file('git/claude/commands/pr.md', '.claude/commands/pr.md')
+                    self._install_file('git/claude/commands/review.md', '.claude/commands/review.md')
                     self._install_file('git/claude/commands/cleanup.md', '.claude/commands/cleanup.md')
-                    result["installed"].append("git-kit (Claude): /commit, /pr, /cleanup commands")
+                    result["installed"].append("git-kit (Claude): /commit, /pr, /review, /cleanup commands")
 
                 if has_copilot:
                     self._install_file('git/github/prompts/commit.prompt.md', '.github/prompts/commit.prompt.md')
                     self._install_file('git/github/prompts/pr.prompt.md', '.github/prompts/pr.prompt.md')
+                    self._install_file('git/github/prompts/review.prompt.md', '.github/prompts/review.prompt.md')
                     self._install_file('git/github/prompts/cleanup.prompt.md', '.github/prompts/cleanup.prompt.md')
-                    result["installed"].append("git-kit (Copilot): /commit, /pr, /cleanup commands")
+                    result["installed"].append("git-kit (Copilot): /commit, /pr, /review, /cleanup commands")
 
             # Install multiagent kit
             if 'multiagent' in self.kits and (self.target_dir / ".specify").exists():
@@ -241,12 +240,13 @@ class Installer:
         # Check git-kit files
         claude_commit = self.target_dir / ".claude" / "commands" / "commit.md"
         claude_pr = self.target_dir / ".claude" / "commands" / "pr.md"
+        claude_review = self.target_dir / ".claude" / "commands" / "review.md"
         claude_cleanup = self.target_dir / ".claude" / "commands" / "cleanup.md"
 
-        git_kit_installed = claude_commit.exists() or claude_pr.exists() or claude_cleanup.exists()
+        git_kit_installed = claude_commit.exists() or claude_pr.exists() or claude_review.exists() or claude_cleanup.exists()
         checks["git_kit"] = {
             "passed": git_kit_installed,
-            "message": "git-kit: /commit, /pr, /cleanup commands found" if git_kit_installed
+            "message": "git-kit: /commit, /pr, /review, /cleanup commands found" if git_kit_installed
                       else "git-kit not installed - run: lite-kits add --here --kit git",
         }
 
@@ -364,7 +364,7 @@ class Installer:
             # Remove git kit files
             if 'git' in self.kits:
                 removed = []
-                git_commands = ['commit', 'pr', 'cleanup']
+                git_commands = ['commit', 'pr', 'review', 'cleanup']
 
                 # Claude
                 for cmd in git_commands:

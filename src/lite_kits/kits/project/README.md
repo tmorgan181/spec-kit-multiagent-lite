@@ -2,7 +2,7 @@
 
 **Status**: ✅ Recommended (Default)
 
-Essential project-level utilities and enhancements for vanilla spec-kit. Includes agent orientation, code review, quality checks, and enhanced feature creation scripts.
+Essential project-level utilities and enhancements for vanilla spec-kit. Includes agent orientation, quality checks, and enhanced feature creation scripts.
 
 ## What It Adds
 
@@ -11,9 +11,8 @@ Essential project-level utilities and enhancements for vanilla spec-kit. Include
 | Command | Claude Code | GitHub Copilot | Description |
 |---------|-------------|----------------|-------------|
 | `/orient` | ✅ | ✅ | Agent orientation protocol (most essential!) |
-| `/review` | ✅ | ✅ | Code review helper |
-| `/audit` | ✅ | ✅ | Security & quality audit |
-| `/stats` | ✅ | ✅ | Project statistics |
+| `/audit` | 🚧 | 🚧 | Security & quality audit |
+| `/stats` | 🚧 | 🚧 | Project statistics |
 
 ### Scripts (Enhanced Vanilla)
 
@@ -41,14 +40,12 @@ lite-kits install -Kit project
 your-project/
 ├── .claude/commands/              # If Claude Code detected
 │   ├── orient.md                  # ✅ Essential!
-│   ├── review.md                  # ✅ Code review
-│   ├── audit.md                   # ✅ Security audit
-│   └── stats.md                   # ✅ Project stats
+│   ├── audit.md                   # 🚧 Coming Soon
+│   └── stats.md                   # 🚧 Coming Soon
 ├── .github/prompts/               # If GitHub Copilot detected
 │   ├── orient.prompt.md           # ✅ Essential!
-│   ├── review.prompt.md           # ✅ Code review
-│   ├── audit.prompt.md            # ✅ Security audit
-│   └── stats.prompt.md            # ✅ Project stats
+│   ├── audit.prompt.md            # 🚧 Coming Soon
+│   └── stats.prompt.md            # 🚧 Coming Soon
 └── .specify/scripts/              # Enhanced vanilla scripts
     ├── bash/
     │   └── create-feature-enhanced.sh      # 🚧 Coming Soon
@@ -102,24 +99,11 @@ your-project/
 
 ---
 
-### `/review` - Code Review
-
-**Purpose**: Review code changes against project constitution and best practices.
-
-**What it does**:
-- Check staged changes against constitution principles
-- Identify common code smells
-- Suggest improvements
-- Verify test coverage
-- Check documentation completeness
-
----
-
-### `/audit` - Security & Quality Audit
+### `/audit` - Security & Quality Audit (Coming Soon)
 
 **Purpose**: Scan for security issues and quality problems.
 
-**What it does**:
+**What it will do**:
 - Scan for hardcoded secrets/credentials
 - Check for common vulnerabilities (SQL injection, XSS, CSRF)
 - Analyze dependencies for known CVEs
@@ -128,11 +112,11 @@ your-project/
 
 ---
 
-### `/stats` - Project Statistics
+### `/stats` - Project Statistics (Coming Soon)
 
 **Purpose**: Show project health metrics.
 
-**What it does**:
+**What it will do**:
 - Lines of code by language
 - Test coverage percentage
 - Git activity with agent attribution
@@ -180,11 +164,11 @@ your-project/
 
 ### Team with Multiple Agents
 **Install**: `--recommended` + `--kit=multiagent`
-**Use**: `/orient` + `/review` before committing
+**Use**: `/orient` at start of every session
 
 ### Security-Focused Project
 **Install**: `--recommended`
-**Use**: `/audit` regularly, `/review` on every change
+**Use**: `/audit` regularly for security scans
 
 ### Custom Workflow Needs
 **Install**: `--kit=project`
@@ -206,7 +190,7 @@ No configuration needed - works out of the box.
 
 **None** - project-kit is standalone.
 
-**Note**: multiagent-kit recommends project-kit for `/review` and best practices.
+**Note**: Works great with git-kit for complete workflow automation.
 
 ---
 
@@ -226,8 +210,8 @@ lite-kits remove -Kit project
 ```
 
 Removes:
-- `.claude/commands/{orient,review,audit,stats}.md`
-- `.github/prompts/{orient,review,audit,stats}.prompt.md`
+- `.claude/commands/{orient,audit,stats}.md`
+- `.github/prompts/{orient,audit,stats}.prompt.md`
 - `.specify/scripts/{bash,powershell}/create-feature-enhanced.{sh,ps1}`
 
 ---
