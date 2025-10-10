@@ -7,10 +7,10 @@ This directory contains modular add-on kits that can be installed independently 
 ### ✅ Recommended (Default Installation)
 
 #### 1. **project-kit**
-**Commands**: `/orient` ⭐, `/audit`, `/stats`
+**Commands**: `/orient` ⭐, `/review`, `/audit`, `/stats`
 **Scripts**: Enhanced feature creation with custom naming
 
-Essential project-level utilities combining agent orientation, quality checks, and vanilla spec-kit enhancements.
+Essential project-level utilities combining agent orientation, code quality checks, and vanilla spec-kit enhancements.
 
 **Installs to**:
 - `.claude/commands/` (Claude Code)
@@ -22,9 +22,9 @@ Essential project-level utilities combining agent orientation, quality checks, a
 ---
 
 #### 2. **git-kit**
-**Commands**: `/commit`, `/pr`, `/review`, `/sync`, `/cleanup`
+**Commands**: `/commit`, `/pr`, `/sync`, `/cleanup`
 
-Git workflow automation with smart commits, PR creation, code review, sync status, and cleanup operations. Includes ASCII visualization for better readability.
+Git workflow automation with smart commits, PR creation, sync status, and cleanup operations. Includes ASCII visualization for better readability.
 
 **Installs to**:
 - `.claude/commands/` (Claude Code)
@@ -41,14 +41,14 @@ Git workflow automation with smart commits, PR creation, code review, sync statu
 
 Multi-agent coordination structure for complex projects with multiple AI agents working in parallel.
 
-**Dependencies**: None (standalone)
+**Dependencies**: Requires `project-kit` (for `/review`) and `git-kit` (for `/commit`, `/pr`)
 
 **Installs to**:
 - `.specify/memory/pr-workflow-guide.md`
 - `.specify/memory/git-worktrees-protocol.md`
 - `specs/*/collaboration/` (template, created per-feature)
 
-**Use case**: Large projects with multiple AI agents collaborating (e.g., Claude Code + Copilot). Works best when combined with project-kit and git-kit.
+**Use case**: Large projects with multiple AI agents collaborating (e.g., Claude Code + Copilot).
 
 ---
 
@@ -56,9 +56,9 @@ Multi-agent coordination structure for complex projects with multiple AI agents 
 
 | Kit | Default | Target Users | Adds | Dependencies |
 |-----|---------|--------------|------|--------------|
-| **project** | ✅ Yes | Everyone | 3 commands + enhanced scripts | None |
+| **project** | ✅ Yes | Everyone | 4 commands + enhanced scripts | None |
 | **git** | ✅ Yes | Everyone | 4 commands with ASCII viz | None |
-| **multiagent** | ❌ No | Multi-agent projects | Collaboration structure + /sync | None |
+| **multiagent** | ❌ No | Multi-agent projects | Collaboration structure | project, git |
 
 ## Kit Structure
 
@@ -144,6 +144,7 @@ lite-kits remove -Kit git,project
 | Command | Description |
 |---------|-------------|
 | `/orient` | Agent orientation (read docs, check git, determine role) |
+| `/review` | Code review against constitution and best practices |
 | `/audit` | Security and quality audit |
 | `/stats` | Project statistics (LOC, test coverage, complexity) |
 
@@ -153,7 +154,7 @@ lite-kits remove -Kit git,project
 |---------|-------------|
 | `/commit` | Smart commit with agent attribution |
 | `/pr` | Create pull request with auto-generated description |
-| `/review` | Code review of staged changes against best practices |
+| `/sync` | Show sync status with ASCII visualization |
 | `/cleanup` | Clean merged branches, stale worktrees |
 
 ### project-kit Enhancements
