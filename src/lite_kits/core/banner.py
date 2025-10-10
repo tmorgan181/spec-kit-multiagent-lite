@@ -145,7 +145,7 @@ def show_static_banner():
 def show_loading_spinner(message="Loading kits..."):
     with console.status(f"[bold bright_cyan]{message}", spinner="dots"):
         time.sleep(1.5)
-    console.print("[green]✓ Done![/green]")
+    console.print("[green][OK] Done![/green]")
 
 if __name__ == "__main__":
     console.clear()

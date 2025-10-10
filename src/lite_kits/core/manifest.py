@@ -28,7 +28,7 @@ class KitManifest:
     def manifest(self) -> Dict:
         """Load and cache manifest data"""
         if self._manifest is None:
-            with open(self.manifest_path) as f:
+            with open(self.manifest_path, encoding='utf-8') as f:
                 self._manifest = yaml.safe_load(f)
         return self._manifest
 
