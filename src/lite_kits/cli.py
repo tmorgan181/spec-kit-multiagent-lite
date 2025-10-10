@@ -151,6 +151,11 @@ def main(
         print_help_hint()
         print_quick_start()
 
+@app.command(hidden=True)
+def help(ctx: typer.Context):
+    """Show help information (alias for --help)."""
+    console.print(ctx.parent.get_help())
+
 @app.command(name="add")
 def add_kits(
     kit: Optional[str] = typer.Option(
