@@ -59,10 +59,6 @@ required_values:
 # PATH CONSTANTS
 paths:
   # Kit source directories (where files are stored in lite-kits)
-  kit_sources:
-    dev: "dev"
-    multiagent: "multiagent"
-
   # Content type subdirectories (content-first hierarchy)
   content_dirs:
     commands: "commands"
