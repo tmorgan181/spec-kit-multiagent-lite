@@ -2,7 +2,7 @@
 
 **Status**: ✅ Recommended (Default)
 
-Essential project-level utilities and enhancements for vanilla spec-kit. Includes agent orientation, code review, quality checks, and enhanced feature creation scripts.
+Essential project-level utilities and enhancements for vanilla spec-kit. Includes agent orientation, quality checks, and enhanced feature creation scripts.
 
 ## What It Adds
 
@@ -11,7 +11,6 @@ Essential project-level utilities and enhancements for vanilla spec-kit. Include
 | Command | Claude Code | GitHub Copilot | Description |
 |---------|-------------|----------------|-------------|
 | `/orient` | ✅ | ✅ | Agent orientation protocol (most essential!) |
-| `/review` | 🚧 | 🚧 | Code review helper |
 | `/audit` | 🚧 | 🚧 | Security & quality audit |
 | `/stats` | 🚧 | 🚧 | Project statistics |
 
@@ -41,12 +40,10 @@ lite-kits install -Kit project
 your-project/
 ├── .claude/commands/              # If Claude Code detected
 │   ├── orient.md                  # ✅ Essential!
-│   ├── review.md                  # 🚧 Coming Soon
 │   ├── audit.md                   # 🚧 Coming Soon
 │   └── stats.md                   # 🚧 Coming Soon
 ├── .github/prompts/               # If GitHub Copilot detected
 │   ├── orient.prompt.md           # ✅ Essential!
-│   ├── review.prompt.md           # 🚧 Coming Soon
 │   ├── audit.prompt.md            # 🚧 Coming Soon
 │   └── stats.prompt.md            # 🚧 Coming Soon
 └── .specify/scripts/              # Enhanced vanilla scripts
@@ -99,19 +96,6 @@ your-project/
 ```
 
 **Why this is essential**: Every AI agent should run `/orient` at the start of each session to get up to speed quickly without wasting tokens.
-
----
-
-### `/review` - Code Review (Coming Soon)
-
-**Purpose**: Review code changes against project constitution and best practices.
-
-**What it will do**:
-- Check staged changes against constitution principles
-- Identify common code smells
-- Suggest improvements
-- Verify test coverage
-- Check documentation completeness
 
 ---
 
@@ -180,11 +164,11 @@ your-project/
 
 ### Team with Multiple Agents
 **Install**: `--recommended` + `--kit=multiagent`
-**Use**: `/orient` + `/review` before committing
+**Use**: `/orient` at start of every session
 
 ### Security-Focused Project
 **Install**: `--recommended`
-**Use**: `/audit` regularly, `/review` on every change
+**Use**: `/audit` regularly for security scans
 
 ### Custom Workflow Needs
 **Install**: `--kit=project`
@@ -206,7 +190,7 @@ No configuration needed - works out of the box.
 
 **None** - project-kit is standalone.
 
-**Note**: multiagent-kit recommends project-kit for `/review` and best practices.
+**Note**: Works great with git-kit for complete workflow automation.
 
 ---
 
@@ -226,8 +210,8 @@ lite-kits remove -Kit project
 ```
 
 Removes:
-- `.claude/commands/{orient,review,audit,stats}.md`
-- `.github/prompts/{orient,review,audit,stats}.prompt.md`
+- `.claude/commands/{orient,audit,stats}.md`
+- `.github/prompts/{orient,audit,stats}.prompt.md`
 - `.specify/scripts/{bash,powershell}/create-feature-enhanced.{sh,ps1}`
 
 ---
