@@ -5,7 +5,7 @@
 
 ## Purpose
 
-This guide defines the workflow for AI agents (Claude Code, GitHub Copilot, Cursor) when creating pull requests in spec-kit projects with multiagent coordination.
+This guide defines the workflow for AI agents (Claude Code, GitHub Copilot) when creating pull requests in spec-kit projects with multiagent coordination.
 
 ## Core Principles
 
@@ -120,12 +120,6 @@ via claude-sonnet-4.5 @ claude-code
 fix: Resolve race condition in async handlers
 
 via gpt-4 @ github-copilot-cli
-```
-
-```
-docs: Update API documentation for auth endpoints
-
-via claude-opus-4 @ cursor
 ```
 
 ## Multi-Agent Coordination

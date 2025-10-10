@@ -1,9 +1,9 @@
 """
-spec-kit-multiagent: Lightweight multi-agent coordination add-on for GitHub spec-kit
+lite-kits: Lightweight enhancement kits for spec-driven development
 
-This package adds multi-agent coordination capabilities to vanilla spec-kit projects
+This package adds productivity-enhancing slash commands to vanilla spec-kit projects
 without forking or replacing any core files.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = ["__version__"]

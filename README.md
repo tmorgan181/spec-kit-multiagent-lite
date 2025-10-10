@@ -1,6 +1,6 @@
 # 🌈 LITE-KITS 🎒
 
-[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.1.1)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.2.0)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Spec-Kit](https://img.shields.io/badge/spec--kit-compatible-purple.svg)](https://github.com/github/spec-kit)
@@ -8,404 +8,178 @@
 
 **Lightweight enhancement kits for spec-driven development.**
 
-<img width="2096" height="1383" alt="image" src="https://github.com/user-attachments/assets/8ee06b31-d492-4add-bd60-8b60d8b88357" />
+<img width="750" height="450" alt="lite-kits banner in terminal" src="assets/banner.gif" />
 
 ## What is this?
 
-**`lite-kits`** adds modular enhancement kits to vanilla spec-driven development workflows built on [GitHub Spec-Kit](https://github.com/github/spec-kit).
+**lite-kits** adds productivity-enhancing slash commands to [spec-kit](https://github.com/github/spec-kit) projects. Get smart git workflows (`/commit`, `/pr`, `/cleanup`), project orientation (`/orient`), code quality tools (`/review`, `/audit`, `/stats`), and optional multi-agent coordination.
 
-Spec-Kit is a framework for AI-driven collaborative development (spec → plan → tasks → implement) using markdown prompts and scripts. Think "vibe coding" but with structure.
-
-**lite-kits** adds three optional enhancement kits to vanilla spec-kit projects:
-
-- 🎯 **project-kit** - Agent orientation (`/orient` command)
-- 🔧 **git-kit** - Smart git workflows (`/commit`, `/pr`, `/cleanup`)
-- 🤝 **multiagent-kit** - Multi-agent coordination (`/sync`, collaboration directories)
-
-Each kit installs `.md` prompt files for AI assistants (Claude Code, GitHub Copilot, Copilot CLI) and optional scripts.
-
-## Installation
-
-### Prerequisites
-
-1. **GitHub Spec-Kit** - Install the `specify` CLI tool:
-   ```bash
-   # See: https://github.com/github/spec-kit
-   npm install -g @github/specify
-   # Or use pipx, etc.
-   ```
-
-2. **Create a spec-kit project** (if you don't have one):
-   ```bash
-   specify init my-project
-   cd my-project
-   ```
-
-3. **Python 3.11+** - For lite-kits itself
-
-4. **AI Assistant** - At least one: GitHub Copilot, GitHub Copilot CLI, Claude Code, Claude Code VSCode Extension
-
-### Install lite-kits
-
-**Via pip** (when published):
-```bash
-pip install lite-kits
-```
-
-**From source** (current):
-```bash
-# Clone repository
-git clone https://github.com/tmorgan181/lite-kits.git
-cd lite-kits
-
-# Build the package
-uv build
-
-# Install with uv (recommended)
-uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
-
-# Or with pip
-pip install dist/lite_kits-0.1.0-py3-none-any.whl
-```
-
-## ✨ Beautiful CLI Experience
-
-**lite-kits** v0.1.1 features a stunning ASCII banner system with UV-inspired modern CLI patterns:
-
-- 🎨 **Beautiful ASCII Art** - LITE-KITS branding with professional charm
-- ⚡ **Smart Display Modes** - Static banners for daily use, animated for special moments
-- 🚀 **UV-Style Commands** - Modern global options (`--version/-V`, `--quiet/-q`, `--verbose/-v`)
-- 📊 **Professional Tables** - Clean information displays and status reports
-- 🎯 **Context-Aware** - Shows installed kits and project status intelligently
-
-**Vibe coding with professional polish!** ✨
-
-## Key Features
-
-### 🔧 Git-Kit
-
-Smart git workflow commands:
-
-**`/commit`** - Intelligent commits with staging proposals
-- Combined staging + commit message approval
-- Multi-commit suggestions for large changesets
-- Conventional commits with feature numbers
-- Agent attribution tracking
-
-**`/pr`** - Pull request creation with auto-push
-- Automatic branch pushing before PR
-- PR status checking (prevents duplicates)
-- Smart description generation from commits
-- Modular PR scope (only describes current work)
-
-**`/cleanup`** - Safe branch cleanup
-- Delete merged branches safely
-- Optional remote deletion
-- Current branch detection
-- Protected branch safety
-
-### 🎯 Project-Kit
-
-**`/orient`** - Agent orientation command
-- Reads project documentation
-- Checks current git state
-- Determines agent role
-- Provides concise context
-
-### 🤝 Multiagent-Kit
-
-**`/sync`** - Multi-agent coordination status
-- Visual sync status display
-- Agent activity tracking
-- Collaboration structure detection
-
-**Collaboration directories** for multi-agent coordination:
-```
-specs/NNN-feature/collaboration/
-├── active/          # Current work
-│   ├── sessions/    # Work session logs
-│   └── decisions/   # Handoffs, proposals
-├── archive/         # Historical (YYYY-MM/)
-└── results/         # Completed deliverables
-```
-
-**Memory guides**:
-- PR Workflow Guide - How AI agents create pull requests
-- Git Worktrees Protocol - Parallel development with worktrees
+It's an **add-on**, not a fork—your vanilla spec-kit stays vanilla, and you benefit from upstream updates automatically.
 
 ## Quick Start
 
-### 1. Add kits to your spec-kit project
+### 1. Install lite-kits
+
+```bash
+# Recommended: Install with uv
+uv tool install lite-kits
+
+# Or with pip
+pip install lite-kits
+```
+
+### 2. Add kits to your spec-kit project
 
 ```bash
 cd your-spec-kit-project
-lite-kits add --here --dry-run --recommended  # Preview changes
-lite-kits add --here --recommended            # Add project + git kits
+
+# Add dev-kit (all solo development commands)
+lite-kits add --recommended
+
+# Check what was installed
+lite-kits status
 ```
 
-**What gets added**:
-- Git workflow commands (`/commit`, `/pr`, `/cleanup`)
-- Project orientation command (`/orient`)
-- Multi-agent coordination tools (`/sync`, collaboration structure) - optional
-- Memory guides (PR workflow, git worktrees protocol) - optional
-
-### 2. Use the commands in your AI assistant
+### 3. Use the commands
 
 ```bash
 # In Claude Code or GitHub Copilot
 /orient     # Get project context
 /commit     # Smart commit with staging
 /pr         # Create PR with auto-push
+/review     # Review staged changes
 /cleanup    # Clean up merged branches
-/sync       # Check multi-agent status
+/audit      # Security analysis
+/stats      # Project metrics
 ```
 
-### 3. Start building
+That's it! See [GUIDE.md](docs/GUIDE.md) for detailed command documentation and examples.
+
+## Features
+
+**Dev-Kit** (solo development):
+- `/orient` - Quick project orientation for AI agents
+- `/commit` - Smart commits with staging proposals and conventional commits
+- `/pr` - Pull request creation with auto-push and smart descriptions
+- `/review` - Code review against best practices
+- `/cleanup` - Safe merged branch cleanup
+- `/audit` - Security analysis on dependencies and code patterns
+- `/stats` - Project metrics and complexity analysis
+
+**Multiagent-Kit** (optional, for multi-agent workflows):
+- `/sync` - Multi-agent coordination status
+- Collaboration directories and templates
+- Memory guides (PR workflow, git worktrees protocol)
+
+**CLI Features:**
+- Beautiful terminal output with proper spacing
+- Preview-first (see changes before applying)
+- Smart auto-detection (agents and shells)
+- File count summaries
+- `help` command: `lite-kits help [COMMAND]`
+- `--force` flag to skip confirmations
+
+## Installation
+
+### Prerequisites
+
+1. **Python 3.11+**
+2. **A spec-kit project** - Initialize with [`specify init`](https://github.com/github/spec-kit)
+3. **An AI assistant** - Claude Code, GitHub Copilot, or GitHub Copilot CLI
+
+### Install Methods
+
+**With uv (recommended):**
+```bash
+uv tool install lite-kits
+```
+
+**With pip:**
+```bash
+pip install lite-kits
+```
+
+**From source:**
+```bash
+git clone https://github.com/tmorgan181/lite-kits.git
+cd lite-kits
+uv build
+uv tool install dist/lite_kits-*.whl
+```
+
+## CLI Commands
 
 ```bash
-# Standard spec-kit workflow with enhanced git commands
-/specify Build a user authentication system
-/plan
-/tasks
-/implement
-/commit     # Use smart commit
-/pr         # Auto-push and create PR
+# Kit management
+lite-kits add --recommended          # Add dev-kit
+lite-kits add --kit dev              # Add specific kit
+lite-kits add --kit multiagent       # Add multiagent-kit
+lite-kits remove --all               # Remove all kits
+lite-kits remove --kit dev --force   # Remove without confirmation
+
+# Status and info
+lite-kits status                     # Show installed kits
+lite-kits validate                   # Verify installation
+lite-kits info                       # Package information
+lite-kits help [COMMAND]             # Show help
+
+# Global options
+lite-kits --version / -V             # Show version
+lite-kits --banner                   # Show animated banner
+lite-kits --quiet / -q               # Suppress output
+lite-kits --verbose / -v             # Extra output
 ```
 
-## Usage
+See [GUIDE.md](docs/GUIDE.md) for detailed documentation and examples.
 
-### CLI Commands
+## What's New in v0.2.0
 
-**Beautiful Banner Experience:**
-```bash
-# Welcome screen with static banner + quick start
-lite-kits                                    # Show banner and quick start guide
+**Major rewrite with focus on modularity and UX:**
 
-# Animated celebration banner
-lite-kits --banner                           # Special animated ASCII art
+- ✨ Manifest-driven architecture (zero hardcoded logic)
+- 🔧 Modular installer (detector, validator, conflict_checker)
+- 📦 Kit consolidation: project-kit + git-kit → **dev-kit**
+- 🎨 Perfect terminal spacing and file count summaries
+- 💬 `help` command with optional command argument
+- ⚡ `--force` flag for remove command
+- 🐛 Fixed all critical bugs (#1, #3, #4, #6, #7)
 
-# Banner integrated into all commands
-lite-kits status                             # Beautiful status display
-lite-kits info                               # Professional info tables
-```
+See [CHANGELOG.md](CHANGELOG.md) for full release notes.
 
-**Kit Management:**
-```bash
-# Add kits to a project (working directory by default)
-lite-kits add --recommended                  # Add project + git kits
-lite-kits add --kit project                  # Add specific kit
-lite-kits add --dry-run --recommended        # Preview changes
-lite-kits add --directory /path/to/project   # Specify different directory
+## Documentation
 
-# Check status with beautiful display
-lite-kits status                             # Show installed kits with banner
-
-# Validate installation
-lite-kits validate                           # Verify kit installation
-
-# Remove kits
-lite-kits remove --kit git                   # Remove specific kit
-lite-kits remove --all                       # Remove all kits
-```
-
-**Package Management:**
-```bash
-# Get package info with professional tables
-lite-kits info                               # Show version, kits, quick start
-
-# Uninstall instructions
-lite-kits uninstall                          # How to remove package
-
-# Version and global options (UV-style)
-lite-kits --version / -V                     # Show version only
-lite-kits --quiet / -q                       # Suppress banners
-lite-kits --verbose / -v                     # Extra output
-lite-kits --directory <path>                 # Set working directory
-```
-
-### Git Workflow Example
-
-```bash
-# Make changes to your code
-
-# Smart commit with combined staging + message approval
-/commit
-# Shows: staging plan + commit message in one prompt
-# Options: y (approve), es (edit staging), em (edit message)
-
-# Create PR (auto-pushes branch first!)
-/pr
-# Checks: No existing PR, pushes branch, creates PR
-# Description: Only describes commits in THIS PR (modular scope)
-
-# Clean up merged branches
-/cleanup
-# Safe deletion with protection for current/base/unmerged branches
-# Optional: --remote flag to delete from remote too
-```
-
-### Multi-Agent Workflow Example
-
-**Scenario**: Claude Code (backend) + GitHub Copilot (frontend) building a blog.
-
-1. **Claude Code**: Creates spec and plan
-   ```bash
-   /specify Build a blog platform with auth
-   /plan
-   ```
-
-2. **Claude Code**: Creates handoff document
-   ```
-   specs/002-blog/collaboration/active/decisions/agent-split.md
-   - Claude: Backend (API, database, auth)
-   - Copilot: Frontend (React, UI, components)
-   ```
-
-3. **Both agents**: Work in parallel with git worktrees
-   ```bash
-   # Claude
-   git worktree add ../blog-backend 002-blog
-
-   # Copilot
-   git worktree add ../blog-frontend 002-blog
-   ```
-
-4. **Both agents**: Commit with attribution
-   ```bash
-   /commit
-   # Message includes: via claude-sonnet-4.5 @ claude-code
-   ```
-
-5. **Check sync status**:
-   ```bash
-   /sync
-   # Shows: agent activity, collaboration status, recommendations
-   ```
-
-6. **Integration**: Test together, create PR with `/pr`
+- **[GUIDE.md](docs/GUIDE.md)** - Complete command reference, workflows, and examples
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and migration notes
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute
+- **[manifest-schema.md](docs/manifest-schema.md)** - Technical reference for kits.yaml
 
 ## Architecture
 
-### Add-on Design (Not a Fork)
+**Enhance, don't replace:**
+- lite-kits is an add-on for vanilla spec-kit (not a fork)
+- Only adds files, never modifies spec-kit core
+- Get upstream spec-kit updates automatically
+- Modular kits (add/remove as needed)
 
-**lite-kits** is an **add-on** for vanilla spec-kit, not a fork or replacement:
+**Content-first structure:**
+- `kits/{kit-name}/commands/{command}.{agent}.md`
+- Easy to add new commands, agents, and shells
+- Single manifest (kits.yaml) as source of truth
 
-- ✅ **Vanilla spec-kit stays vanilla** - Your `specify` workflow is unchanged
-- ✅ **Get upstream updates** - Benefit from spec-kit improvements automatically
-- ✅ **Modular kits** - Add/remove individual kits as needed
-- ✅ **No file replacements** - Only adds new files, never modifies spec-kit core
+**Modular installer:**
+- Auto-detect agents (Claude, Copilot) and shells (Bash, PowerShell)
+- Preview-first operations with conflict checking
+- Clean separation of concerns across focused modules
 
-### What Gets Added
+## Support & Contributing
 
-When you run `lite-kits add`, it installs `.md` prompt files and optional scripts:
-
-**Kit commands** (markdown prompts for AI assistants):
-- `.claude/commands/*.md` - Claude Code slash commands
-- `.github/prompts/*.prompt.md` - GitHub Copilot prompt files
-
-**Memory guides** (multiagent-kit only):
-- `.specify/memory/pr-workflow-guide.md` - How AI agents should create PRs
-- `.specify/memory/git-worktrees-protocol.md` - Parallel dev with worktrees
-
-**Collaboration structure** (multiagent-kit only):
-- `specs/NNN-feature/collaboration/` - Session logs, handoffs, decisions
-
-**No modifications** to existing spec-kit files like `.specify/`, vanilla prompts, etc.
-
-## Project Structure
-
-```
-lite-kits/
-├── src/lite_kits/
-│   ├── __init__.py
-│   ├── cli.py              # CLI commands
-│   ├── installer.py        # Installation logic
-│   └── kits/               # Enhancement kits
-│       ├── git/            # Git workflow commands
-│       ├── project/        # Project orientation
-│       └── multiagent/     # Multi-agent coordination
-├── examples/               # Example projects
-├── docs/                   # Documentation
-├── pyproject.toml          # Package metadata
-└── README.md
-```
-
-## Development
-
-### Setup
-
-```bash
-# Clone repository
-git clone https://github.com/tmorgan181/lite-kits.git
-cd lite-kits
-
-# Install with dev dependencies
-uv tool install -e ".[dev]"
-```
-
-### Building
-
-```bash
-# Build package
-uv build
-
-# Install locally
-uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
-```
-
-### Testing (TODO)
-
-```bash
-pytest
-pytest --cov=src/lite_kits
-```
-
-## Roadmap
-
-### ✅ Phase 1: Foundation (v0.1.0)
-- [x] Package structure with constants and clean architecture
-- [x] Kit-based modular architecture
-- [x] Git-kit (/commit, /pr, /cleanup)
-- [x] Project-kit (/orient)
-- [x] Multiagent-kit (/sync, collaboration)
-- [x] Cross-platform support (Bash + PowerShell)
-- [x] Windows encoding fixes (ASCII-safe status indicators)
-- [x] CLI with Kit Management and Package Management sections
-- [x] Shell completion disabled (no profile modifications)
-- [x] Proper pip/uv tool installation
-
-### Phase 2: Polish & Publish (Next - v0.2.0)
-- [x] Complete CLI rebrand (`install` → `add`, proper flags)
-- [x] Fix installer kit mappings (sync in multiagent, cleanup in git)
-- [ ] Add examples directory with sample projects
-- [ ] PyPI publication
-- [ ] Documentation improvements (architecture docs, guides)
-
-### Phase 3: Expansion (Future - v0.3.0)
-- [ ] Additional kits for other vanilla tools
-- [ ] Template library expansion
-- [ ] Test suite (pytest)
-- [ ] CI/CD automation
-- [ ] Plugin system for custom kits
-
-## Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+- **Issues**: [GitHub Issues](https://github.com/tmorgan181/lite-kits/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/tmorgan181/lite-kits/discussions)
+- **Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-## Related Projects
-
-- [GitHub spec-kit](https://github.com/github/spec-kit) - Spec-driven development framework
-- [Claude Code](https://claude.ai/code) - AI coding assistant
-- [GitHub Copilot](https://github.com/features/copilot) - AI pair programmer
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/tmorgan181/lite-kits/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/tmorgan181/lite-kits/discussions)
 
 ## Acknowledgments
 
@@ -413,6 +187,6 @@ Built to enhance [GitHub Spec-Kit](https://github.com/github/spec-kit), a framew
 
 ---
 
-**Status**: Alpha (v0.1.0) - APIs may change
+**Status**: Beta (v0.2.0) - Ready for production use
 
 **Philosophy**: Enhance, don't replace. lite-kits adds features to vanilla spec-kit without forking or modifying core files.

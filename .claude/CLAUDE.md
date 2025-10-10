@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **lite-kits** is a pip-installable collection of lightweight enhancement kits for vanilla dev tools. This is an **add-on** framework, not a fork—it works alongside vanilla tools (like [GitHub spec-kit](https://github.com/github/spec-kit)) without replacing any core files.
 
-**Current Status**: Pre-release (v0.1.0 in development)
+**Current Status**: Beta (v0.2.0 - ready for production use)
 
 **Core Philosophy**: From the Atrium Grounds Constitution (`.specify/memory/constitution.md`):
 - **Progressive Disclosure**: Build trust gradually through tiered access
@@ -24,7 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 uv tool install -e .
 
 # Install from built package
-uv tool install dist/lite_kits-0.1.0-py3-none-any.whl
+uv tool install dist/lite_kits-*.whl
 
 # Uninstall
 uv tool uninstall lite-kits
@@ -55,7 +55,7 @@ lite-kits install -Recommended
 uv build
 
 # Check package contents
-tar -tzf dist/spec_kit_multiagent-0.1.0.tar.gz
+tar -tzf dist/lite_kits-*.tar.gz
 ```
 
 ### PowerShell Scripts
@@ -203,7 +203,7 @@ CI workflow tracks agent/model attribution for transparency.
 
 To build and test the package:
 1. **Build**: `uv build` creates wheel and source dist
-2. **Test locally**: `uv tool install dist/lite_kits-0.1.0-py3-none-any.whl`
+2. **Test locally**: `uv tool install dist/lite_kits-*.whl`
 3. **Test commands**: `lite-kits --help`, `lite-kits status`
 4. **Publish** (when ready): `uv publish`
 
@@ -292,4 +292,5 @@ pwsh .specify/scripts/powershell/sync-commands.ps1
 - P2 collaboration scaffolding (script, templates, /collaborate prompt, CI workflow)
 - Add Copilot reviewer refinements
 - P1 installer and validator scripts
-- P0 foundation consolidation (v0.1.0)
+- ✅ Foundation consolidation (v0.1.0 - shipped)
+- ✅ Manifest-driven architecture (v0.2.0 - shipped)
