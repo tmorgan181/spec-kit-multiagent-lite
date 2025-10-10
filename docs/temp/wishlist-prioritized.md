@@ -148,3 +148,4 @@
 - preview should include names of kits as headers.
 - in preview, split by file type (command, memory, template, script, etc.)
 - in --banner help text, "can be combined" should include "must be first arg"
+- quick wins for claude and copilot instructions.mds, rules.mds, etc?
