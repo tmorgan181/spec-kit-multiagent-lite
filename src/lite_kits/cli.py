@@ -22,22 +22,17 @@ APP_NAME = "lite-kits"
 APP_DESCRIPTION = "Lightweight enhancement kits for spec-driven development."
 
 # Kit names
-KIT_PROJECT = "project"
-KIT_GIT = "git"
+KIT_DEV = "dev"
 KIT_MULTIAGENT = "multiagent"
-KITS_ALL = [KIT_PROJECT, KIT_GIT, KIT_MULTIAGENT]
-KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
-
-# Kit names and collections
+KITS_ALL = [KIT_DEV, KIT_MULTIAGENT]
+KITS_RECOMMENDED = [KIT_DEV]  # dev-kit is the default, multiagent is optional
 
 # Kit descriptions for help
-KIT_DESC_PROJECT = "Agent orientation and project-level utilities"
-KIT_DESC_GIT = "Git workflows with commit, PR, review, and cleanup automation"
-KIT_DESC_MULTIAGENT = "Multi-agent coordination protocols (standalone)"
+KIT_DESC_DEV = "Solo development essentials: /orient, /commit, /pr, /review, /cleanup, /audit, /stats"
+KIT_DESC_MULTIAGENT = "Multi-agent coordination: /sync, collaboration dirs, memory guides (optional)"
 
 # Marker files for kit detection
-MARKER_PROJECT_KIT = ".claude/commands/orient.md"
-MARKER_GIT_KIT = ".claude/commands/commit.md"
+MARKER_DEV_KIT = ".claude/commands/orient.md"  # If orient exists, dev-kit is installed
 MARKER_MULTIAGENT_KIT = ".specify/memory/pr-workflow-guide.md"
 
 # Error messages

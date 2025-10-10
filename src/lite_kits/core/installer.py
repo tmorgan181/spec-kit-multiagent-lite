@@ -22,10 +22,10 @@ class Installer:
         """
         self.target_dir = Path(target_dir).resolve()
         self.kits_dir = Path(__file__).parent.parent / "kits"
-        self.kits = kits or ['project']  # Default to project kit only
+        self.kits = kits or ['dev']  # Default to dev kit only
 
         # Validate kit names
-        valid_kits = {'project', 'git', 'multiagent'}
+        valid_kits = {'dev', 'multiagent'}
         invalid = set(self.kits) - valid_kits
         if invalid:
             raise ValueError(f"Invalid kit(s): {invalid}. Valid: {valid_kits}")

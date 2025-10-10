@@ -1,0 +1,180 @@
+# Lite-Kits Manifest
+# Defines available kits, their commands, and generated files
+
+kits:
+  dev:
+    name: "Dev Kit"
+    description: "Solo development essentials: /orient, /commit, /pr, /review, /cleanup, /audit, /stats"
+    icon: "🚀"
+    recommended: true
+
+    commands:
+      - name: "orient"
+        description: "Agent orientation protocol"
+        status: "stable"
+
+      - name: "commit"
+        description: "Smart commit with staging and message generation"
+        status: "stable"
+
+      - name: "pr"
+        description: "Pull request creation with auto-push"
+        status: "stable"
+
+      - name: "review"
+        description: "Code review helper for staged changes"
+        status: "stable"
+
+      - name: "cleanup"
+        description: "Safe branch cleanup (delete merged branches)"
+        status: "stable"
+
+      - name: "audit"
+        description: "Security & quality audit"
+        status: "planned"
+
+      - name: "stats"
+        description: "Project statistics"
+        status: "planned"
+
+    # Files that get installed
+    files:
+      claude:
+        - path: ".claude/commands/orient.md"
+          source: "dev/claude/commands/orient.md"
+          required: true
+
+        - path: ".claude/commands/commit.md"
+          source: "dev/claude/commands/commit.md"
+          required: true
+
+        - path: ".claude/commands/pr.md"
+          source: "dev/claude/commands/pr.md"
+          required: true
+
+        - path: ".claude/commands/review.md"
+          source: "dev/claude/commands/review.md"
+          required: true
+
+        - path: ".claude/commands/cleanup.md"
+          source: "dev/claude/commands/cleanup.md"
+          required: true
+
+        - path: ".claude/commands/audit.md"
+          source: "dev/claude/commands/audit.md"
+          required: false
+
+        - path: ".claude/commands/stats.md"
+          source: "dev/claude/commands/stats.md"
+          required: false
+
+      copilot:
+        - path: ".github/prompts/orient.prompt.md"
+          source: "dev/github/prompts/orient.prompt.md"
+          required: true
+
+        - path: ".github/prompts/commit.prompt.md"
+          source: "dev/github/prompts/commit.prompt.md"
+          required: true
+
+        - path: ".github/prompts/pr.prompt.md"
+          source: "dev/github/prompts/pr.prompt.md"
+          required: true
+
+        - path: ".github/prompts/review.prompt.md"
+          source: "dev/github/prompts/review.prompt.md"
+          required: true
+
+        - path: ".github/prompts/cleanup.prompt.md"
+          source: "dev/github/prompts/cleanup.prompt.md"
+          required: true
+
+        - path: ".github/prompts/audit.prompt.md"
+          source: "dev/github/prompts/audit.prompt.md"
+          required: false
+
+        - path: ".github/prompts/stats.prompt.md"
+          source: "dev/github/prompts/stats.prompt.md"
+          required: false
+
+    # Marker files for detection (if any of these exist, kit is installed)
+    markers:
+      - ".claude/commands/orient.md"
+      - ".github/prompts/orient.prompt.md"
+
+  multiagent:
+    name: "Multiagent Kit"
+    description: "Multi-agent coordination: /sync, collaboration dirs, memory guides"
+    icon: "🤝"
+    recommended: false
+
+    commands:
+      - name: "sync"
+        description: "Multi-agent coordination status"
+        status: "stable"
+
+    files:
+      claude:
+        - path: ".claude/commands/sync.md"
+          source: "multiagent/claude/commands/sync.md"
+          required: true
+
+      copilot:
+        - path: ".github/prompts/sync.prompt.md"
+          source: "multiagent/github/prompts/sync.prompt.md"
+          required: true
+
+      memory:
+        - path: ".specify/memory/pr-workflow-guide.md"
+          source: "multiagent/memory/pr-workflow-guide.md"
+          required: true
+
+        - path: ".specify/memory/git-worktrees-protocol.md"
+          source: "multiagent/memory/git-worktrees-protocol.md"
+          required: true
+
+        - path: ".specify/memory/parallel-work-protocol.md"
+          source: "multiagent/memory/parallel-work-protocol.md"
+          required: true
+
+      templates:
+        - path: ".specify/templates/session-log.md"
+          source: "multiagent/templates/session-log.md"
+          required: true
+
+        - path: ".specify/templates/handoff.md"
+          source: "multiagent/templates/handoff.md"
+          required: true
+
+        - path: ".specify/templates/decision.md"
+          source: "multiagent/templates/decision.md"
+          required: true
+
+        - path: ".specify/templates/collaboration-README.md"
+          source: "multiagent/templates/collaboration-structure/README.md"
+          required: true
+
+    markers:
+      - ".specify/memory/pr-workflow-guide.md"
+      - ".claude/commands/sync.md"
+      - ".github/prompts/sync.prompt.md"
+
+# Agent detection
+agents:
+  claude:
+    marker_dir: ".claude"
+    commands_dir: ".claude/commands"
+    file_extension: ".md"
+
+  copilot:
+    marker_dir: ".github/prompts"
+    commands_dir: ".github/prompts"
+    file_extension: ".prompt.md"
+
+# Installation options
+options:
+  default_kit: "dev"
+  recommended_kits: ["dev"]
+  allow_partial_install: true  # Can install for just one agent
+  skip_existing: true          # Don't overwrite existing files by default
+  validate_on_install: true    # Run validation after install
