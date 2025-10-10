@@ -2,7 +2,7 @@
 
 **Project**: A pip-installable collection of lightweight enhancement kits for spec-driven development  
 **Repository**: https://github.com/tmorgan181/lite-kits  
-**Current Version**: 0.1.1 (Alpha)
+**Current Version**: 0.2.0 (Beta)
 
 ## Core Architecture
 
