@@ -53,9 +53,9 @@ Extract:
 ```bash
 # Efficient single-command git status check
 # Get branch, recent commits, and changes in one go
-CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "not in git repo")
-RECENT_COMMITS=$(git log --oneline -3 2>/dev/null | head -1)
-CHANGES=$(git status --short 2>/dev/null | wc -l)
+CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "(not in git repo)")
+RECENT_COMMITS=$(git log --oneline -3 2>/dev/null | head -1 || echo "(no commits)")
+CHANGES=$(git status --short 2>/dev/null | wc -l || echo "0")
 ```
 
 ### 5. Check Active Work
