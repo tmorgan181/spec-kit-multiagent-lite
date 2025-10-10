@@ -31,9 +31,9 @@ KITS_RECOMMENDED = [KIT_PROJECT, KIT_GIT]
 # Kit names and collections
 
 # Kit descriptions for help
-KIT_DESC_PROJECT = "Agent orientation and project-level utilities"
-KIT_DESC_GIT = "Git workflows with commit, PR, review, and cleanup automation"
-KIT_DESC_MULTIAGENT = "Multi-agent coordination protocols (standalone)"
+KIT_DESC_PROJECT = "Agent orientation and project management features"
+KIT_DESC_GIT = "Smart git workflows with AI-powered commit messages"
+KIT_DESC_MULTIAGENT = "Multi-agent coordination and collaboration protocols"
 
 # Marker files for kit detection
 MARKER_PROJECT_KIT = ".claude/commands/orient.md"

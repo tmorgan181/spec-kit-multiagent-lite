@@ -2,7 +2,7 @@
 
 **Status**: ✅ Recommended (Default)
 
-Git workflow automation with smart commits, PR creation, code review, and cleanup operations. Includes ASCII visualization for better readability.
+Git workflow automation with smart commits, PR creation, sync visualization, and cleanup operations. Includes ASCII visualization for better readability.
 
 ## What It Adds
 
@@ -12,7 +12,7 @@ Git workflow automation with smart commits, PR creation, code review, and cleanu
 |---------|-------------|----------------|-------------|
 | `/commit` | 🚧 | 🚧 | Smart commit with agent attribution |
 | `/pr` | 🚧 | 🚧 | Create PR with auto-generated description |
-| `/review` | 🚧 | 🚧 | Review staged changes against best practices |
+| `/sync` | 🚧 | 🚧 | Show sync status with ASCII visualization |
 | `/cleanup` | 🚧 | 🚧 | Clean merged branches, stale worktrees |
 
 🚧 = Coming Soon
@@ -36,12 +36,12 @@ your-project/
 ├── .claude/commands/          # If Claude Code detected
 │   ├── commit.md
 │   ├── pr.md
-│   ├── review.md
+│   ├── sync.md
 │   └── cleanup.md
 └── .github/prompts/           # If GitHub Copilot detected
     ├── commit.prompt.md
     ├── pr.prompt.md
-    ├── review.prompt.md
+    ├── sync.prompt.md
     └── cleanup.prompt.md
 ```
 
@@ -99,55 +99,6 @@ via claude-sonnet-4.5 @ claude-code
 - Auto-attribution for AI-generated code
 - Follows conventional commits
 - Saves time thinking about messages
-
----
-
-### `/review` - Code Review (Coming Soon)
-
-**Purpose**: Review staged changes against best practices and project standards.
-
-**What it will do**:
-1. Run `git diff --staged` to see changes
-2. Check changes against common best practices
-3. Identify potential code smells
-4. Suggest improvements
-5. Verify consistent formatting
-6. Check for common issues (hardcoded secrets, TODO comments, etc.)
-
-**Example usage** (planned):
-```
-/review
-
-## Code Review
-
-**Staged files**: 3
-- src/auth.py (new)
-- src/models.py (modified)
-- tests/test_auth.py (new)
-
-**Analysis**:
-
-✅ **Good practices**:
-- Clear function names and docstrings
-- Comprehensive test coverage (94%)
-- Type hints used throughout
-- No hardcoded credentials
-
-⚠ **Suggestions**:
-- src/auth.py:45: Consider extracting hash_password to utils
-- src/models.py:12: TODO comment should be tracked in issue
-- tests/test_auth.py: Add edge case for empty passwords
-
-**Overall**: Ready to commit with minor suggestions
-
-**Approve?** (y/n): y
-```
-
-**Benefits**:
-- Catch issues before committing
-- Consistent code quality
-- Learn best practices
-- Agent-to-agent code review support
 
 ---
 
@@ -212,6 +163,64 @@ via claude-sonnet-4.5 @ claude-code
 
 ✓ Pull request created: https://github.com/user/repo/pull/15
 ```
+
+---
+
+### `/sync` - Sync Status with Visualization (Coming Soon)
+
+**Purpose**: Show git sync status with ASCII visualization.
+
+**Problem**: `git status` output is text-heavy and hard to parse visually.
+
+**Solution**: ASCII tree diagrams and colorized status.
+
+**Example usage** (planned):
+```
+/sync
+
+## Git Sync Status
+
+**Branch**: dev/003-auth
+**Tracking**: origin/dev/003-auth
+
+**Local vs Remote**:
+
+    origin/main ─────────────┬──────> main (up to date)
+                              │
+                              ├──────> dev/003-auth (5 commits ahead)
+                              │        ↑ PUSH NEEDED
+                              │
+    Your commits:             │
+    ├─ a1b2c3d feat: Add auth│
+    ├─ b2c3d4e feat: Add user│
+    ├─ c3d4e5f test: Add auth│
+    ├─ d4e5f6g docs: Update  │
+    └─ e5f6g7h fix: Resolve  │
+                              │
+**Status**:
+✓ No uncommitted changes
+⚠ 5 commits not pushed
+✓ Up to date with remote (fetched 2m ago)
+
+**Actions**:
+1. git push origin dev/003-auth
+2. git fetch (refresh remote status)
+3. /pr (create pull request)
+
+**Worktrees** (if any):
+None active
+
+**Branches** (recent):
+- dev/003-auth (current) ← 5 commits ahead
+- main (up to date)
+- dev/002-blog (merged, can cleanup)
+```
+
+**Benefits**:
+- Visual understanding at a glance
+- Clear action items
+- Worktree awareness
+- Branch cleanup suggestions
 
 ---
 
@@ -308,17 +317,17 @@ Commits ahead of main:
 ## Use Cases
 
 ### Daily Development
-**Use**: `/review` before committing, `/commit` for every commit
+**Use**: `/commit` for every commit, `/sync` multiple times per day
 
 ### Before Creating PR
-**Use**: `/review` final check, `/pr` to create pull request
+**Use**: `/sync` to ensure up to date, `/pr` to create pull request
 
 ### Weekly Maintenance
 **Use**: `/cleanup` to remove merged branches and free up space
 
 ### Multi-Agent Projects
-**Combine with**: multiagent-kit for coordination and `/sync` command
-**Use**: `/review` for agent-to-agent code review
+**Combine with**: multiagent-kit for coordination
+**Use**: `/sync` shows worktree status for parallel development
 
 ---
 
@@ -348,8 +357,8 @@ lite-kits remove -Kit git
 ```
 
 Removes:
-- `.claude/commands/{commit,pr,review,cleanup}.md`
-- `.github/prompts/{commit,pr,review,cleanup}.prompt.md`
+- `.claude/commands/{commit,pr,sync,cleanup}.md`
+- `.github/prompts/{commit,pr,sync,cleanup}.prompt.md`
 
 ---
 

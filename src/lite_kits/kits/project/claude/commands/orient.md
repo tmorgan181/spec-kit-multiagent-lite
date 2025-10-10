@@ -15,12 +15,19 @@ Execute the following steps to gather orientation information:
 Check for kit marker files to determine what's installed:
 
 ```bash
-# Check all kits in one command
-KITS_INSTALLED=""
-[ -f .claude/commands/orient.md ] && KITS_INSTALLED="${KITS_INSTALLED}project "
-[ -f .claude/commands/commit.md ] && KITS_INSTALLED="${KITS_INSTALLED}git "
-[ -f .specify/memory/pr-workflow-guide.md ] && KITS_INSTALLED="${KITS_INSTALLED}multiagent "
-KITS_INSTALLED="${KITS_INSTALLED:-vanilla only}"
+# Initialize kit detection variables
+PROJECT_KIT=false
+GIT_KIT=false
+MULTIAGENT_KIT=false
+
+# Check for project-kit markers
+[ -f .claude/commands/review.md ] && PROJECT_KIT=true
+
+# Check for git-kit markers
+[ -f .claude/commands/commit.md ] && GIT_KIT=true
+
+# Check for multiagent-kit markers
+[ -f .specify/memory/pr-workflow-guide.md ] && MULTIAGENT_KIT=true
 ```
 
 ### 2. Determine Agent Role
@@ -51,11 +58,17 @@ Extract:
 ### 4. Check Git State
 
 ```bash
-# Efficient single-command git status check
-# Get branch, recent commits, and changes in one go
-CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "(not in git repo)")
-RECENT_COMMITS=$(git log --oneline -3 2>/dev/null | head -1 || echo "(no commits)")
-CHANGES=$(git status --short 2>/dev/null | wc -l || echo "0")
+# Current branch
+git branch --show-current
+
+# Recent commits (last 5)
+git log --oneline -5
+
+# Uncommitted changes
+git status --short
+
+# Untracked files count
+git ls-files --others --exclude-standard | wc -l
 ```
 
 ### 5. Check Active Work
@@ -63,25 +76,29 @@ CHANGES=$(git status --short 2>/dev/null | wc -l || echo "0")
 Look for active feature work:
 
 ```bash
-# Check if current branch matches a spec directory
-if [[ "$CURRENT_BRANCH" =~ ^[0-9]+ ]] || [[ "$CURRENT_BRANCH" =~ ^dev/[0-9]+ ]]; then
-  # Extract spec number from branch name
-  SPEC_NUM=$(echo "$CURRENT_BRANCH" | grep -oE '[0-9]+' | head -1)
-  SPEC_DIR="specs/$SPEC_NUM-*"
-  # Check for spec files efficiently
-  SPEC_FILES=$(ls -1 $SPEC_DIR/{spec,plan,tasks}.md 2>/dev/null | wc -l)
+# List specs directories
+ls -1d specs/*/ 2>/dev/null | tail -3
+
+# Check for current spec/plan/tasks
+CURRENT_BRANCH=$(git branch --show-current)
+if [[ "$CURRENT_BRANCH" =~ ^[0-9]+ ]]; then
+  SPEC_DIR="specs/$CURRENT_BRANCH"
+  [ -f "$SPEC_DIR/spec.md" ] && echo "✓ Spec exists"
+  [ -f "$SPEC_DIR/plan.md" ] && echo "✓ Plan exists"
+  [ -f "$SPEC_DIR/tasks.md" ] && echo "✓ Tasks exist"
 fi
 ```
 
 ### 6. Check Multi-Agent Coordination (if multiagent-kit installed)
 
+If `MULTIAGENT_KIT=true`:
+
 ```bash
-# Only check if multiagent kit is installed
-if [[ "$KITS_INSTALLED" == *"multiagent"* ]]; then
-  # Efficient check for collaboration activity
-  ACTIVE_SESSIONS=$(find specs/*/collaboration/active/sessions/ -name "*.md" 2>/dev/null | wc -l)
-  PENDING_HANDOFF=$(find specs/*/collaboration/active/decisions/ -name "handoff-*.md" 2>/dev/null | head -1)
-fi
+# Check for active sessions
+find specs/*/collaboration/active/sessions/ -name "*.md" 2>/dev/null | wc -l
+
+# Check for pending handoffs
+find specs/*/collaboration/active/decisions/ -name "handoff-*.md" 2>/dev/null | head -1
 ```
 
 ### 7. Generate Concise Output
@@ -91,15 +108,15 @@ Provide a **concise summary** (~150 words max) in this format:
 ```
 ## Orientation Complete
 
-**Installed Kits**: [KITS_INSTALLED]
+**Installed Kits**: [list detected kits or "vanilla only"]
 
 **I am**: [AGENT_ROLE from step 2]
 **Project**: [project name from docs]
 **Stack**: [main technologies]
-**Branch**: [CURRENT_BRANCH]
-**Recent work**: [RECENT_COMMITS - just the message]
-**Uncommitted changes**: [CHANGES count]
-**Active feature**: [current spec if SPEC_FILES > 0]
+**Branch**: [current branch]
+**Recent work**: [summary of last 1-2 commits]
+**Uncommitted changes**: [count of modified files]
+**Active feature**: [current spec if on feature branch]
 **Coordination**: [solo work / handoff pending / etc]
 
 **Next suggested action**: [based on state analysis below]

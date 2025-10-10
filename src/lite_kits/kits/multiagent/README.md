@@ -6,12 +6,6 @@ Multi-agent coordination structure for projects with multiple AI agents working 
 
 ## What It Adds
 
-### Commands
-
-| Command | Claude Code | GitHub Copilot | Description |
-|---------|-------------|----------------|-------------|
-| `/sync` | ✅ | ✅ | Show git sync status with worktree visualization |
-
 ### Memory Guides
 
 | Guide | Description | Status |
@@ -29,23 +23,26 @@ Multi-agent coordination structure for projects with multiple AI agents working 
 
 ## Dependencies
 
-**None** - multiagent-kit is standalone.
+⚠️ **multiagent-kit requires**:
+- **project-kit**: For `/review` command and best practices
+- **git-kit**: For `/commit`, `/pr` commands used in workflows
 
 **Recommended installation**:
 ```bash
-lite-kits install -Kit multiagent
+lite-kits install -Recommended -Kit multiagent
+# Installs: project + git + multiagent
 ```
 
-**Note**: Works best when combined with project-kit and git-kit, but they are not required.
+**Note**: Installer will automatically install dependencies if missing.
 
 ## Installation
 
-### As part of recommended kits:
+### With dependencies (recommended):
 ```bash
-lite-kits install -Recommended -Kit multiagent  # project + git + multiagent
+lite-kits install -Recommended -Kit multiagent
 ```
 
-### Individually:
+### Individually (installs dependencies automatically):
 ```bash
 lite-kits install -Kit multiagent
 ```
@@ -54,14 +51,9 @@ lite-kits install -Kit multiagent
 
 ```
 your-project/
-├── .claude/commands/              # If Claude Code detected
-│   └── sync.md                    # ✅ Sync status with worktrees
-├── .github/prompts/               # If GitHub Copilot detected
-│   └── sync.prompt.md             # ✅ Sync status with worktrees
 ├── .specify/memory/
 │   ├── pr-workflow-guide.md           # ✅ AI agent PR workflow
-│   ├── git-worktrees-protocol.md      # ✅ Parallel development guide
-│   └── parallel-work-protocol.md      # ✅ Multi-agent coordination
+│   └── git-worktrees-protocol.md      # ✅ Parallel development guide
 └── specs/
     └── NNN-feature/
         └── collaboration/             # 🚧 Created per-feature
@@ -309,15 +301,15 @@ Backend authentication complete. Need frontend integration.
 
 ## Integration with Other Kits
 
-### With project-kit (optional)
+### With project-kit
 - Use `/orient` for each agent to understand their role
+- Use `/review` for agent-to-agent code review
 
-### With git-kit (optional)
+### With git-kit
 - Use `/commit` for agent-attributed commits
 - Use `/pr` to create PRs with multi-agent summary
-- Use `/review` for agent-to-agent code review
+- Use `/sync` to visualize worktree status
 - Use `/cleanup` to remove stale worktrees
-- Combine `/sync` (from multiagent-kit) with git-kit workflows
 
 ---
 
@@ -373,11 +365,8 @@ lite-kits remove -Kit multiagent
 ```
 
 Removes:
-- `.claude/commands/sync.md`
-- `.github/prompts/sync.prompt.md`
 - `.specify/memory/pr-workflow-guide.md`
 - `.specify/memory/git-worktrees-protocol.md`
-- `.specify/memory/parallel-work-protocol.md`
 
 **Note**: Existing `specs/*/collaboration/` directories are **preserved** (user data).
 
