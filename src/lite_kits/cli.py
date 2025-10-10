@@ -19,7 +19,7 @@ from .core import diagonal_reveal_banner, show_loading_spinner, show_static_bann
 
 # Constants
 APP_NAME = "lite-kits"
-APP_DESCRIPTION = "Quick start: lite-kits add  |  Get help: lite-kits help [COMMAND]"
+APP_DESCRIPTION = "Quick start: lite-kits add  •  Get help: lite-kits help [COMMAND]"
 
 # Kit names
 KIT_DEV = "dev"
