@@ -1,180 +1,504 @@
 # Lite-Kits Manifest
-# Defines available kits, their commands, and generated files
+# Complete catalog of kits, commands, files, scripts, and supported platforms
+# Version: 1.0
+
+# ============================================================================
+# METADATA
+# ============================================================================
+
+metadata:
+  manifest_version: "1.0"
+  last_updated: "2025-10-09"
+  schema_url: "https://github.com/tmorgan181/lite-kits/blob/main/docs/manifest-schema.md"
+
+  # Compatibility
+  min_lite_kits_version: "0.2.0"
+  min_spec_kit_version: "0.1.0"  # Minimum vanilla spec-kit version
+
+# ============================================================================
+# CONSTANTS - DRY principle for maintainability
+# ============================================================================
+
+# VERSION CONSTANTS
+versions:
+  manifest: "1.0"
+  dev_kit: "0.2.0"
+  multiagent_kit: "0.2.0"
+  min_lite_kits: "0.2.0"
+  min_spec_kit: "0.1.0"
+
+# STATUS CONSTANTS (for commands and features)
+status_values:
+  stable: "stable"          # Production-ready, tested
+  beta: "beta"              # Functional but not fully tested
+  planned: "planned"        # Documented but not implemented
+  deprecated: "deprecated"  # Legacy, will be removed
+
+# TYPE CONSTANTS (for file types)
+file_types:
+  command: "command"        # Agent commands (.md files)
+  prompt: "prompt"          # Agent prompts (.prompt.md files)
+  script: "script"          # Executable scripts (.sh, .ps1)
+  memory: "memory"          # Memory/guide documents
+  template: "template"      # Template files
+
+# CATEGORY CONSTANTS (for organizing commands/files)
+categories:
+  project: "project"              # Project management and orientation
+  git: "git"                      # Git workflow automation
+  analysis: "analysis"            # Code analysis and quality
+  coordination: "coordination"    # Multi-agent coordination
+  workflow: "workflow"            # Workflow guides and protocols
+  collaboration: "collaboration"  # Collaboration templates
+
+# REQUIRED CONSTANTS (for validation)
+required_values:
+  required: true
+  optional: false
+
+# PATH CONSTANTS
+paths:
+  # Kit source directories (where files are stored in lite-kits)
+  kit_sources:
+    dev: "dev"
+    multiagent: "multiagent"
+
+  # Content type subdirectories (content-first hierarchy)
+  content_dirs:
+    commands: "commands"
+    scripts: "scripts"
+    memory: "memory"
+    templates: "templates"
+
+  # Agent subdirectories (within content dirs)
+  agent_dirs:
+    claude: ".claude"
+    github: ".github"
+
+  # Shell subdirectories (within scripts dir)
+  shell_dirs:
+    bash: "bash"
+    powershell: "powershell"
+
+  # Target installation paths (where files go in user projects)
+  target_paths:
+    claude_commands: ".claude/commands"
+    github_prompts: ".github/prompts"
+    spec_scripts: ".specify/scripts"
+    spec_memory: ".specify/memory"
+    spec_templates: ".specify/templates"
+
+# ============================================================================
+# SPEC-KIT DETECTION
+# ============================================================================
+
+spec_kit:
+  # Markers that indicate a spec-kit project
+  # At least one must exist for valid spec-kit detection
+  markers:
+    - path: ".specify"
+      type: "directory"
+      description: "Spec-kit core directory"
+
+    - path: ".claude"
+      type: "directory"
+      description: "Claude Code commands directory"
+
+    - path: ".github/prompts"
+      type: "directory"
+      description: "GitHub Copilot prompts directory"
+
+  # Detection logic
+  require_any: true  # At least one marker must exist (true) vs all must exist (false)
+
+# ============================================================================
+# KITS
+# ============================================================================
 
 kits:
+  # --------------------------------------------------------------------------
+  # DEV KIT - Solo development essentials
+  # --------------------------------------------------------------------------
   dev:
     name: "Dev Kit"
     description: "Solo development essentials: /orient, /commit, /pr, /review, /cleanup, /audit, /stats"
     icon: "🚀"
     recommended: true
+    version: "0.2.0"
 
+    # Commands provided by this kit
     commands:
       - name: "orient"
         description: "Agent orientation protocol"
-        status: "stable"
+        status: "stable"      # stable | beta | planned | deprecated
+        category: "project"   # project | git | analysis
 
       - name: "commit"
         description: "Smart commit with staging and message generation"
         status: "stable"
+        category: "git"
 
       - name: "pr"
         description: "Pull request creation with auto-push"
         status: "stable"
+        category: "git"
 
       - name: "review"
         description: "Code review helper for staged changes"
         status: "stable"
+        category: "git"
 
       - name: "cleanup"
         description: "Safe branch cleanup (delete merged branches)"
         status: "stable"
+        category: "git"
 
       - name: "audit"
         description: "Security & quality audit"
         status: "planned"
+        category: "analysis"
 
       - name: "stats"
         description: "Project statistics"
         status: "planned"
+        category: "analysis"
 
     # Files that get installed
     files:
+      # Claude Code command files
       claude:
         - path: ".claude/commands/orient.md"
-          source: "dev/claude/commands/orient.md"
+          source: "dev/commands/.claude/orient.md"
           required: true
+          type: "command"
+          category: "project"
 
         - path: ".claude/commands/commit.md"
-          source: "dev/claude/commands/commit.md"
+          source: "dev/commands/.claude/commit.md"
           required: true
+          type: "command"
+          category: "git"
 
         - path: ".claude/commands/pr.md"
-          source: "dev/claude/commands/pr.md"
+          source: "dev/commands/.claude/pr.md"
           required: true
+          type: "command"
+          category: "git"
 
         - path: ".claude/commands/review.md"
-          source: "dev/claude/commands/review.md"
+          source: "dev/commands/.claude/review.md"
           required: true
+          type: "command"
+          category: "git"
 
         - path: ".claude/commands/cleanup.md"
-          source: "dev/claude/commands/cleanup.md"
+          source: "dev/commands/.claude/cleanup.md"
           required: true
+          type: "command"
+          category: "git"
 
         - path: ".claude/commands/audit.md"
-          source: "dev/claude/commands/audit.md"
+          source: "dev/commands/.claude/audit.md"
           required: false
+          type: "command"
+          category: "analysis"
 
         - path: ".claude/commands/stats.md"
-          source: "dev/claude/commands/stats.md"
+          source: "dev/commands/.claude/stats.md"
           required: false
+          type: "command"
+          category: "analysis"
 
+      # GitHub Copilot prompt files
       copilot:
         - path: ".github/prompts/orient.prompt.md"
-          source: "dev/github/prompts/orient.prompt.md"
+          source: "dev/commands/.github/orient.prompt.md"
           required: true
+          type: "prompt"
+          category: "project"
 
         - path: ".github/prompts/commit.prompt.md"
-          source: "dev/github/prompts/commit.prompt.md"
+          source: "dev/commands/.github/commit.prompt.md"
           required: true
+          type: "prompt"
+          category: "git"
 
         - path: ".github/prompts/pr.prompt.md"
-          source: "dev/github/prompts/pr.prompt.md"
+          source: "dev/commands/.github/pr.prompt.md"
           required: true
+          type: "prompt"
+          category: "git"
 
         - path: ".github/prompts/review.prompt.md"
-          source: "dev/github/prompts/review.prompt.md"
+          source: "dev/commands/.github/review.prompt.md"
           required: true
+          type: "prompt"
+          category: "git"
 
         - path: ".github/prompts/cleanup.prompt.md"
-          source: "dev/github/prompts/cleanup.prompt.md"
+          source: "dev/commands/.github/cleanup.prompt.md"
           required: true
+          type: "prompt"
+          category: "git"
 
         - path: ".github/prompts/audit.prompt.md"
-          source: "dev/github/prompts/audit.prompt.md"
+          source: "dev/commands/.github/audit.prompt.md"
           required: false
+          type: "prompt"
+          category: "analysis"
 
         - path: ".github/prompts/stats.prompt.md"
-          source: "dev/github/prompts/stats.prompt.md"
+          source: "dev/commands/.github/stats.prompt.md"
           required: false
+          type: "prompt"
+          category: "analysis"
+
+      # Bash scripts (Linux/macOS/WSL)
+      bash:
+        - path: ".specify/scripts/bash/git-status.sh"
+          source: "dev/scripts/bash/git-status.sh"
+          required: false
+          type: "script"
+          category: "git"
+          status: "planned"
+
+        - path: ".specify/scripts/bash/project-info.sh"
+          source: "dev/scripts/bash/project-info.sh"
+          required: false
+          type: "script"
+          category: "project"
+          status: "planned"
+
+      # PowerShell scripts (Windows/cross-platform)
+      powershell:
+        - path: ".specify/scripts/powershell/Get-GitStatus.ps1"
+          source: "dev/scripts/powershell/Get-GitStatus.ps1"
+          required: false
+          type: "script"
+          category: "git"
+          status: "planned"
+
+        - path: ".specify/scripts/powershell/Get-ProjectInfo.ps1"
+          source: "dev/scripts/powershell/Get-ProjectInfo.ps1"
+          required: false
+          type: "script"
+          category: "project"
+          status: "planned"
 
     # Marker files for detection (if any of these exist, kit is installed)
     markers:
       - ".claude/commands/orient.md"
       - ".github/prompts/orient.prompt.md"
 
+  # --------------------------------------------------------------------------
+  # MULTIAGENT KIT - Multi-agent coordination
+  # --------------------------------------------------------------------------
   multiagent:
     name: "Multiagent Kit"
     description: "Multi-agent coordination: /sync, collaboration dirs, memory guides"
     icon: "🤝"
     recommended: false
+    version: "0.2.0"
 
     commands:
       - name: "sync"
         description: "Multi-agent coordination status"
         status: "stable"
+        category: "coordination"
 
     files:
+      # Claude Code commands
       claude:
         - path: ".claude/commands/sync.md"
-          source: "multiagent/claude/commands/sync.md"
+          source: "multiagent/commands/.claude/sync.md"
           required: true
+          type: "command"
+          category: "coordination"
 
+      # GitHub Copilot prompts
       copilot:
         - path: ".github/prompts/sync.prompt.md"
-          source: "multiagent/github/prompts/sync.prompt.md"
+          source: "multiagent/commands/.github/sync.prompt.md"
           required: true
+          type: "prompt"
+          category: "coordination"
 
+      # Memory guides (agent-agnostic)
       memory:
         - path: ".specify/memory/pr-workflow-guide.md"
           source: "multiagent/memory/pr-workflow-guide.md"
           required: true
+          type: "memory"
+          category: "workflow"
 
         - path: ".specify/memory/git-worktrees-protocol.md"
           source: "multiagent/memory/git-worktrees-protocol.md"
           required: true
+          type: "memory"
+          category: "workflow"
 
         - path: ".specify/memory/parallel-work-protocol.md"
           source: "multiagent/memory/parallel-work-protocol.md"
           required: true
+          type: "memory"
+          category: "workflow"
 
+      # Templates (agent-agnostic)
       templates:
         - path: ".specify/templates/session-log.md"
           source: "multiagent/templates/session-log.md"
           required: true
+          type: "template"
+          category: "collaboration"
 
         - path: ".specify/templates/handoff.md"
           source: "multiagent/templates/handoff.md"
           required: true
+          type: "template"
+          category: "collaboration"
 
         - path: ".specify/templates/decision.md"
           source: "multiagent/templates/decision.md"
           required: true
+          type: "template"
+          category: "collaboration"
 
         - path: ".specify/templates/collaboration-README.md"
           source: "multiagent/templates/collaboration-structure/README.md"
           required: true
+          type: "template"
+          category: "collaboration"
+
+      # Bash scripts
+      bash:
+        - path: ".specify/scripts/bash/sync-status.sh"
+          source: "multiagent/scripts/bash/sync-status.sh"
+          required: false
+          type: "script"
+          category: "coordination"
+          status: "planned"
+
+      # PowerShell scripts
+      powershell:
+        - path: ".specify/scripts/powershell/Get-SyncStatus.ps1"
+          source: "multiagent/scripts/powershell/Get-SyncStatus.ps1"
+          required: false
+          type: "script"
+          category: "coordination"
+          status: "planned"
 
     markers:
       - ".specify/memory/pr-workflow-guide.md"
       - ".claude/commands/sync.md"
       - ".github/prompts/sync.prompt.md"
 
-# Agent detection
+# ============================================================================
+# AGENTS - AI assistant configurations
+# ============================================================================
+
 agents:
   claude:
+    name: "Claude Code"
     marker_dir: ".claude"
     commands_dir: ".claude/commands"
     file_extension: ".md"
+    supported: true
+    priority: 1  # Lower = higher priority for auto-detection
 
   copilot:
+    name: "GitHub Copilot"
     marker_dir: ".github/prompts"
     commands_dir: ".github/prompts"
     file_extension: ".prompt.md"
+    supported: true
+    priority: 2
 
-# Installation options
+  # Future agent support (planned)
+  cursor:
+    name: "Cursor"
+    marker_dir: ".cursor"
+    commands_dir: ".cursor/commands"
+    file_extension: ".md"
+    supported: false
+    priority: 3
+    status: "planned"
+
+  windsurf:
+    name: "Windsurf"
+    marker_dir: ".windsurf"
+    commands_dir: ".windsurf/prompts"
+    file_extension: ".md"
+    supported: false
+    priority: 4
+    status: "planned"
+
+# ============================================================================
+# SHELLS - Script shell environments
+# ============================================================================
+
+shells:
+  bash:
+    name: "Bash"
+    extension: ".sh"
+    script_dir: ".specify/scripts/bash"
+    platforms: ["linux", "macos", "wsl"]
+    supported: true
+    priority: 1
+
+  powershell:
+    name: "PowerShell"
+    extension: ".ps1"
+    script_dir: ".specify/scripts/powershell"
+    platforms: ["windows", "linux", "macos"]  # PowerShell Core is cross-platform
+    supported: true
+    priority: 2
+
+  # Future shell support (planned)
+  fish:
+    name: "Fish Shell"
+    extension: ".fish"
+    script_dir: ".specify/scripts/fish"
+    platforms: ["linux", "macos"]
+    supported: false
+    priority: 3
+    status: "planned"
+
+  zsh:
+    name: "Zsh"
+    extension: ".zsh"
+    script_dir: ".specify/scripts/zsh"
+    platforms: ["linux", "macos"]
+    supported: false
+    priority: 4
+    status: "planned"
+
+# ============================================================================
+# INSTALLATION OPTIONS
+# ============================================================================
+
 options:
+  # Default kit to install when no kit specified
   default_kit: "dev"
+
+  # Kits included in --recommended flag
   recommended_kits: ["dev"]
-  allow_partial_install: true  # Can install for just one agent
-  skip_existing: true          # Don't overwrite existing files by default
-  validate_on_install: true    # Run validation after install
+
+  # Installation behavior
+  allow_partial_install: true   # Can install for just one agent/shell
+  skip_existing: true           # Don't overwrite existing files by default
+  validate_on_install: true     # Run validation after install
+  create_backups: false         # Create .bak files before overwriting (future)
+
+  # Auto-detection behavior
+  auto_detect_agents: true      # Auto-detect which agents are present
+  auto_detect_shells: true      # Auto-detect which shells to install for
+  prefer_all_agents: true       # Install for all detected agents by default
+  prefer_all_shells: false      # Only install for primary shell by default
+
+  # Validation behavior
+  check_file_integrity: true    # Verify file contents during validation
+  min_file_size: 100            # Minimum file size in bytes to be considered valid
+
+  # Future options (planned)
+  enable_telemetry: false       # Anonymous usage stats
+  auto_update_check: false      # Check for kit updates
