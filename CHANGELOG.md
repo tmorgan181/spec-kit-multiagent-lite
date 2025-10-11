@@ -61,8 +61,34 @@ This release focuses on user experience polish and documentation improvements in
 
 **New:**
 - docs/validation/v0.3.0-dependency-audit.md - Dependency analysis
-- docs/wip/command-audit-findings.md - Audit report
-- docs/wip/wishlist-prioritized.md - Feature roadmap
+- docs/validation/v0.3.0-command-audit.md - Complete command audit report
+- docs/wip/wishlist-prioritized.md - Feature roadmap for v0.4+
+
+### Technical Improvements
+
+**Code Quality (Last-Minute Polish):**
+- Extracted constants to `__init__.py` for single source of truth
+  - Version, app name, kit names, directory paths, error messages
+  - Reduced code duplication across cli.py and installer.py
+  - All version/identifier references now use constants
+- Command audit performed on all 16 command files (8 commands × 2 agents)
+  - Verified bash and PowerShell versions match logically
+  - Fixed sync.prompt.md having bash syntax instead of PowerShell
+  - All cross-command references verified for accuracy
+
+**Bug Fixes (Last-Minute):**
+- Agent detection now works when only parent directory exists (e.g., `.github/` without `.github/prompts/`)
+  - Copilot detection was failing if `.github/prompts/` didn't exist yet
+  - Now detects `.github/` and creates subdirectory on install
+  - More flexible detection that doesn't require full path structure upfront
+
+**Planning for v0.4:**
+- Updated wishlist with DRY command templating (🔥🔥🔥 priority)
+  - Eliminate duplicate .claude + .github files (16 → 8 templates)
+  - Single source of truth with shell/agent interpolation
+- Added prompt optimization + script standardization
+  - Reduce tool call count (Claude makes 5-10 calls for simple git ops)
+  - Helper scripts for repeatable multi-step tasks
 
 ### Release Notes
 

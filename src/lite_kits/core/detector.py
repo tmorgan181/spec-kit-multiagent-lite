@@ -52,7 +52,10 @@ class Detector:
                 continue
 
             marker_dir = self.target_dir / config['marker_dir']
-            if marker_dir.exists():
+            # Check if marker dir exists OR its parent exists (for nested dirs like .github/prompts)
+            # This allows detection even if subdirectory doesn't exist yet (will be created on install)
+            parent_dir = marker_dir.parent
+            if marker_dir.exists() or (parent_dir != self.target_dir and parent_dir.exists()):
                 detected.append({
                     'name': agent_name,
                     'priority': config.get('priority', 999)

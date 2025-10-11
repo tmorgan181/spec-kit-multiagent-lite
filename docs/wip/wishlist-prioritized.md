@@ -1,217 +1,206 @@
-# Lite-Kits Wishlist - v0.3 Planning
+# Lite-Kits Wishlist - v0.4 Planning
 
 **Last Updated**: 2025-10-10
-**Current Status**: v0.2.0 shipped, planning v0.3.0 → PyPI first publish 🚀
+**Current Status**: v0.3.0 complete (ready for merge) → Planning v0.4
 
 ---
 
-## 🎯 v0.3 GOALS
+## ✅ v0.3 COMPLETE
 
 **Theme**: Polish + Quick Wins for PyPI Launch
 
-**Target Features** (pick 5-6 for tonight):
-1. **Quick UX polish** - Low-hanging fruit from tiny things list
-2. **Command improvements** - Polish `/audit` and `/stats`
-3. **Git status optimization** - Add `/status` command (reduces tool calls for Claude)
-4. **Constitution template** - Fill in lite-kits project constitution
-5. **Command audit** - Review all prompts for minimalist design, accurate cross-refs
-6. **Documentation review** - Final polish before PyPI
+**Shipped Features** (6 total):
+1. ✅ **Command audit** - Fixed 26 files with outdated kit references (project-kit/git-kit → dev-kit)
+2. ✅ **Better error messages** - Spec-kit not found includes installation instructions with links
+3. ✅ **Preview kit headers** - Shows kit names in preview output
+4. ✅ **Delete empty folders** - Cleanup after kit removal
+5. ✅ **README prerequisites** - Complete installation flow with dependency chain
+6. ✅ **Constitution template** - Filled in lite-kits project constitution (v1.0.0)
 
-**Ship Target**: Tonight → PyPI with confidence
-
----
-
-## 🔥 v0.3 CANDIDATES (Pick from these)
-
-### Quick UX Polish (Easy wins, high impact)
-
-**Priority: HIGH** - Pick 3-4 of these for v0.3:
-
-1. **Preview improvements**
-   - [ ] Show kit names as headers in preview
-   - [ ] Split files by type (commands, memory, templates, scripts)
-   - [ ] Only warn for reinstall if actually overwriting files
-
-2. **Status/validation improvements**
-   - [ ] Show installed kit + agent + shell combos (not just kit names)
-   - [ ] Better formatting with tables
-
-3. **Removal improvements**
-   - [ ] Delete empty folders after removal
-   - [ ] Check if files were customized before removing
-   - [ ] Option to backup collaboration dir files (--force skips)
-
-4. **Help text polish**
-   - [ ] Reorder to mention Copilot first (broader audience)
-   - [ ] Clarify `--force` warning (be specific, not vague)
-   - [ ] Fix `--banner` help text ("must be first arg")
-
-5. **Logging improvements**
-   - [ ] Add `--verbose` details for all commands
-   - [ ] Better log density (preview can show counts vs all files)
-
-### Command Improvements
-
-**Priority: MEDIUM** - Pick 1-2 for v0.3:
-
-1. **Git Status Command** (`/status`)
-   - Problem: Claude runs 5+ git commands for status checks
-   - Solution: Single optimized command with all info
-   - Benefit: Faster orientation, fewer tool calls
-
-2. **Audit Command Polish** (`/audit`)
-   - Current: Minimal implementation
-   - Improve: Better security checks, dependency scanning
-
-3. **Stats Command Polish** (`/stats`)
-   - Current: Basic metrics
-   - Improve: Code complexity, test coverage, commit stats
-
-### Constitution & Documentation
-
-**Priority: HIGH** - Good for v0.3:
-
-1. **Fill in constitution template**
-   - Currently: Generic placeholder
-   - Update: Actual lite-kits principles and values
-
-2. **Command audit** 🆕
-   - Review all slash command prompt files (.claude/ and .github/)
-   - Ensure minimalist design (no bloat, clear instructions)
-   - Verify cross-command references are accurate
-   - Check for outdated instructions or broken workflows
-   - Validate scripts are referenced correctly
-
-3. **Documentation review**
-   - GUIDE.md - Check for accuracy
-   - README.md - Ensure PyPI-ready
-   - CONTRIBUTING.md - Update for new contributors
+**Status**: Ready for merge to main, tag v0.3.0, and PyPI publish 🚀
 
 ---
 
-## 🚀 FUTURE RELEASES (v0.4+)
+## 🎯 v0.4 GOALS
 
-### Checkpoint System (v0.4) 🆕
-**Inspired by**: claudekit, ccheckpoints
-**Commands**:
-- `/checkpoint` - Create git checkpoint before risky changes
-- `/checkpoint:restore` - Restore from checkpoint
-- `auto-checkpoint.sh` hook - Auto-save on session stop
+**Theme**: Release Management & Safety Nets
 
-**Benefit**: Safety net for refactoring, easy rollback
+**Target Features** (3-4 for next session):
 
-### Release Management Commands (v0.4)
-**Commands**:
-- `/tag` - Create annotated git tag with version selection
-- `/release` - Create GitHub release with changelog generation
-- Integration with `/audit` and `/stats` for release notes
+### Checkpoint System 🔥
+**Inspired by**: claudekit checkpoints
+- `/checkpoint` - Create git stash checkpoint before risky changes
+- `/checkpoint:restore [id]` - Restore from checkpoint
+- `/checkpoint:list` - Show available checkpoints
+- Auto-cleanup old checkpoints (keep last 10)
 
-**Benefit**: Streamline the release process we just went through!
+**Benefit**: Safety net for refactoring, easy rollback without git expertise
+
+### Release Management Commands 🔥
+**Streamline the release workflow**:
+- `/bump [major|minor|patch]` - Version bump with changelog template
+- `/tag` - Create annotated git tag with version
+- `/release` - Create GitHub release with changelog excerpt
+- Integration with `/audit` and `/stats` for release quality checks
+
+**Benefit**: We just did v0.3 manually, automate this!
+
+### Testing Infrastructure
+**Missing piece from constitution**:
+- Basic test framework setup (pytest)
+- Tests for installer, detector, validator
+- CI workflow for running tests
+- Coverage reporting
+
+**Benefit**: Confidence in changes, catch regressions
+
+### Command Enhancements
+**Pick 1-2**:
+- `/status` - Optimized git status (reduce tool calls for Claude)
+- `/audit` polish - Better security checks, dependency scanning
+- `/stats` polish - Code complexity, test coverage, commit velocity
+
+---
+
+## 🚀 FUTURE RELEASES (v0.5+)
 
 ### Web Discovery Interface (v0.5) 🆕
 **Inspired by**: Claude Code Templates (aitmpl.com)
-**Features**:
 - GitHub Pages site to browse commands
 - Interactive component selector
 - Installation preview
 
-**Benefit**: Better discoverability, easier onboarding
-
 ### Health Check & Analytics (v0.5) 🆕
 **Inspired by**: Claude Code Templates monitoring
-**Commands**:
 - `lite-kits doctor` - Validate installation and dependencies
-- `lite-kits analytics` - Track command usage and performance
+- `lite-kits analytics` - Track command usage (opt-in)
 - Health dashboard
 
-**Benefit**: Better debugging, usage insights
-
 ### Spec-Kit Integration (v0.6)
-**Features**:
-- `lite-kits init` - Launch specify.exe to initialize spec-kit
-- `lite-kits spec install/remove/upgrade` - Manage spec-kit installation
-- Auto-detection of specify.exe location
-
-**Benefit**: One-stop shop for spec-kit + lite-kits setup
+**One-stop setup**:
+- `lite-kits init` - Launch specify to initialize spec-kit
+- `lite-kits spec install/remove/upgrade` - Manage spec-kit
+- Auto-detection of specify location
 
 ### Hook System (v0.6) 🆕
 **Inspired by**: claudekit hooks
-**Features**:
 - Pre-commit hooks (lint, test, security)
 - Post-install hooks (setup, config)
 - Custom hook templates
 
-**Benefit**: Automated quality gates, workflow automation
-
 ### Namespace Organization (v0.7) 🆕
-**Inspired by**: wshobson/commands, Claude-Command-Suite
-**Structure**:
+**Inspired by**: wshobson/commands (57 commands), Claude-Command-Suite (148 commands)
 - `/dev:` - Development commands
 - `/test:` - Testing utilities
 - `/security:` - Security tools
 - `/deploy:` - Deployment workflows
 
-**Benefit**: Better organization, clearer intent
+**Note**: Only consider this when we have 20+ commands. For now, flat namespace is fine.
 
-### Script Standardization (v1.0)
-**Problem**: Commands rely on agents making many tool calls
-**Solution**: Helper scripts for common multi-step operations
-**Benefit**: More reliable, faster command execution
+### Script Standardization & Prompt Optimization (v1.0) 🔥
+**Problem**: Commands rely on agents making many tool calls, prompts could be more efficient
+**Current pain**:
+- Claude Code makes 5-10 tool calls for simple git operations
+- Prompts don't guide agents to batch operations efficiently
+- No helper scripts for repeatable multi-step tasks
+**Solution**:
+- Helper scripts for common multi-step operations
+- Optimized prompts that reduce tool call count
+- Batch operation patterns (e.g., single git command instead of 3 separate calls)
+**Examples**:
+- `scripts/bash/get-git-status.sh` - Returns branch, commits ahead/behind, changes in ONE call
+- `scripts/bash/get-git-context.sh` - All git context for /commit in ONE call
+- `/orient` prompt: Use pre-built script instead of 8 individual bash calls
+- `/commit` prompt: Single status check instead of 3-4 separate git commands
+**Benefit**:
+- Faster command execution (50% fewer tool calls)
+- More reliable (atomic operations)
+- Better user experience (less waiting)
 
 ---
 
-## 📦 BACKLOG (Future considerations)
+## 📦 BACKLOG (Ideas from research)
 
-**From Research**:
+**From Claude Code Enhancement Mods**:
 - Multi-agent coordination (parallel code review agents)
 - AI thinking modes (prime, sentient, ultra-think)
 - Real-time guardrails (file protection, pattern enforcement)
 - Session checkpointing and history navigation
 - Plugin marketplace integration
 
+**Code Quality & DRY Improvements**:
+- **DRY Command Templating** 🔥🔥🔥 - Single source of truth for commands
+  - **Problem**: Maintaining duplicate `.claude/commands/*.md` AND `.github/prompts/*.prompt.md` files
+  - **Current pain**: 16 files to maintain (8 commands × 2 versions), bash/PowerShell sync issues
+  - **Solution**: Template-based approach with agent/shell interpolation
+  - **Implementation ideas**:
+    - Option A: Jinja2 templates with `{% if shell == 'bash' %}...{% elif shell == 'powershell' %}...{% endif %}`
+    - Option B: Single markdown with embedded code fence annotations (```bash vs ```powershell)
+    - Option C: YAML command spec + template engine → generates both versions at install time
+  - **Benefits**:
+    - One file to maintain per command (8 instead of 16)
+    - Automatic consistency between Claude/Copilot versions
+    - Easier to add new agents (just add new shell variant)
+    - No more sync bugs like sync.prompt.md having bash syntax
+  - **Example structure**:
+    ```
+    src/lite_kits/kits/dev/commands/templates/
+      commit.md.j2         # Single template
+      orient.md.j2         # Single template
+      pr.md.j2             # Single template
+    ```
+  - **Manifest integration**: `kits.yaml` specifies which templates to render for which agents
+  - **Estimated effort**: 2-3 hours to implement, saves hours in ongoing maintenance
+- Use constants in core/installer.py (like we did for cli.py)
+- Consolidate version numbers and common strings
+- Type hints consistency across modules
+
 **Original Ideas**:
-- Multi-agent workflow improvements
-- Better error messages and recovery suggestions
-- Installation analytics/telemetry (opt-in)
-- Kit templates for custom kits
+- Multi-agent workflow improvements beyond current multiagent-kit
+- Installation analytics/telemetry (opt-in, privacy-preserving)
+- Kit templates for custom kits (community contributions)
 - Community kit repository
-- Quick wins for .claude/CLAUDE.md and .github/copilot-instructions.md templates
+- Templates for CLAUDE.md and copilot-instructions.md
 
 ---
 
-## 🏁 v0.3 SHIP CHECKLIST
+## 🏁 v0.4 SHIP CHECKLIST (Template)
 
 **Pre-implementation**:
-- [ ] Decide on v0.3 scope (3-5 features from candidates above)
-- [ ] Create implementation plan
+- [ ] Review v0.4 candidates and finalize scope
+- [ ] Create implementation plan or delegate to /plan
 
 **Implementation**:
 - [ ] Implement selected features
-- [ ] Test manually
+- [ ] Write tests (if testing infrastructure exists)
+- [ ] Manual validation testing
 - [ ] Update CHANGELOG.md
 
 **Release**:
-- [ ] Bump version to 0.3.0
+- [ ] Bump version to 0.4.0
 - [ ] Commit and tag
 - [ ] Create GitHub release
-- [ ] **Publish to PyPI!** 🎉
+- [ ] Publish to PyPI
 
 ---
 
 ## 💭 NOTES
 
-**v0.2.0 Achievements**:
-- ✅ Manifest-driven architecture
-- ✅ Modular installer (detector, validator, conflict_checker)
-- ✅ Kit consolidation (dev-kit)
-- ✅ Content-first structure
-- ✅ Perfect UX (spacing, previews, help)
-- ✅ GitHub release created
+**v0.3.0 Achievements**:
+- ✅ Command audit (26 files fixed)
+- ✅ Better error messages (install guidance)
+- ✅ Preview UX improvements (kit headers)
+- ✅ Empty folder cleanup
+- ✅ README overhaul (installation flow)
+- ✅ Constitution v1.0.0
+- ✅ Ready for PyPI publish
 
-**What's Missing for PyPI Confidence**:
-- [ ] A few more polish items (v0.3)
-- [ ] Constitution filled in (project identity)
-- [ ] Final documentation review
-- [ ] Manual validation testing
+**v0.4 Priority Rationale**:
+- **Checkpoints**: Safety is critical for AI-assisted refactoring
+- **Release commands**: We just did manual release, let's automate it
+- **Testing**: Constitution says tests required, need infrastructure
+- **Command polish**: Nice-to-have, pick 1-2 based on time
 
-**Philosophy**: Ship early, iterate fast. v0.3 is about confidence, not perfection.
+**Philosophy**: Ship early, iterate fast. v0.4 should focus on developer experience (checkpoints + release automation).
+
+**Research Reminder**: We have excellent ideas from claudekit, wshobson/commands, and Claude-Command-Suite to draw from. Don't reinvent wheels, adapt their best patterns.

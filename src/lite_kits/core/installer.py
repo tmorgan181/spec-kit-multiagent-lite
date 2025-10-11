@@ -128,7 +128,7 @@ class Installer:
             files = self.manifest.get_kit_files(kit_name, agent=shell)
             self._preview_files(files, kit_preview)
 
-        # Get other files (not commands/prompts/scripts - those are handled above)
+        # Get other files (not commands\prompts\scripts - those are handled above)
         all_files = self.manifest.get_kit_files(kit_name, agent=None)
         for file_info in all_files:
             if file_info.get('type') in ['command', 'prompt', 'script']:
@@ -143,8 +143,9 @@ class Installer:
             if file_info.get('status') == 'planned':
                 continue
 
-            target_path = file_info['path']
-            target_full = self.target_dir / target_path
+            # Normalize paths to use backslashes for Windows display
+            target_path = str(file_info['path']).replace("/", "\\")
+            target_full = self.target_dir / file_info['path']
 
             if target_full.exists():
                 if target_path not in preview["modified_files"]:
@@ -178,7 +179,7 @@ class Installer:
                 ]
                 result["error"] = (
                     f"No supported AI interface found. Supported: {', '.join(supported)}. "
-                    "To enable AI interface support, create a '.claude/' or '.github/prompts/' directory in your project."
+                    r"To enable AI interface support, create a '.claude\' or '.github\prompts\' directory in your project."
                 )
                 return result
 

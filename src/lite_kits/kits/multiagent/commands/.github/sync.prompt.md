@@ -12,57 +12,59 @@ description: Check multi-agent sync status with ASCII visualization
 
 ```powershell
 # Current branch
-CURRENT_BRANCH=$(git branch --show-current)
+$CurrentBranch = git branch --show-current
 
 # Check if tracking remote
-REMOTE_BRANCH=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)
+$RemoteBranch = git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null
 
 # Commits ahead/behind
-if [ -n "$REMOTE_BRANCH" ]; then
-  AHEAD=$(git rev-list --count $REMOTE_BRANCH..HEAD)
-  BEHIND=$(git rev-list --count HEAD..$REMOTE_BRANCH)
-else
-  AHEAD="N/A"
-  BEHIND="N/A"
-fi
+if ($RemoteBranch) {
+    $Ahead = (git rev-list --count "$RemoteBranch..HEAD")
+    $Behind = (git rev-list --count "HEAD..$RemoteBranch")
+} else {
+    $Ahead = "N/A"
+    $Behind = "N/A"
+}
 
 # Uncommitted changes
-MODIFIED=$(git status --short | wc -l)
-UNTRACKED=$(git ls-files --others --exclude-standard | wc -l)
+$Modified = (git status --short | Measure-Object).Count
+$Untracked = (git ls-files --others --exclude-standard | Measure-Object).Count
 ```
 
 ### 2. Detect Multi-Agent Activity
 
 ```powershell
 # Check for recent commits by different agents
-git log --since="7 days ago" --format="%b" | grep "via.*@" | sort -u
+git log --since="7 days ago" --format="%b" | Select-String "via.*@" | Sort-Object -Unique
 
 # Count commits by agent
-echo "Recent activity (last 7 days):"
-git log --since="7 days ago" --format="%b" | \
-  grep "via.*@" | \
-  sed 's/.*via \(.*\)/\1/' | \
-  sort | uniq -c | sort -rn
+Write-Host "Recent activity (last 7 days):"
+git log --since="7 days ago" --format="%b" |
+    Select-String "via.*@" |
+    ForEach-Object { $_ -replace '.*via (.*)', '$1' } |
+    Group-Object |
+    Sort-Object Count -Descending |
+    ForEach-Object { Write-Host "$($_.Count) $($_.Name)" }
 ```
 
 ### 3. Check Collaboration Structure
 
 ```powershell
 # Find active collaboration directories
-if [ -d "specs" ]; then
-  # List active sessions
-  SESSION_COUNT=$(find specs/*/collaboration/active/sessions -name "*.md" 2>/dev/null | wc -l)
+if (Test-Path "specs") {
+    # List active sessions
+    $SessionCount = (Get-ChildItem -Path specs/*/collaboration/active/sessions -Filter *.md -Recurse -ErrorAction SilentlyContinue).Count
 
-  # List pending handoffs
-  HANDOFF_COUNT=$(find specs/*/collaboration/active/decisions -name "handoff-*.md" 2>/dev/null | wc -l)
+    # List pending handoffs
+    $HandoffCount = (Get-ChildItem -Path specs/*/collaboration/active/decisions -Filter handoff-*.md -Recurse -ErrorAction SilentlyContinue).Count
 
-  # List active features
-  FEATURES=$(find specs -maxdepth 1 -type d -name "[0-9]*" | wc -l)
-else
-  SESSION_COUNT=0
-  HANDOFF_COUNT=0
-  FEATURES=0
-fi
+    # List active features
+    $Features = (Get-ChildItem -Path specs -Directory | Where-Object { $_.Name -match '^\d+' }).Count
+} else {
+    $SessionCount = 0
+    $HandoffCount = 0
+    $Features = 0
+}
 ```
 
 ### 4. Generate ASCII Visualization
@@ -92,8 +94,8 @@ Remote: origin/dev/001-starter-kits
 Agent Activity (last 7 days):
 ===========================================================
 
-github-copilot-cli         ████████████ 12 commits
-github-copilot-cli  ████████ 8 commits
+github-copilot         ████████████ 12 commits
+claude-code            ████████ 8 commits
 
 ===========================================================
 Collaboration Status:
@@ -110,12 +112,13 @@ Pending handoffs:    1 ⚠
 
 ```powershell
 # Check if there are merge conflicts
-if git ls-files -u | wc -l | grep -q "^0$"; then
-  echo "✓ No merge conflicts"
-else
-  echo "⚠ Merge conflicts detected"
-  git diff --name-only --diff-filter=U
-fi
+$ConflictCount = (git ls-files -u | Measure-Object).Count
+if ($ConflictCount -eq 0) {
+    Write-Host "✓ No merge conflicts" -ForegroundColor Green
+} else {
+    Write-Host "⚠ Merge conflicts detected" -ForegroundColor Yellow
+    git diff --name-only --diff-filter=U
+}
 ```
 
 ### 6. Provide Sync Recommendations
@@ -127,10 +130,10 @@ Based on the status, suggest actions:
 ⚠ You are behind the remote branch
 
 Recommended action:
-  git pull origin $CURRENT_BRANCH
+  git pull origin $CurrentBranch
 
 Or if you have local commits:
-  git pull --rebase origin $CURRENT_BRANCH
+  git pull --rebase origin $CurrentBranch
 ```
 
 **If commits to push**:
@@ -138,7 +141,7 @@ Or if you have local commits:
 ✓ You have commits to push
 
 Recommended action:
-  git push origin $CURRENT_BRANCH
+  git push origin $CurrentBranch
 ```
 
 **If handoffs pending**:
@@ -146,7 +149,7 @@ Recommended action:
 ⚠ Pending handoff detected
 
 Review handoff:
-  cat specs/*/collaboration/active/decisions/handoff-*.md
+  Get-Content specs/*/collaboration/active/decisions/handoff-*.md
 
 Accept handoff:
   1. Review the handoff document
@@ -161,10 +164,10 @@ Accept handoff:
 You have local commits AND remote has new commits.
 
 Recommended actions:
-  1. Review remote changes: git fetch && git log HEAD..origin/$CURRENT_BRANCH
-  2. Pull with rebase: git pull --rebase origin $CURRENT_BRANCH
+  1. Review remote changes: git fetch; git log "HEAD..origin/$CurrentBranch"
+  2. Pull with rebase: git pull --rebase origin $CurrentBranch
   3. Resolve conflicts if any
-  4. Push: git push origin $CURRENT_BRANCH
+  4. Push: git push origin $CurrentBranch
 ```
 
 ### 7. Session Log Status
@@ -173,17 +176,17 @@ If multiagent-kit installed, check session logs:
 
 ```powershell
 # Find today's session log
-TODAY=$(date +%Y-%m-%d)
-AGENT="github-copilot-cli"  # or "github-copilot-cli"
+$Today = Get-Date -Format "yyyy-MM-dd"
+$Agent = "github-copilot"  # or "claude-code"
 
-SESSION_LOG=$(find specs/*/collaboration/active/sessions -name "${TODAY}*${AGENT}*.md" 2>/dev/null | head -1)
+$SessionLog = Get-ChildItem -Path specs/*/collaboration/active/sessions -Filter "${Today}*${Agent}*.md" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
 
-if [ -n "$SESSION_LOG" ]; then
-  echo "✓ Session log exists: $SESSION_LOG"
-else
-  echo "⚠ No session log for today"
-  echo "  Create one: specs/<feature>/collaboration/active/sessions/${TODAY}-${AGENT}.md"
-fi
+if ($SessionLog) {
+    Write-Host "✓ Session log exists: $($SessionLog.FullName)" -ForegroundColor Green
+} else {
+    Write-Host "⚠ No session log for today" -ForegroundColor Yellow
+    Write-Host "  Create one: specs/<feature>/collaboration/active/sessions/${Today}-${Agent}.md"
+}
 ```
 
 ## Output Examples
@@ -211,7 +214,7 @@ Remote: origin/dev/001-starter-kits
 Agent Activity (last 7 days):
 ===========================================================
 
-github-copilot-cli         ████████████ 12 commits
+github-copilot         ████████████ 12 commits
 
 ===========================================================
 Collaboration Status:
@@ -249,8 +252,8 @@ Remote: origin/dev/002-blog-feature
 Agent Activity (last 7 days):
 ===========================================================
 
-github-copilot-cli  ████████ 5 commits (most recent)
-github-copilot-cli         ████ 3 commits
+claude-code            ████████ 5 commits (most recent)
+github-copilot         ████ 3 commits
 
 ===========================================================
 Collaboration Status:
@@ -261,13 +264,13 @@ Active sessions:     2
 Pending handoffs:    1 ⚠
 
 Handoff found:
-  specs/002-blog-feature/collaboration/active/decisions/handoff-to-claude.md
+  specs/002-blog-feature/collaboration/active/decisions/handoff-to-copilot.md
 
 ===========================================================
 Recommended Actions:
 ===========================================================
 
-1. Review handoff: cat specs/002-blog-feature/collaboration/active/decisions/handoff-to-claude.md
+1. Review handoff: Get-Content specs/002-blog-feature/collaboration/active/decisions/handoff-to-copilot.md
 2. Pull latest: git pull origin dev/002-blog-feature
 3. Review changes: git log -1 origin/dev/002-blog-feature
 4. Start work on handoff items
@@ -286,19 +289,20 @@ If working with worktrees:
 git worktree list
 
 # Check which worktrees are active
-for worktree in $(git worktree list --porcelain | grep "worktree" | cut -d' ' -f2); do
-  echo "Worktree: $worktree"
-  cd "$worktree"
-  git status --short
-  cd - > /dev/null
-done
+$Worktrees = git worktree list --porcelain | Select-String "^worktree" | ForEach-Object { ($_ -split ' ')[1] }
+foreach ($worktree in $Worktrees) {
+    Write-Host "Worktree: $worktree"
+    Push-Location $worktree
+    git status --short
+    Pop-Location
+}
 ```
 
 ### Compare with Other Branches
 
 ```powershell
 # Compare with main
-git log main..HEAD --oneline --format="%h %s (via %b)" | grep "via"
+git log main..HEAD --oneline --format="%h %s (via %b)" | Select-String "via"
 
 # Show what's new in main since you branched
 git log HEAD..main --oneline
@@ -308,8 +312,8 @@ git log HEAD..main --oneline
 
 ```powershell
 # List branches not updated in 30 days
-git for-each-ref --format='%(refname:short) %(committerdate:relative)' \
-  refs/heads/ | grep -E '(weeks|months|years) ago'
+git for-each-ref --format='%(refname:short) %(committerdate:relative)' refs/heads/ |
+    Select-String '(weeks|months|years) ago'
 ```
 
 ## Important Notes

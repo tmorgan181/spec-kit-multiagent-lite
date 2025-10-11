@@ -14,26 +14,28 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from . import __version__
+from . import (
+    __version__,
+    APP_NAME,
+    APP_DESCRIPTION,
+    REPOSITORY_URL,
+    LICENSE,
+    KIT_DEV,
+    KIT_MULTIAGENT,
+    KITS_ALL,
+    KITS_RECOMMENDED,
+    KIT_DESC_DEV,
+    KIT_DESC_MULTIAGENT,
+    DIR_CLAUDE_COMMANDS,
+    DIR_GITHUB_PROMPTS,
+    DIR_SPECIFY_MEMORY,
+    DIR_SPECIFY_SCRIPTS_BASH,
+    DIR_SPECIFY_SCRIPTS_POWERSHELL,
+    DIR_SPECIFY_TEMPLATES,
+    ERROR_NOT_SPEC_KIT,
+    ERROR_SPEC_KIT_HINT,
+)
 from .core import diagonal_reveal_banner, show_loading_spinner, show_static_banner, Installer
-
-# Constants
-APP_NAME = "lite-kits"
-APP_DESCRIPTION = "Quick start: lite-kits add  •  Get help: lite-kits help [COMMAND]"
-
-# Kit names
-KIT_DEV = "dev"
-KIT_MULTIAGENT = "multiagent"
-KITS_ALL = [KIT_DEV, KIT_MULTIAGENT]
-KITS_RECOMMENDED = [KIT_DEV]  # dev-kit is the default, multiagent is optional
-
-# Kit descriptions for help
-KIT_DESC_DEV = "Solo development essentials: /orient, /commit, /pr, /review, /cleanup, /audit, /stats"
-KIT_DESC_MULTIAGENT = "Multi-agent coordination: /sync, collaboration dirs, memory guides (optional)"
-
-# Error messages
-ERROR_NOT_SPEC_KIT = "does not appear to be a spec-kit project!"
-ERROR_SPEC_KIT_HINT = "Looking for one of: .specify/, .claude/, or .github/prompts/"
 
 app = typer.Typer(
     name=APP_NAME,
@@ -70,8 +72,8 @@ def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
         else:
             console.print("No kits installed.", style="dim yellow")
     else:
-        console.print(f"[bold red][X] {target_dir} {ERROR_NOT_SPEC_KIT}[/bold red]")
-        console.print(f"{ERROR_SPEC_KIT_HINT}", style="dim")
+        console.print(f"[bold red][X] {target_dir} is not a spec-kit project[/bold red]")
+        console.print(f"  {ERROR_SPEC_KIT_HINT}", style="dim")
     console.print()
 
 def version_callback(value: bool):
@@ -157,6 +159,11 @@ def add_kits(
         "--recommended",
         help=f"Add recommended kits: {' + '.join(KITS_RECOMMENDED)}",
     ),
+    all_kits: bool = typer.Option(
+        False,
+        "--all",
+        help="Add all kits",
+    ),
     agent: Optional[str] = typer.Option(
         None,
         "--agent",
@@ -166,6 +173,12 @@ def add_kits(
         None,
         "--shell",
         help="Explicit shell preference (bash, powershell)",
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed file listings in preview",
     ),
     force: bool = typer.Option(
         False,
@@ -180,13 +193,16 @@ def add_kits(
     """Add enhancement kits to a spec-kit project.
 
     Shows a preview of changes before installation and asks for confirmation.
+    Use --verbose/-v to see detailed file listings.
     Use --force to skip preview and install immediately.
     """
     target_dir = Path.cwd() if target is None else target
 
     # Determine which kits to install
     kits = None
-    if recommended:
+    if all_kits:
+        kits = KITS_ALL
+    elif recommended:
         kits = KITS_RECOMMENDED
     elif kit:
         kits = [k.strip() for k in kit.split(',')]
@@ -210,11 +226,11 @@ def add_kits(
     if not installer.is_spec_kit_project():
         console.print()
         console.print(
-            f"[red]Error:[/red] {target_dir} {ERROR_NOT_SPEC_KIT}",
+            f"[red]Error:[/red] {ERROR_NOT_SPEC_KIT}",
             style="bold",
         )
         console.print(
-            f"\n{ERROR_SPEC_KIT_HINT}",
+            f"\n  {ERROR_SPEC_KIT_HINT}",
             style="dim",
         )
         console.print("\n[bold yellow]lite-kits requires GitHub Spec-Kit:[/bold yellow]")
@@ -247,9 +263,10 @@ def add_kits(
 
     # Always show preview unless --force flag was used
     if not skip_preview:
-        console.print("\n[bold cyan]Preview of changes:[/bold cyan]\n")
+        console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
         preview = installer.preview_installation()
-        _display_changes(preview)
+        normalized_preview = _normalize_preview_for_display(preview, operation="install")
+        _display_changes(normalized_preview, verbose=verbose)
 
         # Show warnings/conflicts
         if preview.get("warnings"):
@@ -285,8 +302,8 @@ def add_kits(
     result = installer.install()
 
     if result["success"]:
-        console.print("\n[bold green][OK] Kits installed successfully![/bold green]\n")
         _display_installation_summary(result)
+        console.print("[bold green][OK] Kits installed successfully![/bold green]\n")
     else:
         console.print(f"\n[bold red][X] Installation failed:[/bold red] {result['error']}\n")
         console.print()
@@ -304,6 +321,12 @@ def remove(
         "--all",
         help="Remove all kits",
     ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed file listings in preview",
+    ),
     force: bool = typer.Option(
         False,
         "--force",
@@ -318,6 +341,7 @@ def remove(
 
     Removes kit files and returns the project to vanilla spec-kit state.
     Shows preview of files to be removed before confirmation.
+    Use --verbose/-v to see detailed file listings.
     Use --force to skip preview and remove immediately.
 
     Examples:
@@ -365,7 +389,7 @@ def remove(
     # Show preview and confirmation unless --force is used
     if not force:
         # Show preview of files to be removed
-        console.print(f"\n[bold yellow]Preview - Removing from {target_dir}[/bold yellow]\n")
+        console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
         preview = installer.preview_removal()
 
         if preview["total_files"] == 0:
@@ -373,15 +397,11 @@ def remove(
             console.print()
             raise typer.Exit(0)
 
-        # Display files grouped by kit
-        for kit in preview["kits"]:
-            console.print(f"[bold]{kit['name']}:[/bold]")
-            for file_path in kit['files']:
-                console.print(f"  [red]-[/red] {file_path}")
-            console.print()
+        # Normalize removal preview to standard format for DRY display
+        normalized_preview = _normalize_preview_for_display(preview, operation="remove")
+        _display_changes(normalized_preview, verbose=verbose)
 
-        console.print(f"[bold]Total files to remove:[/bold] {preview['total_files']}\n")
-
+        console.print()
         # Confirm removal
         if not typer.confirm("Continue with removal?"):
             console.print("[dim]Cancelled[/dim]")
@@ -501,51 +521,254 @@ def status(
     # Show kit info (skip banner to avoid Windows console Unicode issues)
     print_kit_info(target_dir, is_spec_kit, installed_kits)
 
-def _display_changes(changes: dict):
-    """Display preview of changes."""
-    total_files = 0
+def _normalize_preview_for_display(preview: dict, operation: str = "install") -> dict:
+    """Normalize preview data to standard format for display.
+
+    Converts both installation and removal previews to a unified format
+    that _display_changes can handle.
+
+    Args:
+        preview: Raw preview dict from installer (preview_installation or preview_removal)
+        operation: "install" or "remove" to determine how to process the preview
+
+    Returns:
+        Normalized preview dict with standard keys (new_files, modified_files,
+        files_to_remove, new_directories, directories_to_remove)
+    """
+    if operation == "install":
+        # Installation preview is already in the right format
+        return preview
+    elif operation == "remove":
+        # Removal preview needs conversion
+        normalized = {"kits": []}
+        for kit in preview.get("kits", []):
+            # Calculate unique directories that will be affected
+            directories = set()
+            for file_path in kit.get("files", []):
+                parent = str(Path(file_path).parent)
+                if parent and parent != ".":
+                    directories.add(parent)
+
+            normalized["kits"].append({
+                "name": kit["name"],
+                "new_files": [],
+                "modified_files": [],
+                "files_to_remove": kit["files"],
+                "new_directories": [],
+                "directories_to_remove": sorted(directories)
+            })
+        return normalized
+    else:
+        raise ValueError(f"Unknown operation: {operation}")
+
+def _display_changes(changes: dict, verbose: bool = False):
+    """Display preview of changes.
+
+    Args:
+        changes: Normalized preview dict with file/directory changes
+        verbose: If True, show detailed file listings; if False, show only tables
+    """
+    from collections import defaultdict
+
+    # Collect stats for each kit
+    kit_stats = {}
+    total_stats = defaultdict(int)
 
     for kit in changes.get("kits", []):
         kit_name = kit.get("name", "Unknown Kit")
-        console.print(f"[bold magenta]=== {kit_name} ===[/bold magenta]")
+        stats = defaultdict(int)
 
-        # Only show sections that have items
-        new_files = kit.get("new_files", [])
-        modified_files = kit.get("modified_files", [])
-        new_directories = kit.get("new_directories", [])
+        # Count files by type based on path (normalize to forward slashes for matching)
+        # Include new_files, modified_files, and files_to_remove
+        all_files = (
+            kit.get("new_files", []) +
+            kit.get("modified_files", []) +
+            kit.get("files_to_remove", [])
+        )
 
-        if new_files:
-            console.print("Files to be created:")
-            for file in new_files:
-                console.print(f"  [green]+[/green] {file}")
-            console.print()  # Blank line after section
+        for file_path in all_files:
+            # Normalize path separators for cross-platform matching
+            normalized_path = str(file_path).replace("\\", "/")
 
-        if modified_files:
-            console.print("Files to be modified:")
-            for file in modified_files:
-                console.print(f"  [yellow]~[/yellow] {file}")
-            console.print()  # Blank line after section
+            if "/commands/" in normalized_path or "/prompts/" in normalized_path:
+                stats["commands"] += 1
+            elif "/scripts/" in normalized_path:
+                stats["scripts"] += 1
+            elif "/memory/" in normalized_path:
+                stats["memory"] += 1
+            elif "/templates/" in normalized_path:
+                stats["templates"] += 1
+            else:
+                stats["other"] += 1
 
-        if new_directories:
-            console.print("Directories to be created:")
-            for dir in new_directories:
-                console.print(f"  [blue]+[/blue] {dir}")
-            console.print()  # Blank line after section
+        # Count directories (both new and to-be-removed)
+        stats["directories"] = len(kit.get("new_directories", [])) + len(kit.get("directories_to_remove", []))
 
-        # Count files for this kit
-        kit_files = len(new_files) + len(modified_files)
-        if kit_files > 0:
-            console.print(f"Files in {kit_name}: {kit_files}")
-            console.print()  # Blank line after kit
-        total_files += kit_files
+        # Total files (excluding directories)
+        stats["files"] = len(all_files)
 
-    # Display total file count
-    if total_files > 0:
-        console.print(f"[bold]Total files to install:[/bold] {total_files}")
+        kit_stats[kit_name.lower().replace(" kit", "")] = stats
+
+        # Accumulate totals
+        for key, value in stats.items():
+            total_stats[key] += value
+
+    # Display kit details (only if verbose)
+    if verbose:
+        for kit in changes.get("kits", []):
+            kit_name = kit.get("name", "Unknown Kit")
+            kit_key = kit_name.lower().replace(" kit", "")
+            stats = kit_stats[kit_key]
+
+            console.print(f"[bold magenta]=== {kit_name} ===[/bold magenta]")
+
+            # Only show sections that have items
+            new_files = kit.get("new_files", [])
+            modified_files = kit.get("modified_files", [])
+            files_to_remove = kit.get("files_to_remove", [])
+            new_directories = kit.get("new_directories", [])
+
+            if new_files:
+                console.print("Files to be created:")
+                for file in new_files:
+                    console.print(f"  [green]+[/green] {file}")
+                console.print()  # Blank line after section
+
+            if modified_files:
+                console.print("Files to be modified:")
+                for file in modified_files:
+                    console.print(f"  [yellow]~[/yellow] {file}")
+                console.print()  # Blank line after section
+
+            if files_to_remove:
+                console.print("Files to be removed:")
+                for file in files_to_remove:
+                    console.print(f"  [red]-[/red] {file}")
+                console.print()  # Blank line after section
+
+            if new_directories:
+                console.print("Directories to be created:")
+                for dir in new_directories:
+                    console.print(f"  [blue]+[/blue] {dir}")
+                console.print()  # Blank line after section
+
+            # Show kit summary
+            summary_parts = []
+            if stats["files"] > 0:
+                summary_parts.append(f"{stats['files']} files")
+            if stats["directories"] > 0:
+                summary_parts.append(f"{stats['directories']} directory")
+            if summary_parts:
+                console.print(f"{kit_name}: {', '.join(summary_parts)}")
+                console.print()  # Blank line after kit
+
+    # Display summary tables
+    _display_preview_tables(kit_stats, changes)
+
+def _display_preview_tables(kit_stats: dict, changes: dict):
+    """Display preview summary tables with color-coded values.
+
+    Colors:
+    - Green +N: Additions (new files)
+    - Yellow ~N: Modifications (changed files)
+    - Red -N: Removals (deleted files)
+    - White 0: No changes
+    """
+    from rich.box import ROUNDED
+
+    if not kit_stats:
+        return
+
+    # Helper to format kit names
+    def format_kit_name(kit_key: str) -> str:
+        return "Dev Kit" if kit_key == "dev" else "Multiagent Kit"
+
+    # Helper to style values based on operation type
+    def style_value(value: int, is_addition: bool = True, is_modification: bool = False) -> str:
+        """Style numeric values with colors and prefix symbols."""
+        if value == 0:
+            return "0"
+        elif is_modification:
+            return f"[yellow]~{value}[/yellow]"
+        elif is_addition:
+            return f"[green]+{value}[/green]"
+        else:  # removal
+            return f"[red]-{value}[/red]"
+
+    # Determine operation type from changes dict
+    has_new_files = any(kit.get("new_files") for kit in changes.get("kits", []))
+    has_modified_files = any(kit.get("modified_files") for kit in changes.get("kits", []))
+    is_removal = not has_new_files and not has_modified_files  # If no new/modified, it's a removal
+
+    # File types table (Commands, Scripts, Memory, Templates)
+    file_type_categories = ["commands", "scripts", "memory", "templates"]
+    has_file_types = any(
+        any(stats.get(cat, 0) > 0 for cat in file_type_categories)
+        for stats in kit_stats.values()
+    )
+
+    if has_file_types:
+        console.print("[bold magenta]File Types:[/bold magenta]")
+        table = Table(show_header=True, header_style="bold cyan", box=ROUNDED)
+        table.add_column("Type", style="cyan", no_wrap=True)
+
+        # Add kit columns (only kits that have file types)
+        active_kits = [
+            kit_key for kit_key in kit_stats.keys()
+            if any(kit_stats[kit_key].get(cat, 0) > 0 for cat in file_type_categories)
+        ]
+
+        for kit_key in active_kits:
+            table.add_column(format_kit_name(kit_key), justify="right")
+
+        # Add Total column if multiple kits
+        show_total = len(active_kits) > 1
+        if show_total:
+            table.add_column("Total", justify="right")
+
+        # Add rows (only categories with non-zero values)
+        for cat in file_type_categories:
+            values = [kit_stats[kit_key].get(cat, 0) for kit_key in active_kits]
+            if sum(values) > 0:  # Only show row if at least one kit has this type
+                styled_values = [style_value(v, not is_removal, has_modified_files) for v in values]
+                row = [cat.capitalize()] + styled_values
+                if show_total:
+                    row.append(style_value(sum(values), not is_removal, has_modified_files))
+                table.add_row(*row)
+
+        console.print(table)
+        console.print()
+
+    # Totals table (Files and Directories)
+    console.print("[bold magenta]File Totals:[/bold magenta]")
+    table = Table(show_header=True, header_style="bold cyan", box=ROUNDED)
+    table.add_column("Category", style="cyan", no_wrap=True)
+
+    # Add kit columns
+    for kit_key in kit_stats.keys():
+        table.add_column(format_kit_name(kit_key), justify="right")
+
+    # Add Total column if multiple kits
+    show_total = len(kit_stats) > 1
+    if show_total:
+        table.add_column("Total", justify="right")
+
+    # Add rows (only if totals > 0)
+    for cat in ["files", "directories"]:
+        values = [kit_stats[kit_key].get(cat, 0) for kit_key in kit_stats.keys()]
+        if sum(values) > 0:
+            styled_values = [style_value(v, not is_removal, has_modified_files) for v in values]
+            row = [cat.capitalize()] + styled_values
+            if show_total:
+                row.append(style_value(sum(values), not is_removal, has_modified_files))
+            table.add_row(*row)
+
+    console.print(table)
+    console.print()
 
 def _display_installation_summary(result: dict):
     """Display kit addition summary."""
-    console.print("[bold]Installed files:[/bold]")
+    console.print("[bold]\nInstalled files:[/bold]")
     for item in result.get("installed", []):
         console.print(f"  [green]+[/green] {item}")
 
@@ -556,7 +779,7 @@ def _display_installation_summary(result: dict):
 
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print(f"  1. Run: /orient (in GitHub Copilot or Claude Code)")
-    console.print(f"  2. Check: .github/prompts/orient.prompt.md or .claude/commands/orient.md")
+    console.print(r"  2. Check: .github\prompts\orient.prompt.md or .claude\commands\orient.md")
     console.print(f"  3. Validate: {APP_NAME} validate")
     console.print("\n[dim]Note: Commands are markdown prompt files that work with any compatible AI assistant.[/dim]")
     console.print()
@@ -564,12 +787,12 @@ def _display_installation_summary(result: dict):
 def _cleanup_empty_directories(target_dir: Path):
     """Clean up empty directories created by lite-kits."""
     directories_to_check = [
-        ".claude/commands",
-        ".github/prompts",
-        ".specify/memory",
-        ".specify/scripts/bash",
-        ".specify/scripts/powershell",
-        ".specify/templates",
+        DIR_CLAUDE_COMMANDS,
+        DIR_GITHUB_PROMPTS,
+        DIR_SPECIFY_MEMORY,
+        DIR_SPECIFY_SCRIPTS_BASH,
+        DIR_SPECIFY_SCRIPTS_POWERSHELL,
+        DIR_SPECIFY_TEMPLATES,
     ]
 
     cleaned = []
@@ -606,8 +829,8 @@ def package_info():
     info_table.add_column("Value")
 
     info_table.add_row("Version", __version__)
-    info_table.add_row("Repository", "https://github.com/tmorgan181/lite-kits")
-    info_table.add_row("License", "MIT")
+    info_table.add_row("Repository", REPOSITORY_URL)
+    info_table.add_row("License", LICENSE)
 
     console.print(info_table)
     console.print()
