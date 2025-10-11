@@ -17,8 +17,7 @@ Check for kit marker files to determine what's installed:
 ```powershell
 # Check all kits in one efficient operation
 $KITS_INSTALLED = @()
-if (Test-Path .github/prompts/orient.prompt.md) { $KITS_INSTALLED += "project" }
-if (Test-Path .github/prompts/commit.prompt.md) { $KITS_INSTALLED += "git" }
+if (Test-Path .github/prompts/orient.prompt.md) { $KITS_INSTALLED += "dev" }
 if (Test-Path .specify/memory/pr-workflow-guide.md) { $KITS_INSTALLED += "multiagent" }
 $KITS_LIST = if ($KITS_INSTALLED.Count -gt 0) { $KITS_INSTALLED -join ", " } else { "vanilla only" }
 ```
@@ -120,7 +119,7 @@ Based on the state you discovered, suggest the next logical action:
 - **Plan exists, no tasks** → "Run `/tasks` to break down into tasks"
 - **Tasks exist** → "Run `/implement` to start coding"
 - **Handoff detected** (multiagent) → "Review handoff in `specs/[feature]/collaboration/active/decisions/`"
-- **Uncommitted changes** → "Review changes and consider running `/commit`" (if git-kit installed)
+- **Uncommitted changes** → "Review changes and consider running `/commit`" (if dev-kit installed)
 
 ## Important Notes
 
@@ -135,7 +134,7 @@ Based on the state you discovered, suggest the next logical action:
 ```
 ## Orientation Complete
 
-**Installed Kits**: project, git
+**Installed Kits**: dev
 
 **I am**: Grok Code Fast 1 @ GitHub Copilot (Specialist)
 **Project**: Blog Platform API (TypeScript/Node.js)

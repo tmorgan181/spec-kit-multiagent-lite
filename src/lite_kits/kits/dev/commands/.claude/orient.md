@@ -17,8 +17,7 @@ Check for kit marker files to determine what's installed:
 ```bash
 # Check all kits in one command
 KITS_INSTALLED=""
-[ -f .claude/commands/orient.md ] && KITS_INSTALLED="${KITS_INSTALLED}project "
-[ -f .claude/commands/commit.md ] && KITS_INSTALLED="${KITS_INSTALLED}git "
+[ -f .claude/commands/orient.md ] && KITS_INSTALLED="${KITS_INSTALLED}dev "
 [ -f .specify/memory/pr-workflow-guide.md ] && KITS_INSTALLED="${KITS_INSTALLED}multiagent "
 KITS_INSTALLED="${KITS_INSTALLED:-vanilla only}"
 ```
@@ -116,7 +115,7 @@ Based on the state you discovered, suggest the next logical action:
 - **Plan exists, no tasks** → "Run `/tasks` to break down into tasks"
 - **Tasks exist** → "Run `/implement` to start coding"
 - **Handoff detected** (multiagent) → "Review handoff in `specs/[feature]/collaboration/active/decisions/`"
-- **Uncommitted changes** → "Review changes and consider running `/commit`" (if git-kit installed)
+- **Uncommitted changes** → "Review changes and consider running `/commit`" (if dev-kit installed)
 
 ## Important Notes
 
@@ -131,7 +130,7 @@ Based on the state you discovered, suggest the next logical action:
 ```
 ## Orientation Complete
 
-**Installed Kits**: project, git
+**Installed Kits**: dev
 
 **I am**: claude-sonnet-4.5 @ Claude Code (Primary)
 **Project**: Blog Platform API (TypeScript/Node.js)

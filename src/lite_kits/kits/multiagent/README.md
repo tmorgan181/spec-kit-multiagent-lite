@@ -36,7 +36,7 @@ Multi-agent coordination structure for projects with multiple AI agents working 
 lite-kits install -Kit multiagent
 ```
 
-**Note**: Works best when combined with project-kit and git-kit, but they are not required.
+**Note**: Works best when combined with dev-kit and dev-kit, but they are not required.
 
 ## Installation
 
@@ -251,7 +251,7 @@ Backend authentication complete. Need frontend integration.
 4. Each agent logs sessions in `collaboration/active/sessions/`
 5. Agents sync periodically with `git pull`
 6. Claude handles integration testing
-7. Either agent creates PR using `/pr` (from git-kit)
+7. Either agent creates PR using `/pr` (from dev-kit)
 
 **File territories** (avoid conflicts):
 - Backend worktree: `src/api/`, `src/models/`, `tests/api/`
@@ -267,7 +267,7 @@ Backend authentication complete. Need frontend integration.
 **Workflow**:
 1. Claude implements feature, commits work
 2. Claude creates handoff for review
-3. Copilot runs `/review` (from project-kit)
+3. Copilot runs `/review` (from dev-kit)
 4. Copilot logs review in `collaboration/active/decisions/`
 5. Claude addresses feedback
 6. Copilot approves and creates PR
@@ -309,15 +309,15 @@ Backend authentication complete. Need frontend integration.
 
 ## Integration with Other Kits
 
-### With project-kit (optional)
+### With dev-kit (optional)
 - Use `/orient` for each agent to understand their role
 
-### With git-kit (optional)
+### With dev-kit (optional)
 - Use `/commit` for agent-attributed commits
 - Use `/pr` to create PRs with multi-agent summary
 - Use `/review` for agent-to-agent code review
 - Use `/cleanup` to remove stale worktrees
-- Combine `/sync` (from multiagent-kit) with git-kit workflows
+- Combine `/sync` (from multiagent-kit) with dev-kit workflows
 
 ---
 

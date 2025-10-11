@@ -341,7 +341,7 @@ Implements Phase 1 MVP with `/orient` command and modular kit system for multi-a
 ## Changes
 
 ### Features
-- Add `/orient` command for agent orientation (project-kit)
+- Add `/orient` command for agent orientation (dev-kit)
 - Implement kit-aware installer with --kit flag support
 - Add modular kit structure (project, git, multiagent)
 - Auto-dependency inclusion (multiagent → project + git)

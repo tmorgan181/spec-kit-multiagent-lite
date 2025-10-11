@@ -6,7 +6,7 @@ This directory contains modular add-on kits that can be installed independently 
 
 ### ✅ Recommended (Default Installation)
 
-#### 1. **project-kit**
+#### 1. **dev-kit**
 **Commands**: `/orient` ⭐, `/audit`, `/stats`
 **Scripts**: Enhanced feature creation with custom naming
 
@@ -21,7 +21,7 @@ Essential project-level utilities combining agent orientation, quality checks, a
 
 ---
 
-#### 2. **git-kit**
+#### 2. **dev-kit**
 **Commands**: `/commit`, `/pr`, `/review`, `/sync`, `/cleanup`
 
 Git workflow automation with smart commits, PR creation, code review, sync status, and cleanup operations. Includes ASCII visualization for better readability.
@@ -48,7 +48,7 @@ Multi-agent coordination structure for complex projects with multiple AI agents 
 - `.specify/memory/git-worktrees-protocol.md`
 - `specs/*/collaboration/` (template, created per-feature)
 
-**Use case**: Large projects with multiple AI agents collaborating (e.g., Claude Code + Copilot). Works best when combined with project-kit and git-kit.
+**Use case**: Large projects with multiple AI agents collaborating (e.g., Claude Code + Copilot). Works best when combined with dev-kit and dev-kit.
 
 ---
 
@@ -139,7 +139,7 @@ lite-kits remove -Kit git,project
 
 ## Kit Details
 
-### project-kit Commands
+### dev-kit Commands
 
 | Command | Description |
 |---------|-------------|
@@ -147,7 +147,7 @@ lite-kits remove -Kit git,project
 | `/audit` | Security and quality audit |
 | `/stats` | Project statistics (LOC, test coverage, complexity) |
 
-### git-kit Commands
+### dev-kit Commands
 
 | Command | Description |
 |---------|-------------|
@@ -156,7 +156,7 @@ lite-kits remove -Kit git,project
 | `/review` | Code review of staged changes against best practices |
 | `/cleanup` | Clean merged branches, stale worktrees |
 
-### project-kit Enhancements
+### dev-kit Enhancements
 
 | Enhancement | Description |
 |-------------|-------------|
