@@ -1,0 +1,36 @@
+name: Enforce Git Workflow
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-pr-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR source branch
+        run: |
+          echo "PR Source: ${{ github.head_ref }}"
+          echo "PR Target: ${{ github.base_ref }}"
+
+          if [[ "${{ github.base_ref }}" == "main" ]] && [[ "${{ github.head_ref }}" != "develop" ]]; then
+            echo "::error::❌ Invalid PR workflow detected"
+            echo "::error::PRs to 'main' must come from 'develop' branch only"
+            echo ""
+            echo "Current PR: ${{ github.head_ref }} -> ${{ github.base_ref }}"
+            echo ""
+            echo "Correct workflow:"
+            echo "  1. Create feature branch from develop: git checkout develop && git checkout -b feature/name"
+            echo "  2. Make changes and push"
+            echo "  3. Create PR: feature/name -> develop"
+            echo "  4. After merge to develop, create PR: develop -> main"
+            echo ""
+            echo "To fix this PR:"
+            echo "  1. Close this PR"
+            echo "  2. Change base branch to 'develop' OR"
+            echo "  3. Merge your branch to develop first, then PR develop -> main"
+            exit 1
+          fi
+
+          echo "✅ PR workflow is valid"

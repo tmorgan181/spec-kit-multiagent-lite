@@ -1,5 +1,6 @@
 # Local agent settings (root only - don't ignore src/lite_kits/kits/*/.claude etc.)
-/.github
+/.github/*
+!/.github/workflows/
 /.claude
 /.specify
 /specs
