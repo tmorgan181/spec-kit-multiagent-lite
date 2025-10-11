@@ -318,13 +318,13 @@ dev/004-cleanup-command
 > git branch --merged develop
   dev/001-starter-kits
   dev/002-installer-polish
-  dev/003-git-kit-enhancements
+  dev/003-dev-kit-enhancements
 
 # Agent presents options
 Merged branches available for cleanup:
 1. dev/001-starter-kits (2 days ago)
 2. dev/002-installer-polish (1 day ago)
-3. dev/003-git-kit-enhancements (2 hours ago)
+3. dev/003-dev-kit-enhancements (2 hours ago)
 
 Delete which branches? (y/n/e): e
 

@@ -476,9 +476,6 @@ options:
   # Default kit to install when no kit specified
   default_kit: "dev"
 
-  # Kits included in --recommended flag
-  recommended_kits: ["dev"]
-
   # Installation behavior
   allow_partial_install: true   # Can install for just one agent/shell
   skip_existing: true           # Don't overwrite existing files by default

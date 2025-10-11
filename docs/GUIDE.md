@@ -26,7 +26,7 @@ Add enhancement kits to a spec-kit project.
 **Basic Usage:**
 ```bash
 # Add recommended kits (dev-kit)
-lite-kits add --recommended
+lite-kits add
 
 # Add specific kit
 lite-kits add --kit dev
@@ -47,17 +47,17 @@ lite-kits add --kit dev,multiagent
 **Examples:**
 ```bash
 # Preview changes before installing
-lite-kits add --recommended
+lite-kits add
 # (Shows preview, asks for confirmation)
 
 # Force install without confirmation
-lite-kits add --recommended --force
+lite-kits add --force
 
 # Install to specific directory
-lite-kits add --recommended /path/to/project
+lite-kits add /path/to/project
 
 # Override agent detection
-lite-kits add --recommended --agent copilot
+lite-kits add --agent copilot
 ```
 
 **What Gets Added:**
@@ -681,10 +681,10 @@ Always preview changes before applying:
 
 ```bash
 # Shows preview and asks for confirmation
-lite-kits add --recommended
+lite-kits add
 
 # Skip preview with --force
-lite-kits add --recommended --force
+lite-kits add --force
 ```
 
 ### Override Auto-Detection
@@ -693,10 +693,10 @@ Explicitly specify agent or shell:
 
 ```bash
 # Force Copilot even if Claude is detected
-lite-kits add --recommended --agent copilot
+lite-kits add --agent copilot
 
 # Force PowerShell even on Linux
-lite-kits add --recommended --shell powershell
+lite-kits add --shell powershell
 ```
 
 ### Check What's Installed
@@ -720,7 +720,7 @@ If you update lite-kits:
 lite-kits remove --all
 
 # Install new version
-lite-kits add --recommended
+lite-kits add
 ```
 
 ### Multiple Projects
@@ -728,8 +728,8 @@ lite-kits add --recommended
 Install to different directories:
 
 ```bash
-lite-kits add --recommended /path/to/project1
-lite-kits add --recommended /path/to/project2
+lite-kits add /path/to/project1
+lite-kits add /path/to/project2
 ```
 
 ### Custom Kit Selection
@@ -788,7 +788,7 @@ For multi-agent work:
 specify init
 
 # Then install lite-kits
-lite-kits add --recommended
+lite-kits add
 ```
 
 **Problem: "No supported AI interface found"**
@@ -805,13 +805,13 @@ lite-kits validate
 
 # Reinstall if needed
 lite-kits remove --all
-lite-kits add --recommended
+lite-kits add
 ```
 
 **Problem: Wrong agent detected**
 ```bash
 # Force specific agent
-lite-kits add --recommended --agent copilot
+lite-kits add --agent copilot
 ```
 
 ### Git Workflow Issues

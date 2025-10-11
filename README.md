@@ -1,6 +1,6 @@
 # 🌈 LITE-KITS 🎒
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.2.0)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.3.0)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Spec-Kit](https://img.shields.io/badge/spec--kit-compatible-purple.svg)](https://github.com/github/spec-kit)
@@ -34,7 +34,7 @@ pip install lite-kits
 cd your-spec-kit-project
 
 # Add dev-kit (all solo development commands)
-lite-kits add --recommended
+lite-kits add
 
 # Check what was installed
 lite-kits status
@@ -83,16 +83,45 @@ That's it! See [GUIDE.md](docs/GUIDE.md) for detailed command documentation and 
 
 ### Prerequisites
 
-1. **Python 3.11+**
-2. **A spec-kit project** - Initialize with [`specify init`](https://github.com/github/spec-kit)
-3. **An AI assistant** - Claude Code, GitHub Copilot, or GitHub Copilot CLI
+lite-kits enhances GitHub spec-kit projects. You'll need:
 
-### Install Methods
+1. **Python 3.11+** - [Download here](https://www.python.org/downloads/)
+   - Automatically checked by pip/uv during installation
 
-**With uv (recommended):**
+2. **Node.js & npm** - [Download here](https://nodejs.org/)
+   - Required to install spec-kit (spec-kit is a Node.js package)
+
+3. **spec-kit** - GitHub's spec-driven development framework (REQUIRED)
+   ```bash
+   npm install -g @github/spec-kit
+   ```
+   - lite-kits won't work without spec-kit initialized first
+   - Creates `.claude/` or `.github/prompts/` directories where commands are installed
+
+### Complete Installation Flow
+
 ```bash
-uv tool install lite-kits
+# 1. Install spec-kit (if not already installed)
+npm install -g @github/spec-kit
+
+# 2. Create a spec-kit project (or use existing)
+specify init my-project
+cd my-project
+
+# 3. Install lite-kits
+uv tool install lite-kits     # Recommended: with uv
+# OR
+pip install lite-kits          # Alternative: with pip
+
+# 4. Add enhancement kits to your project
+lite-kits add    # Adds dev-kit (all commands)
+
+# 5. Start using commands in your AI assistant
+/orient                        # Get project context
+/commit                        # Smart commit workflow
 ```
+
+### Alternative Install Methods
 
 **With pip:**
 ```bash
@@ -107,11 +136,20 @@ uv build
 uv tool install dist/lite_kits-*.whl
 ```
 
+### AI Assistant Compatibility
+
+lite-kits commands work with any AI assistant that supports slash commands:
+- ✅ **GitHub Copilot** (VSCode extension or CLI) - Native GitHub integration
+- ✅ **Claude Code** (VSCode extension)
+- ✅ Any assistant that reads `.md` prompt files
+
+No additional configuration required—commands are just markdown files that your AI assistant reads.
+
 ## CLI Commands
 
 ```bash
 # Kit management
-lite-kits add --recommended          # Add dev-kit
+lite-kits add          # Add dev-kit
 lite-kits add --kit dev              # Add specific kit
 lite-kits add --kit multiagent       # Add multiagent-kit
 lite-kits remove --all               # Remove all kits
@@ -187,6 +225,6 @@ Built to enhance [GitHub Spec-Kit](https://github.com/github/spec-kit), a framew
 
 ---
 
-**Status**: Beta (v0.2.0) - Ready for production use
+**Status**: Beta (v0.3.0) - Ready for production use
 
 **Philosophy**: Enhance, don't replace. lite-kits adds features to vanilla spec-kit without forking or modifying core files.

@@ -1,5 +1,7 @@
-# Claude Code local settings
-.claude/*local*
+# Local agent settings (root only - don't ignore src/lite_kits/kits/*/.claude etc.)
+/.github
+/.claude
+/.specify
 
 # Python
 __pycache__/
@@ -38,3 +40,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Temp example files
+examples/minimal-todo-app/*
+!examples/minimal-todo-app/README.md

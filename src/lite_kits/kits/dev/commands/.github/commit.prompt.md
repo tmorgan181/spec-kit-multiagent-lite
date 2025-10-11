@@ -240,7 +240,7 @@ Message:
 9. ?? docs/new-guide.md
 
 Message:
-  docs(004): update documentation for git-kit
+  docs(004): update documentation for dev-kit
 
   Added git workflow documentation and updated README
   with new command examples.
@@ -254,7 +254,7 @@ Message:
 Message:
   chore(004): update implementation status tracking
 
-  Marked git-kit as complete in status docs.
+  Marked dev-kit as complete in status docs.
 
 ---
 

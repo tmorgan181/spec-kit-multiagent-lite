@@ -24,7 +24,7 @@ Essential development utilities for solo developers using spec-kit. Combines pro
 
 ### As recommended kit (default):
 ```bash
-lite-kits add --recommended  # Installs dev-kit
+lite-kits add  # Installs dev-kit
 ```
 
 ### Individually:
@@ -176,11 +176,11 @@ your-project/
 ## Use Cases
 
 ### Solo Developer with AI Agent
-**Install**: `lite-kits add --recommended` (includes dev-kit)
+**Install**: `lite-kits add` (includes dev-kit)
 **Use**: `/orient` at start of every session, `/commit` and `/pr` for git workflow
 
 ### Pair Programming with Claude Code
-**Install**: `lite-kits add --recommended`
+**Install**: `lite-kits add`
 **Use**: `/orient` → `/review` → `/commit` → `/pr` workflow
 
 ### Security-Focused Project

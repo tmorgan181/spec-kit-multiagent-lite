@@ -86,14 +86,11 @@ class Installer:
         shells = self.detector.detect_shells(self.preferred_shell)
 
         preview = {
-            "new_files": [],
-            "modified_files": [],
-            "new_directories": [],
+            "kits": [],
             "conflicts": [],
             "warnings": [],
             "agents": agents,
             "shells": shells,
-            "kits": self.kits,
         }
 
         if not agents:
@@ -108,26 +105,37 @@ class Installer:
         preview['conflicts'] = conflicts['overwrites']
 
         for kit_name in self.kits:
-            self._preview_kit(kit_name, agents, shells, preview)
+            kit_preview = self._preview_kit(kit_name, agents, shells)
+            preview['kits'].append(kit_preview)
 
         return preview
 
-    def _preview_kit(self, kit_name: str, agents: List[str], shells: List[str], preview: Dict):
+    def _preview_kit(self, kit_name: str, agents: List[str], shells: List[str]) -> Dict:
         """Preview installation for a single kit."""
+        kit_info = self.manifest.get_kit(kit_name)
+        kit_preview = {
+            "name": kit_info['name'],
+            "new_files": [],
+            "modified_files": [],
+            "new_directories": [],
+        }
+
         for agent in agents:
             files = self.manifest.get_kit_files(kit_name, agent=agent)
-            self._preview_files(files, preview)
+            self._preview_files(files, kit_preview)
 
         for shell in shells:
             files = self.manifest.get_kit_files(kit_name, agent=shell)
-            self._preview_files(files, preview)
+            self._preview_files(files, kit_preview)
 
-        # Get other files (not commands/prompts/scripts - those are handled above)
+        # Get other files (not commands\prompts\scripts - those are handled above)
         all_files = self.manifest.get_kit_files(kit_name, agent=None)
         for file_info in all_files:
             if file_info.get('type') in ['command', 'prompt', 'script']:
                 continue  # Already handled by agent/shell sections above
-            self._preview_files([file_info], preview)
+            self._preview_files([file_info], kit_preview)
+
+        return kit_preview
 
     def _preview_files(self, files: List[Dict], preview: Dict):
         """Preview a list of files."""
@@ -135,8 +143,9 @@ class Installer:
             if file_info.get('status') == 'planned':
                 continue
 
-            target_path = file_info['path']
-            target_full = self.target_dir / target_path
+            # Normalize paths to use backslashes for Windows display
+            target_path = str(file_info['path']).replace("/", "\\")
+            target_full = self.target_dir / file_info['path']
 
             if target_full.exists():
                 if target_path not in preview["modified_files"]:
@@ -170,7 +179,7 @@ class Installer:
                 ]
                 result["error"] = (
                     f"No supported AI interface found. Supported: {', '.join(supported)}. "
-                    "To enable AI interface support, create a '.claude/' or '.github/prompts/' directory in your project."
+                    r"To enable AI interface support, create a '.claude\' or '.github\prompts\' directory in your project."
                 )
                 return result
 

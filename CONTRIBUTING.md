@@ -33,7 +33,7 @@ uv tool install -e ".[dev]"
 # 4. Test locally
 cd /tmp/test-project
 specify init  # Create test spec-kit project
-lite-kits add --recommended
+lite-kits add
 
 # 5. Submit PR
 ```
@@ -71,7 +71,7 @@ lite-kits --version
 
 # Test on a spec-kit project
 cd path/to/spec-kit-project
-lite-kits add --recommended
+lite-kits add
 lite-kits status
 lite-kits validate
 ```
@@ -216,7 +216,7 @@ kits:
 lite-kits remove --all
 
 # Install with your new command
-lite-kits add --recommended
+lite-kits add
 
 # Verify it was installed
 lite-kits validate
@@ -313,7 +313,7 @@ specify init test-project
 cd test-project
 
 # Test installation
-lite-kits add --recommended
+lite-kits add
 
 # Verify status
 lite-kits status
