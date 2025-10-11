@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] - 2025-10-11
+
+**Patch Release: Post-Release Cleanup & Workflow Protection**
+
+Quick patch release to clean up repository structure and add workflow enforcement after v0.3.0 release.
+
+### Added
+
+**Workflow Protection:**
+- GitHub Actions workflow to enforce develop→main PR workflow
+- Prevents accidental PRs from feature branches directly to main
+- Only allows PRs from `develop` branch to `main`
+- Clear error messages with correct workflow guidance
+
+### Changed
+
+**Repository Cleanup:**
+- Removed `specs/` directory from repository (now gitignored for local use)
+- Updated `.gitignore` to allow `.github/workflows/` while ignoring other `.github` contents
+- Cleaned up 7 merged branches (4 remote + 3 local) from v0.3.0 work
+
+### Fixed
+
+**Git Workflow:**
+- Added programmatic protection against incorrect branching patterns
+- Enforces feature → develop → main workflow at CI level
+- Prevents future "oops branched from main" mistakes
+
+---
+
 ## [0.3.0] - 2025-10-10
 
 **Polish Release: PyPI Launch Preparation**

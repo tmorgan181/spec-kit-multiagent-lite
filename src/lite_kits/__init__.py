@@ -6,7 +6,7 @@ without forking or replacing any core files.
 """
 
 # Version
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 # Package metadata
 APP_NAME = "lite-kits"
