@@ -1,6 +1,6 @@
 # 🌈 LITE-KITS 🎒
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.2.0)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.3.0)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Spec-Kit](https://img.shields.io/badge/spec--kit-compatible-purple.svg)](https://github.com/github/spec-kit)
@@ -225,6 +225,6 @@ Built to enhance [GitHub Spec-Kit](https://github.com/github/spec-kit), a framew
 
 ---
 
-**Status**: Beta (v0.2.0) - Ready for production use
+**Status**: Beta (v0.3.0) - Ready for production use
 
 **Philosophy**: Enhance, don't replace. lite-kits adds features to vanilla spec-kit without forking or modifying core files.

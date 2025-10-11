@@ -7,6 +7,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2025-10-10
+
+**Polish Release: PyPI Launch Preparation**
+
+This release focuses on user experience polish and documentation improvements in preparation for the first public PyPI release.
+
+### Added
+
+**UX Improvements:**
+- Kit name headers in preview output (easier to see what each kit installs)
+- Empty directory cleanup after kit removal (cleaner uninstall experience)
+- Comprehensive installation flow in README (step-by-step from spec-kit to first command)
+- AI assistant compatibility section in README (clarifies GitHub Copilot + Claude Code support)
+
+**Documentation:**
+- Project constitution (v1.0.0) - Core principles and development standards
+- Dependency audit report - Validates sparkling dependency story for PyPI
+- Enhanced README prerequisites with links to all dependencies
+- Clarified spec-kit as REQUIRED dependency (not optional)
+
+### Changed
+
+**Error Messages:**
+- Spec-kit not found error now includes installation instructions
+- Links to Node.js and spec-kit GitHub repo
+- Clear explanation that lite-kits enhances spec-kit
+- Updated next steps to mention GitHub Copilot first
+
+**Command Files:**
+- Fixed all outdated kit references (project-kit/git-kit → dev-kit)
+- Updated orient command detection logic (removed redundant checks)
+- Consistent kit naming across 26 files
+
+### Fixed
+
+**Critical:**
+- Command audit found and fixed 26 files with outdated kit names
+- Orient command now correctly detects "dev" kit instead of "project, git"
+- All cross-command references verified for accuracy
+
+**Documentation:**
+- README installation flow now shows complete dependency chain
+- Prerequisites section clarifies Node.js requirement (for spec-kit)
+- AI assistant compatibility explained (works with multiple agents)
+
+### Documentation
+
+**Updated:**
+- README.md - Complete installation flow overhaul
+- CHANGELOG.md - This release!
+- .specify/memory/constitution.md - Project principles and standards
+
+**New:**
+- docs/validation/v0.3.0-dependency-audit.md - Dependency analysis
+- docs/wip/command-audit-findings.md - Audit report
+- docs/wip/wishlist-prioritized.md - Feature roadmap
+
+### Release Notes
+
+This polish release makes lite-kits PyPI-ready with improved error messages, clearer documentation, and verified command accuracy. All user-facing text has been audited for consistency and clarity.
+
+**Key improvements for new users:**
+- Installation flow is crystal clear (prerequisites → install → use)
+- Error messages guide users through setup (not just "something's wrong")
+- Commands are accurate and tested (no broken cross-references)
+
+Ready for PyPI! 🚀
+
+---
+
 ## [0.2.0] - 2025-10-10
 
 **Major Release: Manifest-Driven Architecture & UX Polish**
@@ -205,6 +275,7 @@ The dev-kit includes all commands from the old project-kit and git-kit, so you w
 
 ---
 
+[0.3.0]: https://github.com/tmorgan181/lite-kits/releases/tag/v0.3.0
 [0.2.0]: https://github.com/tmorgan181/lite-kits/releases/tag/v0.2.0
 [0.1.1]: https://github.com/tmorgan181/lite-kits/releases/tag/v0.1.1
 [0.1.0]: https://github.com/tmorgan181/lite-kits/releases/tag/v0.1.0
