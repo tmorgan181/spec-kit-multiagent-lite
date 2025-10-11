@@ -1,5 +1,7 @@
-# Claude Code local settings
-.claude/*local*
+# Local agent settings (root only - don't ignore src/lite_kits/kits/*/.claude etc.)
+/.github
+/.claude
+/.specify
 
 # Python
 __pycache__/
