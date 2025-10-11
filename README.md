@@ -34,7 +34,7 @@ pip install lite-kits
 cd your-spec-kit-project
 
 # Add dev-kit (all solo development commands)
-lite-kits add --recommended
+lite-kits add
 
 # Check what was installed
 lite-kits status
@@ -114,7 +114,7 @@ uv tool install lite-kits     # Recommended: with uv
 pip install lite-kits          # Alternative: with pip
 
 # 4. Add enhancement kits to your project
-lite-kits add --recommended    # Adds dev-kit (all commands)
+lite-kits add    # Adds dev-kit (all commands)
 
 # 5. Start using commands in your AI assistant
 /orient                        # Get project context
@@ -149,7 +149,7 @@ No additional configuration required—commands are just markdown files that you
 
 ```bash
 # Kit management
-lite-kits add --recommended          # Add dev-kit
+lite-kits add          # Add dev-kit
 lite-kits add --kit dev              # Add specific kit
 lite-kits add --kit multiagent       # Add multiagent-kit
 lite-kits remove --all               # Remove all kits

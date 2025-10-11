@@ -129,6 +129,31 @@
 - Plugin marketplace integration
 
 **Code Quality & DRY Improvements**:
+- **Remove --recommended flag** ✅ - Redundant CLI flag cleanup (COMPLETED v0.3.0)
+  - ~~**Problem**: `--recommended` flag is redundant since dev-kit is already the default~~
+  - ~~**Solution**: Remove `--recommended` flag, keep `--all` for all kits~~
+  - **Status**: Removed in v0.3.0 polish
+- **Add --agent and --shell flags to remove command** 🔥 - Selective agent removal
+  - **Problem**: `remove` command lacks `--agent` and `--shell` flags that `add` has
+  - **Current limitation**:
+    - `lite-kits add --agent claude` installs only for Claude Code
+    - `lite-kits remove --all` removes from ALL agents (can't selectively remove from just Claude)
+  - **Use case**: User wants to remove Copilot commands but keep Claude commands
+  - **Solution**: Add `--agent` and `--shell` flags to `remove` command
+  - **Implementation**:
+    - Add `agent` and `shell` parameters to `remove()` function
+    - Filter files to remove based on agent/shell preferences
+    - Update preview to show which agent's files will be removed
+  - **Benefits**:
+    - Symmetric API (add and remove have same flags)
+    - Granular control over installation
+    - Useful for switching between agents
+  - **Example**:
+    ```bash
+    lite-kits remove --kit dev --agent copilot  # Remove only Copilot prompts
+    lite-kits remove --kit dev --shell bash     # Remove only bash scripts
+    ```
+  - **Estimated effort**: 30-45 minutes
 - **Kit Folder Organization in Agent Directories** 🔥 - Improve command organization
   - **Problem**: Currently all commands flat in `.claude/commands/` and `.github/prompts/`
   - **Current structure**:
@@ -192,6 +217,41 @@
 - Use constants in core/installer.py (like we did for cli.py)
 - Consolidate version numbers and common strings
 - Type hints consistency across modules
+
+**Development Infrastructure**:
+- **Containerized Test Environment** 🔥 - Safe testing without breaking local setup
+  - **Problem**: Testing lite-kits installation/removal can mess up local dev environment
+  - **Current pain**:
+    - Accidentally removed kits from project root instead of examples/
+    - Testing version compatibility requires manual Python env switching
+    - Can't easily test "fresh install" scenarios without cleanup
+  - **Solution**: Docker/VM setup for isolated testing
+  - **Implementation options**:
+    - Option A: Docker Compose with mounted source code
+      ```yaml
+      # docker-compose.yml
+      services:
+        test-env:
+          image: python:3.11
+          volumes:
+            - .:/workspace
+          command: bash
+      ```
+    - Option B: VS Code Dev Containers (`.devcontainer/devcontainer.json`)
+    - Option C: GitHub Codespaces configuration
+    - Option D: Vagrant VM (heavier but more realistic)
+  - **Benefits**:
+    - Test installation/removal safely (can nuke the container)
+    - Verify Python 3.11+ compatibility easily
+    - Test multiple spec-kit versions in parallel
+    - Reproduce user environments (fresh Ubuntu, Windows, macOS)
+    - Fast iteration (spin up, test, tear down)
+  - **Test scenarios enabled**:
+    - Fresh install validation (no existing kits)
+    - Upgrade path testing (v0.2 → v0.3 → v0.4)
+    - Cross-platform validation (Linux, macOS, Windows containers)
+    - Python version matrix (3.11, 3.12, 3.13)
+  - **Estimated effort**: 1-2 hours for Docker setup, 3-4 hours for full dev container config
 
 **Original Ideas**:
 - Multi-agent workflow improvements beyond current multiagent-kit

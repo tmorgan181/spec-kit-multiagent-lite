@@ -294,7 +294,7 @@ lite-kits remove --all
 pip install --upgrade lite-kits
 
 # Add new dev-kit (replaces project + git)
-lite-kits add --recommended
+lite-kits add
 ```
 
 The dev-kit includes all commands from the old project-kit and git-kit, so you won't lose any functionality.

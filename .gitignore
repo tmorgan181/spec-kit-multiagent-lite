@@ -40,3 +40,7 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Temp example files
+examples/minimal-todo-app/*
+!examples/minimal-todo-app/README.md

@@ -23,7 +23,6 @@ from . import (
     KIT_DEV,
     KIT_MULTIAGENT,
     KITS_ALL,
-    KITS_RECOMMENDED,
     KIT_DESC_DEV,
     KIT_DESC_MULTIAGENT,
     DIR_CLAUDE_COMMANDS,
@@ -56,9 +55,30 @@ def print_version_info():
 
 def print_quick_start():
     console.print("[bold]Quick Start:[/bold]")
-    console.print(f"  [cyan]1. {APP_NAME} add --recommended[/cyan]  # Add dev-kit (all commands)")
-    console.print(f"  [cyan]2. {APP_NAME} status[/cyan]             # Check installation")
-    console.print(f"  [cyan]3. {APP_NAME} validate[/cyan]           # Validate kit files\n")
+    console.print(f"  [cyan]1. {APP_NAME} add[/cyan]          # Add dev-kit (default)")
+    console.print(f"  [cyan]2. {APP_NAME} status[/cyan]       # Check installation")
+    console.print(f"  [cyan]3. {APP_NAME} validate[/cyan]     # Validate kit files\n")
+
+def print_spec_kit_error():
+    """Print standardized spec-kit not found error message with installation instructions."""
+    console.print()
+    console.print(
+        f"[red]Error:[/red] {ERROR_NOT_SPEC_KIT}",
+        style="bold",
+    )
+    console.print(
+        f"\n  {ERROR_SPEC_KIT_HINT}",
+        style="dim",
+    )
+    console.print("\n[bold yellow]lite-kits requires GitHub Spec-Kit:[/bold yellow]")
+    console.print("  lite-kits enhances vanilla spec-kit projects with additional commands.")
+    console.print("  You must install spec-kit first before adding lite-kits enhancements.\n")
+    console.print("[bold cyan]Install Spec-Kit:[/bold cyan]")
+    console.print("  1. Install Node.js: https://nodejs.org/")
+    console.print("  2. Install spec-kit: npm install -g @github/spec-kit")
+    console.print("  3. Create project: specify init your-project-name")
+    console.print("  4. More info: https://github.com/github/spec-kit\n")
+    console.print()
 
 def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
     """Print kit installation info."""
@@ -154,11 +174,6 @@ def add_kits(
         "--kit",
         help=f"Comma-separated list of kits to add: {','.join(KITS_ALL)}",
     ),
-    recommended: bool = typer.Option(
-        False,
-        "--recommended",
-        help=f"Add recommended kits: {' + '.join(KITS_RECOMMENDED)}",
-    ),
     all_kits: bool = typer.Option(
         False,
         "--all",
@@ -202,8 +217,6 @@ def add_kits(
     kits = None
     if all_kits:
         kits = KITS_ALL
-    elif recommended:
-        kits = KITS_RECOMMENDED
     elif kit:
         kits = [k.strip() for k in kit.split(',')]
     # else: kits=None will use default from manifest
@@ -224,24 +237,7 @@ def add_kits(
 
     # Validate target is a spec-kit project
     if not installer.is_spec_kit_project():
-        console.print()
-        console.print(
-            f"[red]Error:[/red] {ERROR_NOT_SPEC_KIT}",
-            style="bold",
-        )
-        console.print(
-            f"\n  {ERROR_SPEC_KIT_HINT}",
-            style="dim",
-        )
-        console.print("\n[bold yellow]lite-kits requires GitHub Spec-Kit:[/bold yellow]")
-        console.print("  lite-kits enhances vanilla spec-kit projects with additional commands.")
-        console.print("  You must install spec-kit first before adding lite-kits enhancements.\n")
-        console.print("[bold cyan]Install Spec-Kit:[/bold cyan]")
-        console.print("  1. Install Node.js: https://nodejs.org/")
-        console.print("  2. Install spec-kit: npm install -g @github/spec-kit")
-        console.print("  3. Create project: specify init your-project-name")
-        console.print("  4. More info: https://github.com/github/spec-kit\n")
-        console.print()
+        print_spec_kit_error()
         raise typer.Exit(1)
 
     # Check if already installed (check for dev-kit as default)
@@ -302,7 +298,7 @@ def add_kits(
     result = installer.install()
 
     if result["success"]:
-        _display_installation_summary(result)
+        _display_installation_summary(result, verbose=verbose)
         console.print("[bold green][OK] Kits installed successfully![/bold green]\n")
     else:
         console.print(f"\n[bold red][X] Installation failed:[/bold red] {result['error']}\n")
@@ -401,7 +397,6 @@ def remove(
         normalized_preview = _normalize_preview_for_display(preview, operation="remove")
         _display_changes(normalized_preview, verbose=verbose)
 
-        console.print()
         # Confirm removal
         if not typer.confirm("Continue with removal?"):
             console.print("[dim]Cancelled[/dim]")
@@ -409,19 +404,15 @@ def remove(
             raise typer.Exit(0)
 
     # Remove kits
-    console.print(f"\n[bold green]Removing files...[/bold green]\n")
-    with console.status("[bold yellow]Removing..."):
-        result = installer.remove()
+    console.print(f"\n[bold yellow]Removing files...[/bold yellow]")
+    result = installer.remove()
 
     if result["success"]:
-        console.print("[green][OK] Removal complete![/green]\n")
+        _display_removal_summary(result, verbose=verbose)
 
         # Clean up empty directories
         _cleanup_empty_directories(target_dir)
-
-        # Show summary
-        total_removed = sum(len(item['files']) for item in result["removed"])
-        console.print(f"[bold]Removed {total_removed} files[/bold]\n")
+        console.print("\n[bold green][OK] Removal complete![/bold green]\n")
     else:
         console.print(f"\n[bold red][X] Removal failed:[/bold red] {result['error']}\n")
         console.print()
@@ -451,13 +442,9 @@ def validate(
     # For validation, we don't know which kits are installed yet, so check for all
     installer = Installer(target_dir, kits=KITS_ALL)
 
-    console.print(f"\n[bold cyan]Validating {target_dir}[/bold cyan]\n")
-
-    # Check if it's a spec-kit project
+    # Check if it's a spec-kit project first
     if not installer.is_spec_kit_project():
-        console.print()
-        console.print("[red][X] Not a spec-kit project[/red]")
-        console.print()
+        print_spec_kit_error()
         raise typer.Exit(1)
 
     # Check if any kits are installed
@@ -465,25 +452,20 @@ def validate(
     if not any_installed:
         console.print()
         console.print("[yellow]⚠ No enhancement kits installed[/yellow]")
-        console.print(f"  Run: {APP_NAME} add --recommended", style="dim")
+        console.print(f"  Run: {APP_NAME} add", style="dim")
         console.print()
         raise typer.Exit(1)
 
     # Validate structure
     console.print(f"\n[bold cyan]Validating {target_dir}[/bold cyan]\n")
-    with console.status("[bold bright_cyan]Validating...", spinner="dots"):
-        validation_result = installer.validate()
-
-    console.print("[green][OK] Done![/green]\n")
+    validation_result = installer.validate()
     _display_validation_results(validation_result)
 
     if validation_result["valid"]:
         console.print("\n[bold green][OK] Validation passed![/bold green]\n")
-        console.print()
         raise typer.Exit(0)
     else:
         console.print("\n[bold red][X] Validation failed[/bold red]\n")
-        console.print()
         raise typer.Exit(1)
 
 @app.command()
@@ -590,6 +572,7 @@ def _display_changes(changes: dict, verbose: bool = False):
             # Normalize path separators for cross-platform matching
             normalized_path = str(file_path).replace("\\", "/")
 
+            # Track by file type
             if "/commands/" in normalized_path or "/prompts/" in normalized_path:
                 stats["commands"] += 1
             elif "/scripts/" in normalized_path:
@@ -600,6 +583,14 @@ def _display_changes(changes: dict, verbose: bool = False):
                 stats["templates"] += 1
             else:
                 stats["other"] += 1
+
+            # Track by agent (for agent breakdown table)
+            if ".claude/" in normalized_path:
+                stats["agent_claude"] += 1
+            elif ".github/" in normalized_path:
+                stats["agent_copilot"] += 1
+            else:
+                stats["agent_shared"] += 1
 
         # Count directories (both new and to-be-removed)
         stats["directories"] = len(kit.get("new_directories", [])) + len(kit.get("directories_to_remove", []))
@@ -700,7 +691,47 @@ def _display_preview_tables(kit_stats: dict, changes: dict):
     has_modified_files = any(kit.get("modified_files") for kit in changes.get("kits", []))
     is_removal = not has_new_files and not has_modified_files  # If no new/modified, it's a removal
 
-    # File types table (Commands, Scripts, Memory, Templates)
+    # Agent breakdown table (show which agents get which files)
+    agent_categories = ["agent_claude", "agent_copilot", "agent_shared"]
+    has_agent_breakdown = any(
+        any(stats.get(cat, 0) > 0 for cat in agent_categories)
+        for stats in kit_stats.values()
+    )
+
+    if has_agent_breakdown:
+        console.print("[bold magenta]Agent Breakdown:[/bold magenta]")
+        table = Table(show_header=True, header_style="bold cyan", box=ROUNDED)
+        table.add_column("Agent", style="cyan", no_wrap=True)
+
+        # Add kit columns
+        for kit_key in kit_stats.keys():
+            table.add_column(format_kit_name(kit_key), justify="right")
+
+        # Add Total column if multiple kits
+        show_total = len(kit_stats) > 1
+        if show_total:
+            table.add_column("Total", justify="right")
+
+        # Add rows (only agents with non-zero values)
+        agent_labels = {
+            "agent_claude": "Claude Code",
+            "agent_copilot": "GitHub Copilot",
+            "agent_shared": "Shared"
+        }
+
+        for cat in agent_categories:
+            values = [kit_stats[kit_key].get(cat, 0) for kit_key in kit_stats.keys()]
+            if sum(values) > 0:  # Only show row if at least one kit has files for this agent
+                styled_values = [style_value(v, not is_removal, has_modified_files) for v in values]
+                row = [agent_labels[cat]] + styled_values
+                if show_total:
+                    row.append(style_value(sum(values), not is_removal, has_modified_files))
+                table.add_row(*row)
+
+        console.print(table)
+        console.print()
+
+    # Kit contents table (Commands, Scripts, Memory, Templates)
     file_type_categories = ["commands", "scripts", "memory", "templates"]
     has_file_types = any(
         any(stats.get(cat, 0) > 0 for cat in file_type_categories)
@@ -708,7 +739,7 @@ def _display_preview_tables(kit_stats: dict, changes: dict):
     )
 
     if has_file_types:
-        console.print("[bold magenta]File Types:[/bold magenta]")
+        console.print("[bold magenta]Kit Contents:[/bold magenta]")
         table = Table(show_header=True, header_style="bold cyan", box=ROUNDED)
         table.add_column("Type", style="cyan", no_wrap=True)
 
@@ -766,16 +797,36 @@ def _display_preview_tables(kit_stats: dict, changes: dict):
     console.print(table)
     console.print()
 
-def _display_installation_summary(result: dict):
-    """Display kit addition summary."""
-    console.print("[bold]\nInstalled files:[/bold]")
-    for item in result.get("installed", []):
-        console.print(f"  [green]+[/green] {item}")
+def _display_installation_summary(result: dict, verbose: bool = False):
+    """Display kit addition summary.
 
-    if result.get("skipped"):
+    Args:
+        result: Install result dict with 'installed' and 'skipped' lists
+        verbose: If True, show full file list; if False, show only count
+    """
+    installed = result.get("installed", [])
+    skipped = result.get("skipped", [])
+
+    if verbose and installed:
+        console.print("[bold]\nInstalled files:[/bold]")
+        for item in installed:
+            # Normalize to backslashes for Windows display
+            display_path = str(item).replace("/", "\\")
+            console.print(f"  [green]+[/green] {display_path}")
+
+    if verbose and skipped:
         console.print("\n[bold]Skipped (already exists):[/bold]")
-        for item in result.get("skipped", []):
-            console.print(f"  [dim]-[/dim] {item}")
+        for item in skipped:
+            # Normalize to backslashes for Windows display
+            display_path = str(item).replace("/", "\\")
+            console.print(f"  [dim]-[/dim] {display_path}")
+
+    # Summary count (always show)
+    if not verbose:
+        if installed:
+            console.print(f"\nInstalled {len(installed)} files")
+        if skipped:
+            console.print(f"Skipped {len(skipped)} files (already exist)")
 
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
     console.print(f"  1. Run: /orient (in GitHub Copilot or Claude Code)")
@@ -783,6 +834,52 @@ def _display_installation_summary(result: dict):
     console.print(f"  3. Validate: {APP_NAME} validate")
     console.print("\n[dim]Note: Commands are markdown prompt files that work with any compatible AI assistant.[/dim]")
     console.print()
+
+def _display_removal_summary(result: dict, verbose: bool = False):
+    """Display kit removal summary.
+
+    Args:
+        result: Removal result dict with 'removed' list of kit dicts
+        verbose: If True, show full file list; if False, show only count
+    """
+    # Flatten all removed files from all kits
+    all_removed = []
+    for kit_result in result.get("removed", []):
+        all_removed.extend(kit_result.get("files", []))
+
+    if verbose and all_removed:
+        console.print("\n[bold]Removed files:[/bold]")
+        for item in all_removed:
+            # Normalize to backslashes for Windows display
+            display_path = str(item).replace("/", "\\")
+            console.print(f"  [red]-[/red] {display_path}")
+
+    # Summary count (always show)
+    if not verbose and all_removed:
+        console.print(f"\nRemoved {len(all_removed)} files")
+
+def _display_validation_results(validation_result: dict):
+    """Display validation results in a user-friendly format.
+
+    Args:
+        validation_result: Dict with 'valid' (bool) and 'checks' (dict of kit results)
+    """
+    checks = validation_result.get("checks", {})
+
+    for kit_name, result in checks.items():
+        status = result.get("status", "unknown")
+
+        if status == "installed":
+            console.print(f"[green][OK] {kit_name}[/green]")
+        elif status == "not_installed":
+            console.print(f"[dim][-] {kit_name} (not installed)[/dim]")
+        elif status == "partial":
+            console.print(f"[yellow][!] {kit_name} (partial - some files missing)[/yellow]")
+            missing = result.get("missing_files", [])
+            if missing:
+                console.print(f"[dim]  Missing files: {', '.join(missing[:3])}" + (" ..." if len(missing) > 3 else "") + "[/dim]")
+        else:
+            console.print(f"[red][X] {kit_name} ({status})[/red]")
 
 def _cleanup_empty_directories(target_dir: Path):
     """Clean up empty directories created by lite-kits."""
@@ -809,7 +906,7 @@ def _cleanup_empty_directories(target_dir: Path):
                 pass
 
     if cleaned:
-        console.print(f"[dim]Cleaned up empty directories: {', '.join(cleaned)}[/dim]\n")
+        console.print(f"\nCleaned up empty directories: [dim]{', '.join(cleaned)}[/dim]")
 
 @app.command(name="info")
 def package_info():

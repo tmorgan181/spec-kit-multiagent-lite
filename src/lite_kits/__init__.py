@@ -18,11 +18,10 @@ LICENSE = "MIT"
 KIT_DEV = "dev"
 KIT_MULTIAGENT = "multiagent"
 KITS_ALL = [KIT_DEV, KIT_MULTIAGENT]
-KITS_RECOMMENDED = [KIT_DEV]
 
 # Kit descriptions
 KIT_DESC_DEV = "Solo development essentials: /orient, /commit, /pr, /review, /cleanup, /audit, /stats"
-KIT_DESC_MULTIAGENT = "Multi-agent coordination: /sync, collaboration dirs, memory guides (optional)"
+KIT_DESC_MULTIAGENT = "Multi-agent coordination: /sync, collaboration dirs, memory guides (EXPERIMENTAL)"
 
 # Directory paths
 DIR_CLAUDE_COMMANDS = r".claude\commands"
@@ -48,7 +47,6 @@ __all__ = [
     "KIT_DEV",
     "KIT_MULTIAGENT",
     "KITS_ALL",
-    "KITS_RECOMMENDED",
     "KIT_DESC_DEV",
     "KIT_DESC_MULTIAGENT",
     "DIR_CLAUDE_COMMANDS",
