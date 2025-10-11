@@ -129,6 +129,44 @@
 - Plugin marketplace integration
 
 **Code Quality & DRY Improvements**:
+- **Kit Folder Organization in Agent Directories** 🔥 - Improve command organization
+  - **Problem**: Currently all commands flat in `.claude/commands/` and `.github/prompts/`
+  - **Current structure**:
+    ```
+    .claude/commands/
+      orient.md
+      commit.md
+      pr.md
+      review.md
+      cleanup.md
+      audit.md
+      stats.md
+      sync.md (if multiagent installed)
+    ```
+  - **Proposed structure**:
+    ```
+    .claude/commands/
+      dev/
+        orient.md
+        commit.md
+        pr.md
+        review.md
+        cleanup.md
+        audit.md
+        stats.md
+      multiagent/
+        sync.md
+    ```
+  - **Benefits**:
+    - Clear kit ownership (easy to see which commands belong to which kit)
+    - Easier to add/remove specific kits
+    - Scales better as more kits are added
+    - Mirrors source structure in `src/lite_kits/kits/`
+  - **Considerations**:
+    - Need to verify Claude Code and GitHub Copilot support nested slash commands
+    - May need path updates in command references
+    - Migration path for existing installations
+  - **Estimated effort**: 1-2 hours for manifest updates, migration logic
 - **DRY Command Templating** 🔥🔥🔥 - Single source of truth for commands
   - **Problem**: Maintaining duplicate `.claude/commands/*.md` AND `.github/prompts/*.prompt.md` files
   - **Current pain**: 16 files to maintain (8 commands × 2 versions), bash/PowerShell sync issues
