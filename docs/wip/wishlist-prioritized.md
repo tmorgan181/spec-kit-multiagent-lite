@@ -9,12 +9,13 @@
 
 **Theme**: Polish + Quick Wins for PyPI Launch
 
-**Target Features** (pick 3-5 for tonight):
+**Target Features** (pick 5-6 for tonight):
 1. **Quick UX polish** - Low-hanging fruit from tiny things list
 2. **Command improvements** - Polish `/audit` and `/stats`
 3. **Git status optimization** - Add `/status` command (reduces tool calls for Claude)
 4. **Constitution template** - Fill in lite-kits project constitution
-5. **Documentation review** - Final polish before PyPI
+5. **Command audit** - Review all prompts for minimalist design, accurate cross-refs
+6. **Documentation review** - Final polish before PyPI
 
 **Ship Target**: Tonight → PyPI with confidence
 
@@ -74,7 +75,14 @@
    - Currently: Generic placeholder
    - Update: Actual lite-kits principles and values
 
-2. **Documentation review**
+2. **Command audit** 🆕
+   - Review all slash command prompt files (.claude/ and .github/)
+   - Ensure minimalist design (no bloat, clear instructions)
+   - Verify cross-command references are accurate
+   - Check for outdated instructions or broken workflows
+   - Validate scripts are referenced correctly
+
+3. **Documentation review**
    - GUIDE.md - Check for accuracy
    - README.md - Ensure PyPI-ready
    - CONTRIBUTING.md - Update for new contributors
@@ -82,6 +90,15 @@
 ---
 
 ## 🚀 FUTURE RELEASES (v0.4+)
+
+### Checkpoint System (v0.4) 🆕
+**Inspired by**: claudekit, ccheckpoints
+**Commands**:
+- `/checkpoint` - Create git checkpoint before risky changes
+- `/checkpoint:restore` - Restore from checkpoint
+- `auto-checkpoint.sh` hook - Auto-save on session stop
+
+**Benefit**: Safety net for refactoring, easy rollback
 
 ### Release Management Commands (v0.4)
 **Commands**:
@@ -91,13 +108,50 @@
 
 **Benefit**: Streamline the release process we just went through!
 
-### Spec-Kit Integration (v0.4)
+### Web Discovery Interface (v0.5) 🆕
+**Inspired by**: Claude Code Templates (aitmpl.com)
+**Features**:
+- GitHub Pages site to browse commands
+- Interactive component selector
+- Installation preview
+
+**Benefit**: Better discoverability, easier onboarding
+
+### Health Check & Analytics (v0.5) 🆕
+**Inspired by**: Claude Code Templates monitoring
+**Commands**:
+- `lite-kits doctor` - Validate installation and dependencies
+- `lite-kits analytics` - Track command usage and performance
+- Health dashboard
+
+**Benefit**: Better debugging, usage insights
+
+### Spec-Kit Integration (v0.6)
 **Features**:
 - `lite-kits init` - Launch specify.exe to initialize spec-kit
 - `lite-kits spec install/remove/upgrade` - Manage spec-kit installation
 - Auto-detection of specify.exe location
 
 **Benefit**: One-stop shop for spec-kit + lite-kits setup
+
+### Hook System (v0.6) 🆕
+**Inspired by**: claudekit hooks
+**Features**:
+- Pre-commit hooks (lint, test, security)
+- Post-install hooks (setup, config)
+- Custom hook templates
+
+**Benefit**: Automated quality gates, workflow automation
+
+### Namespace Organization (v0.7) 🆕
+**Inspired by**: wshobson/commands, Claude-Command-Suite
+**Structure**:
+- `/dev:` - Development commands
+- `/test:` - Testing utilities
+- `/security:` - Security tools
+- `/deploy:` - Deployment workflows
+
+**Benefit**: Better organization, clearer intent
 
 ### Script Standardization (v1.0)
 **Problem**: Commands rely on agents making many tool calls
@@ -108,6 +162,14 @@
 
 ## 📦 BACKLOG (Future considerations)
 
+**From Research**:
+- Multi-agent coordination (parallel code review agents)
+- AI thinking modes (prime, sentient, ultra-think)
+- Real-time guardrails (file protection, pattern enforcement)
+- Session checkpointing and history navigation
+- Plugin marketplace integration
+
+**Original Ideas**:
 - Multi-agent workflow improvements
 - Better error messages and recovery suggestions
 - Installation analytics/telemetry (opt-in)
