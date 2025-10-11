@@ -2,6 +2,7 @@
 /.github
 /.claude
 /.specify
+/specs
 
 # Python
 __pycache__/
