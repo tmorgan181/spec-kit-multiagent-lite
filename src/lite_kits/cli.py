@@ -217,6 +217,14 @@ def add_kits(
             f"\n{ERROR_SPEC_KIT_HINT}",
             style="dim",
         )
+        console.print("\n[bold yellow]lite-kits requires GitHub Spec-Kit:[/bold yellow]")
+        console.print("  lite-kits enhances vanilla spec-kit projects with additional commands.")
+        console.print("  You must install spec-kit first before adding lite-kits enhancements.\n")
+        console.print("[bold cyan]Install Spec-Kit:[/bold cyan]")
+        console.print("  1. Install Node.js: https://nodejs.org/")
+        console.print("  2. Install spec-kit: npm install -g @github/spec-kit")
+        console.print("  3. Create project: specify init your-project-name")
+        console.print("  4. More info: https://github.com/github/spec-kit\n")
         console.print()
         raise typer.Exit(1)
 
@@ -388,6 +396,9 @@ def remove(
     if result["success"]:
         console.print("[green][OK] Removal complete![/green]\n")
 
+        # Clean up empty directories
+        _cleanup_empty_directories(target_dir)
+
         # Show summary
         total_removed = sum(len(item['files']) for item in result["removed"])
         console.print(f"[bold]Removed {total_removed} files[/bold]\n")
@@ -492,31 +503,43 @@ def status(
 
 def _display_changes(changes: dict):
     """Display preview of changes."""
-    # Only show sections that have items
-    new_files = changes.get("new_files", [])
-    modified_files = changes.get("modified_files", [])
-    new_directories = changes.get("new_directories", [])
+    total_files = 0
 
-    if new_files:
-        console.print("[bold]Files to be created:[/bold]")
-        for file in new_files:
-            console.print(f"  [green]+[/green] {file}")
-        console.print()  # Blank line after section
+    for kit in changes.get("kits", []):
+        kit_name = kit.get("name", "Unknown Kit")
+        console.print(f"[bold magenta]=== {kit_name} ===[/bold magenta]")
 
-    if modified_files:
-        console.print("[bold]Files to be modified:[/bold]")
-        for file in modified_files:
-            console.print(f"  [yellow]~[/yellow] {file}")
-        console.print()  # Blank line after section
+        # Only show sections that have items
+        new_files = kit.get("new_files", [])
+        modified_files = kit.get("modified_files", [])
+        new_directories = kit.get("new_directories", [])
 
-    if new_directories:
-        console.print("[bold]Directories to be created:[/bold]")
-        for dir in new_directories:
-            console.print(f"  [blue]+[/blue] {dir}")
-        console.print()  # Blank line after section
+        if new_files:
+            console.print("Files to be created:")
+            for file in new_files:
+                console.print(f"  [green]+[/green] {file}")
+            console.print()  # Blank line after section
+
+        if modified_files:
+            console.print("Files to be modified:")
+            for file in modified_files:
+                console.print(f"  [yellow]~[/yellow] {file}")
+            console.print()  # Blank line after section
+
+        if new_directories:
+            console.print("Directories to be created:")
+            for dir in new_directories:
+                console.print(f"  [blue]+[/blue] {dir}")
+            console.print()  # Blank line after section
+
+        # Count files for this kit
+        kit_files = len(new_files) + len(modified_files)
+        if kit_files > 0:
+            console.print(f"Files in {kit_name}: {kit_files}")
+            console.print()  # Blank line after kit
+        total_files += kit_files
 
     # Display total file count
-    total_files = len(new_files) + len(modified_files)
     if total_files > 0:
         console.print(f"[bold]Total files to install:[/bold] {total_files}")
 
@@ -532,20 +555,38 @@ def _display_installation_summary(result: dict):
             console.print(f"  [dim]-[/dim] {item}")
 
     console.print("\n[bold cyan]Next steps:[/bold cyan]")
-    console.print(f"  1. Run: /orient (in your AI assistant)")
-    console.print(f"  2. Check: .claude/commands/orient.md or .github/prompts/orient.prompt.md")
+    console.print(f"  1. Run: /orient (in GitHub Copilot or Claude Code)")
+    console.print(f"  2. Check: .github/prompts/orient.prompt.md or .claude/commands/orient.md")
     console.print(f"  3. Validate: {APP_NAME} validate")
+    console.print("\n[dim]Note: Commands are markdown prompt files that work with any compatible AI assistant.[/dim]")
     console.print()
 
-def _display_validation_results(result: dict):
-    """Display validation results."""
-    for check_name, check_result in result.get("checks", {}).items():
-        status = "[OK]" if check_result["passed"] else "[X]"
-        color = "green" if check_result["passed"] else "red"
-        console.print(f"[{color}]{status}[/{color}] {check_name}")
+def _cleanup_empty_directories(target_dir: Path):
+    """Clean up empty directories created by lite-kits."""
+    directories_to_check = [
+        ".claude/commands",
+        ".github/prompts",
+        ".specify/memory",
+        ".specify/scripts/bash",
+        ".specify/scripts/powershell",
+        ".specify/templates",
+    ]
 
-        if not check_result["passed"] and "message" in check_result:
-            console.print(f"  {check_result['message']}", style="dim")
+    cleaned = []
+    for dir_path in directories_to_check:
+        full_path = target_dir / dir_path
+        if full_path.exists() and full_path.is_dir():
+            # Check if directory is empty (no files or subdirs)
+            try:
+                if not any(full_path.iterdir()):
+                    full_path.rmdir()
+                    cleaned.append(dir_path)
+            except OSError:
+                # Directory not empty or permission error, skip
+                pass
+
+    if cleaned:
+        console.print(f"[dim]Cleaned up empty directories: {', '.join(cleaned)}[/dim]\n")
 
 @app.command(name="info")
 def package_info():
