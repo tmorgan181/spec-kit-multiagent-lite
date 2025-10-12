@@ -81,14 +81,53 @@ def print_spec_kit_error():
     console.print()
 
 def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
-    """Print kit installation info."""
+    """Print kit installation info with agent/shell breakdown."""
+    from rich.box import ROUNDED
+
     console.print()
     if is_spec_kit:
         console.print(f"[bold green][OK] Spec-kit project detected in {target_dir}.[/bold green]\n")
         if installed_kits:
-            console.print("Installed kits:", style="bold")
+            # Detect which agents/shells have files
+            agent_dirs = {
+                "Claude Code": target_dir / ".claude" / "commands",
+                "GitHub Copilot": target_dir / ".github" / "prompts"
+            }
+
+            shell_dirs = {
+                "Bash": target_dir / ".specify" / "scripts" / "bash",
+                "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
+            }
+
+            # Build installation breakdown table
+            table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Installed Kits[/bold magenta]")
+            table.add_column("Kit", style="cyan")
+            table.add_column("Agents", style="green")
+            table.add_column("Scripts", style="blue")
+
             for kit in installed_kits:
-                console.print(f"  [green]+[/green] {kit}-kit")
+                # Check which agents have this kit's files
+                agents_with_kit = []
+                for agent_name, agent_dir in agent_dirs.items():
+                    if agent_dir.exists() and any(agent_dir.glob("*.md")):
+                        # Check for at least one non-spec-kit file (not speckit.*)
+                        non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
+                        if non_speckit_files:
+                            agents_with_kit.append(agent_name)
+
+                # Check which shells have scripts
+                shells_with_kit = []
+                for shell_name, shell_dir in shell_dirs.items():
+                    if shell_dir.exists() and any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1")):
+                        shells_with_kit.append(shell_name)
+
+                # Format output
+                agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
+                shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
+
+                table.add_row(f"{kit}-kit", agents_display, shells_display)
+
+            console.print(table)
         else:
             console.print("No kits installed.", style="dim yellow")
     else:
