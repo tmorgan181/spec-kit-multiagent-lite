@@ -259,7 +259,13 @@ def add_kits(
     # Always show preview unless --force flag was used
     if not skip_preview:
         console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
-        preview = installer.preview_installation()
+        try:
+            preview = installer.preview_installation()
+        except ValueError as e:
+            console.print()
+            console.print(f"[red]Error:[/red] {e}", style="bold")
+            console.print()
+            raise typer.Exit(1)
         normalized_preview = _normalize_preview_for_display(preview, operation="install")
         _display_changes(normalized_preview, verbose=verbose)
 

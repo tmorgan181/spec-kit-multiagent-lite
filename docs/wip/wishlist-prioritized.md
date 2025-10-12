@@ -1,31 +1,13 @@
 # Lite-Kits Wishlist - v0.4 Planning
 
-**Last Updated**: 2025-10-10
-**Current Status**: v0.3.0 complete (ready for merge) → Planning v0.4
-
----
-
-## ✅ v0.3 COMPLETE
-
-**Theme**: Polish + Quick Wins for PyPI Launch
-
-**Shipped Features** (6 total):
-1. ✅ **Command audit** - Fixed 26 files with outdated kit references (project-kit/git-kit → dev-kit)
-2. ✅ **Better error messages** - Spec-kit not found includes installation instructions with links
-3. ✅ **Preview kit headers** - Shows kit names in preview output
-4. ✅ **Delete empty folders** - Cleanup after kit removal
-5. ✅ **README prerequisites** - Complete installation flow with dependency chain
-6. ✅ **Constitution template** - Filled in lite-kits project constitution (v1.0.0)
-
-**Status**: Ready for merge to main, tag v0.3.0, and PyPI publish 🚀
+**Last Updated**: 2025-10-12
+**Current Status**: v0.3.2 published to PyPI → Planning v0.4
 
 ---
 
 ## 🎯 v0.4 GOALS
 
 **Theme**: Release Management & Safety Nets
-
-**Target Features** (3-4 for next session):
 
 ### Checkpoint System 🔥
 **Inspired by**: claudekit checkpoints
@@ -129,10 +111,18 @@
 - Plugin marketplace integration
 
 **Code Quality & DRY Improvements**:
-- **Remove --recommended flag** ✅ - Redundant CLI flag cleanup (COMPLETED v0.3.0)
-  - ~~**Problem**: `--recommended` flag is redundant since dev-kit is already the default~~
-  - ~~**Solution**: Remove `--recommended` flag, keep `--all` for all kits~~
-  - **Status**: Removed in v0.3.0 polish
+- **Refactor manifest for DRY between agents/kits** 🔥🔥 - Reduce duplication in kits.yaml
+  - **Problem**: Manifest has significant duplication between agent configs and kit file definitions
+  - **Current pain**:
+    - Same file paths listed multiple times for different agents
+    - Kit metadata repeated across sections
+    - Hard to maintain consistency when adding new files
+  - **Solution**: Create composite values where used in code, define base templates once
+  - **Benefits**:
+    - Single source of truth for file paths
+    - Easier to add new agents (inherit from base config)
+    - Reduced maintenance burden
+    - Less error-prone updates
 - **Add --agent and --shell flags to remove command** 🔥 - Selective agent removal
   - **Problem**: `remove` command lacks `--agent` and `--shell` flags that `add` has
   - **Current limitation**:
@@ -153,7 +143,6 @@
     lite-kits remove --kit dev --agent copilot  # Remove only Copilot prompts
     lite-kits remove --kit dev --shell bash     # Remove only bash scripts
     ```
-  - **Estimated effort**: 30-45 minutes
 - **Kit Folder Organization in Agent Directories** 🔥 - Improve command organization
   - **Problem**: Currently all commands flat in `.claude/commands/` and `.github/prompts/`
   - **Current structure**:
@@ -191,7 +180,6 @@
     - Need to verify Claude Code and GitHub Copilot support nested slash commands
     - May need path updates in command references
     - Migration path for existing installations
-  - **Estimated effort**: 1-2 hours for manifest updates, migration logic
 - **DRY Command Templating** 🔥🔥🔥 - Single source of truth for commands
   - **Problem**: Maintaining duplicate `.claude/commands/*.md` AND `.github/prompts/*.prompt.md` files
   - **Current pain**: 16 files to maintain (8 commands × 2 versions), bash/PowerShell sync issues
@@ -213,7 +201,6 @@
       pr.md.j2             # Single template
     ```
   - **Manifest integration**: `kits.yaml` specifies which templates to render for which agents
-  - **Estimated effort**: 2-3 hours to implement, saves hours in ongoing maintenance
 - Use constants in core/installer.py (like we did for cli.py)
 - Consolidate version numbers and common strings
 - Type hints consistency across modules
@@ -251,7 +238,6 @@
     - Upgrade path testing (v0.2 → v0.3 → v0.4)
     - Cross-platform validation (Linux, macOS, Windows containers)
     - Python version matrix (3.11, 3.12, 3.13)
-  - **Estimated effort**: 1-2 hours for Docker setup, 3-4 hours for full dev container config
 
 **Original Ideas**:
 - Multi-agent workflow improvements beyond current multiagent-kit
@@ -283,15 +269,6 @@
 ---
 
 ## 💭 NOTES
-
-**v0.3.0 Achievements**:
-- ✅ Command audit (26 files fixed)
-- ✅ Better error messages (install guidance)
-- ✅ Preview UX improvements (kit headers)
-- ✅ Empty folder cleanup
-- ✅ README overhaul (installation flow)
-- ✅ Constitution v1.0.0
-- ✅ Ready for PyPI publish
 
 **v0.4 Priority Rationale**:
 - **Checkpoints**: Safety is critical for AI-assisted refactoring
