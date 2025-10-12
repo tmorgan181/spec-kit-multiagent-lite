@@ -80,53 +80,67 @@ def print_spec_kit_error():
     console.print("  4. More info: https://github.com/github/spec-kit\n")
     console.print()
 
-def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
-    """Print kit installation info with agent/shell breakdown."""
+def _build_kit_breakdown_table(target_dir: Path, kits: list[str]) -> Table:
+    """Build agent/shell breakdown table for kits.
+
+    Args:
+        target_dir: Target project directory
+        kits: List of kit names (e.g., ["dev", "multiagent"])
+
+    Returns:
+        Rich Table with agent/shell breakdown
+    """
     from rich.box import ROUNDED
 
+    # Detect which agents/shells have files
+    agent_dirs = {
+        "Claude Code": target_dir / ".claude" / "commands",
+        "GitHub Copilot": target_dir / ".github" / "prompts"
+    }
+
+    shell_dirs = {
+        "Bash": target_dir / ".specify" / "scripts" / "bash",
+        "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
+    }
+
+    # Build table
+    table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title=f"[bold magenta]Kit Breakdown[/bold magenta]")
+    table.add_column("Kit", style="cyan")
+    table.add_column("Agents", style="green")
+    table.add_column("Shells", style="white")
+
+    for kit in kits:
+        # Check which agents have this kit's files
+        agents_with_kit = []
+        for agent_name, agent_dir in agent_dirs.items():
+            if agent_dir.exists() and any(agent_dir.glob("*.md")):
+                # Check for at least one non-spec-kit file (not speckit.*)
+                non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
+                if non_speckit_files:
+                    agents_with_kit.append(agent_name)
+
+        # Check which shells have scripts
+        shells_with_kit = []
+        for shell_name, shell_dir in shell_dirs.items():
+            if shell_dir.exists() and (any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1"))):
+                shells_with_kit.append(shell_name)
+
+        # Format output
+        agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
+        shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
+
+        # Use consistent kit naming format: "kit-name" not "kit-name-kit"
+        table.add_row(kit, agents_display, shells_display)
+
+    return table
+
+def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
+    """Print kit installation info with agent/shell breakdown."""
     console.print()
     if is_spec_kit:
         console.print(f"[bold green][OK] Spec-kit project detected in {target_dir}.[/bold green]\n")
         if installed_kits:
-            # Detect which agents/shells have files
-            agent_dirs = {
-                "Claude Code": target_dir / ".claude" / "commands",
-                "GitHub Copilot": target_dir / ".github" / "prompts"
-            }
-
-            shell_dirs = {
-                "Bash": target_dir / ".specify" / "scripts" / "bash",
-                "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
-            }
-
-            # Build installation breakdown table
-            table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Installed Kits[/bold magenta]")
-            table.add_column("Kit", style="cyan")
-            table.add_column("Agents", style="green")
-            table.add_column("Scripts", style="blue")
-
-            for kit in installed_kits:
-                # Check which agents have this kit's files
-                agents_with_kit = []
-                for agent_name, agent_dir in agent_dirs.items():
-                    if agent_dir.exists() and any(agent_dir.glob("*.md")):
-                        # Check for at least one non-spec-kit file (not speckit.*)
-                        non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
-                        if non_speckit_files:
-                            agents_with_kit.append(agent_name)
-
-                # Check which shells have scripts
-                shells_with_kit = []
-                for shell_name, shell_dir in shell_dirs.items():
-                    if shell_dir.exists() and any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1")):
-                        shells_with_kit.append(shell_name)
-
-                # Format output
-                agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
-                shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
-
-                table.add_row(f"{kit}-kit", agents_display, shells_display)
-
+            table = _build_kit_breakdown_table(target_dir, installed_kits)
             console.print(table)
         else:
             console.print("No kits installed.", style="dim yellow")
@@ -140,6 +154,7 @@ def version_callback(value: bool):
     if value:
         console.print()
         print_version_info()
+        console.print()
         raise typer.Exit()
 
 @app.callback(invoke_without_command=True)
@@ -259,13 +274,17 @@ def add_kits(
         kits = [k.strip() for k in kit.split(',')]
     # else: kits=None will use default from manifest
 
+    # Parse comma-separated agents and shells
+    agents = [a.strip() for a in agent.split(',')] if agent else None
+    shells = [s.strip() for s in shell.split(',')] if shell else None
+
     try:
         installer = Installer(
             target_dir,
             kits=kits,
             force=force,
-            agent=agent,
-            shell=shell
+            agents=agents,
+            shells=shells
         )
     except ValueError as e:
         console.print()
@@ -332,8 +351,8 @@ def add_kits(
             target_dir,
             kits=kits,
             force=True,  # Skip conflict checks after user confirmed
-            agent=agent,
-            shell=shell
+            agents=agents,
+            shells=shells
         )
 
     # Install
@@ -906,17 +925,18 @@ def _display_removal_summary(result: dict, verbose: bool = False):
         console.print(f"\nRemoved {len(all_removed)} files")
 
 def _display_validation_results(validation_result: dict):
-    """Display validation results in a user-friendly format with agent/shell breakdown.
+    """Display validation results with per-kit status and breakdown table.
+
+    Shows validation-specific information (file checks, missing files, integrity issues)
+    followed by the agent/shell breakdown table for kits that passed validation.
 
     Args:
         validation_result: Dict with 'valid' (bool), 'checks' (dict of kit results), and 'target_dir' (Path)
     """
-    from rich.box import ROUNDED
-
     checks = validation_result.get("checks", {})
     target_dir = validation_result.get("target_dir", Path.cwd())
 
-    # First show per-kit validation status
+    # Show per-kit validation status with detailed issues
     for kit_name, result in checks.items():
         status = result.get("status", "unknown")
 
@@ -925,58 +945,23 @@ def _display_validation_results(validation_result: dict):
         elif status == "not_installed":
             console.print(f"[dim][-] {kit_name} (not installed)[/dim]")
         elif status == "partial":
-            console.print(f"[yellow][!] {kit_name} (partial - some files missing)[/yellow]")
+            console.print(f"[yellow][!] {kit_name} (partial - issues found)[/yellow]")
+            # Show detailed issues
             missing = result.get("missing_files", [])
+            corrupted = result.get("corrupted_files", [])
             if missing:
-                console.print(f"[dim]  Missing files: {', '.join(missing[:3])}" + (" ..." if len(missing) > 3 else "") + "[/dim]")
+                console.print(f"[dim]  Missing: {', '.join(missing[:3])}" + (" ..." if len(missing) > 3 else "") + "[/dim]")
+            if corrupted:
+                console.print(f"[dim]  Corrupted: {', '.join(corrupted[:3])}" + (" ..." if len(corrupted) > 3 else "") + "[/dim]")
         else:
             console.print(f"[red][X] {kit_name} ({status})[/red]")
 
-    # Show agent/shell breakdown table for installed kits
-    installed_kits = [kit_name for kit_name, result in checks.items() if result.get("status") == "installed"]
+    # Show agent/shell breakdown table for validated kits
+    validated_kits = [kit_name for kit_name, result in checks.items() if result.get("status") == "installed"]
 
-    if installed_kits:
+    if validated_kits:
         console.print()
-
-        # Detect which agents/shells have files
-        agent_dirs = {
-            "Claude Code": target_dir / ".claude" / "commands",
-            "GitHub Copilot": target_dir / ".github" / "prompts"
-        }
-
-        shell_dirs = {
-            "Bash": target_dir / ".specify" / "scripts" / "bash",
-            "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
-        }
-
-        # Build installation breakdown table
-        table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Validated Installation[/bold magenta]")
-        table.add_column("Kit", style="cyan")
-        table.add_column("Agents", style="green")
-        table.add_column("Scripts", style="blue")
-
-        for kit in installed_kits:
-            # Check which agents have this kit's files
-            agents_with_kit = []
-            for agent_name, agent_dir in agent_dirs.items():
-                if agent_dir.exists() and any(agent_dir.glob("*.md")):
-                    # Check for at least one non-spec-kit file (not speckit.*)
-                    non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
-                    if non_speckit_files:
-                        agents_with_kit.append(agent_name)
-
-            # Check which shells have scripts
-            shells_with_kit = []
-            for shell_name, shell_dir in shell_dirs.items():
-                if shell_dir.exists() and (any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1"))):
-                    shells_with_kit.append(shell_name)
-
-            # Format output
-            agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
-            shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
-
-            table.add_row(kit, agents_display, shells_display)
-
+        table = _build_kit_breakdown_table(target_dir, validated_kits)
         console.print(table)
 
 def _cleanup_empty_directories(target_dir: Path):

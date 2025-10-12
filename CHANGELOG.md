@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.3] - 2025-10-12
+
+**Patch Release: Comma-Separated Support & Output Consistency**
+
+Post-v0.3.2 bug fixes and UX improvements for command consistency.
+
+### Added
+
+**Comma-Separated Agent/Shell Support:**
+- Support for comma-separated values in `--agent` and `--shell` flags
+- Example: `lite-kits add --agent claude,copilot --shell ps,sh` now works correctly
+- Installer and Detector now handle lists of agents/shells instead of single values
+
+### Fixed
+
+**Early Validation:**
+- Agent/shell validation now happens during `Installer.__init__()` before any user prompts
+- Users see validation errors immediately, not after answering "Reinstall anyway?"
+- Better fail-fast UX with clear error messages
+
+**Output Consistency:**
+- Fixed kit naming inconsistency between `status` and `validate` commands
+  - Both now show "dev", "multiagent" (not "dev-kit" or mixed formats)
+- Fixed column naming inconsistency
+  - Both now use "Shells" column (not "Scripts" in status and "Shells" in validate)
+- Validate command now shows validation-specific issues (missing/corrupted files)
+
+### Changed
+
+**Code Quality:**
+- Created `_build_kit_breakdown_table()` shared helper function (DRY principle)
+- Reduced code duplication by ~80 lines
+- Made `status` and `validate` semantically distinct:
+  - `status`: Quick overview of installed kits
+  - `validate`: File integrity checks with detailed issue reporting
+- Updated Installer to accept `agents` and `shells` lists (plural parameters)
+- Updated Detector methods to handle list of preferred agents/shells
+
+---
+
 ## [0.3.2] - 2025-10-12
 
 **Patch Release: Usability & Validation Improvements**
