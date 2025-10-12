@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.2] - 2025-10-12
+
+**Patch Release: Usability & Validation Improvements**
+
+Bug fixes and UX improvements discovered during v0.3.1 testing and usage.
+
+### Added
+
+**Shell Aliases:**
+- Added common shell shortcuts: `ps`/`pwsh` → `powershell`, `sh` → `bash`
+- Example: `lite-kits add --shell ps` now works
+
+**Better Error Messages:**
+- Agent/shell errors now show valid options and aliases
+- Example: `Unknown shell: 'cmd'` → shows "Valid options: bash, powershell" + aliases
+
+### Fixed
+
+**Validation Logic:**
+- Agent-specific validation now only checks files for agents that have kit files installed
+- Fixed false negatives when dev-kit installed for Copilot but not Claude
+- Example: Having `.claude/` (spec-kit only) + `.github/prompts/` (spec-kit + dev-kit) now validates correctly
+
+**CLI UX:**
+- Removed extra trailing newlines from `--version` output (cleaner display)
+- Preview header only shows after validation passes (not before error messages)
+
+### Changed
+
+**Code Quality:**
+- Moved preview header display into `_display_changes` for DRY (single source of truth)
+- Improved error handling for invalid agent/shell values
+
+---
+
 ## [0.3.1] - 2025-10-11
 
 **Patch Release: Post-Release Cleanup & Workflow Protection**
