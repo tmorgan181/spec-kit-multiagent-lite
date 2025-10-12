@@ -906,13 +906,17 @@ def _display_removal_summary(result: dict, verbose: bool = False):
         console.print(f"\nRemoved {len(all_removed)} files")
 
 def _display_validation_results(validation_result: dict):
-    """Display validation results in a user-friendly format.
+    """Display validation results in a user-friendly format with agent/shell breakdown.
 
     Args:
-        validation_result: Dict with 'valid' (bool) and 'checks' (dict of kit results)
+        validation_result: Dict with 'valid' (bool), 'checks' (dict of kit results), and 'target_dir' (Path)
     """
-    checks = validation_result.get("checks", {})
+    from rich.box import ROUNDED
 
+    checks = validation_result.get("checks", {})
+    target_dir = validation_result.get("target_dir", Path.cwd())
+
+    # First show per-kit validation status
     for kit_name, result in checks.items():
         status = result.get("status", "unknown")
 
@@ -927,6 +931,53 @@ def _display_validation_results(validation_result: dict):
                 console.print(f"[dim]  Missing files: {', '.join(missing[:3])}" + (" ..." if len(missing) > 3 else "") + "[/dim]")
         else:
             console.print(f"[red][X] {kit_name} ({status})[/red]")
+
+    # Show agent/shell breakdown table for installed kits
+    installed_kits = [kit_name for kit_name, result in checks.items() if result.get("status") == "installed"]
+
+    if installed_kits:
+        console.print()
+
+        # Detect which agents/shells have files
+        agent_dirs = {
+            "Claude Code": target_dir / ".claude" / "commands",
+            "GitHub Copilot": target_dir / ".github" / "prompts"
+        }
+
+        shell_dirs = {
+            "Bash": target_dir / ".specify" / "scripts" / "bash",
+            "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
+        }
+
+        # Build installation breakdown table
+        table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Validated Installation[/bold magenta]")
+        table.add_column("Kit", style="cyan")
+        table.add_column("Agents", style="green")
+        table.add_column("Scripts", style="blue")
+
+        for kit in installed_kits:
+            # Check which agents have this kit's files
+            agents_with_kit = []
+            for agent_name, agent_dir in agent_dirs.items():
+                if agent_dir.exists() and any(agent_dir.glob("*.md")):
+                    # Check for at least one non-spec-kit file (not speckit.*)
+                    non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
+                    if non_speckit_files:
+                        agents_with_kit.append(agent_name)
+
+            # Check which shells have scripts
+            shells_with_kit = []
+            for shell_name, shell_dir in shell_dirs.items():
+                if shell_dir.exists() and (any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1"))):
+                    shells_with_kit.append(shell_name)
+
+            # Format output
+            agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
+            shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
+
+            table.add_row(kit, agents_display, shells_display)
+
+        console.print(table)
 
 def _cleanup_empty_directories(target_dir: Path):
     """Clean up empty directories created by lite-kits."""

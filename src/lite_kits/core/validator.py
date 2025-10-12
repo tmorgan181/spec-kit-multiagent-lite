@@ -48,6 +48,7 @@ class Validator:
         return {
             "valid": any_installed,
             "checks": checks,
+            "target_dir": self.target_dir,
         }
 
     def validate_kit(self, kit_name: str, options: Dict) -> Dict:
