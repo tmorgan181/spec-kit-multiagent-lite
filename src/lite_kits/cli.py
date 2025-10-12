@@ -203,6 +203,7 @@ def main(
     if banner:
         try:
             diagonal_reveal_banner()
+            console.print()
         except UnicodeEncodeError:
             # Windows console doesn't support Unicode box characters
             console.print("[bold cyan]LITE-KITS[/bold cyan]")
@@ -216,7 +217,7 @@ def main(
         except UnicodeEncodeError:
             # Windows console doesn't support Unicode box characters
             console.print("[bold cyan]LITE-KITS[/bold cyan]")
-            console.print("[dim]Lightweight enhancement kits for spec-driven development[/dim]\n")
+            console.print("[dim]Lightweight enhancement kits for spec-driven development[/dim]")
         print_help_hint()
         print_quick_start()
 
