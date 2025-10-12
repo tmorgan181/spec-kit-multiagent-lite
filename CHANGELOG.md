@@ -23,6 +23,11 @@ Bug fixes and UX improvements discovered during v0.3.1 testing and usage.
 - Agent/shell errors now show valid options and aliases
 - Example: `Unknown shell: 'cmd'` → shows "Valid options: bash, powershell" + aliases
 
+**Agent/Shell Breakdown Tables:**
+- Added breakdown tables to `status` command showing which agents/shells have files installed
+- Added breakdown tables to `validate` command showing validated installation per agent/shell
+- Example: Shows "dev-kit | GitHub Copilot | none" when only Copilot prompts are installed
+
 ### Fixed
 
 **Validation Logic:**
@@ -33,15 +38,16 @@ Bug fixes and UX improvements discovered during v0.3.1 testing and usage.
 **CLI UX:**
 - Removed extra trailing newlines from `--version` output (cleaner display)
 - Preview header only shows after validation passes (not before error messages)
+- Fixed Unicode encoding issues (replaced → with -> in error messages)
 
 ### Changed
 
 **Code Quality:**
 - Moved preview header display into `_display_changes` for DRY (single source of truth)
 - Improved error handling for invalid agent/shell values
+- Validator now passes `target_dir` in validation results for display function
 
 ---
-
 ## [0.3.1] - 2025-10-11
 
 **Patch Release: Post-Release Cleanup & Workflow Protection**
