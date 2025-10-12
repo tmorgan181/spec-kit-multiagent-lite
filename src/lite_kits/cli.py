@@ -51,7 +51,7 @@ def print_help_hint():
 def print_version_info():
     """Print version information."""
     console.print(f"[bold]Version:[/bold]")
-    console.print(f"  [bold cyan]{APP_NAME} version {__version__}[/bold cyan]\n")
+    console.print(f"  [bold cyan]{APP_NAME} version {__version__}[/bold cyan]")
 
 def print_quick_start():
     console.print("[bold]Quick Start:[/bold]")
@@ -101,7 +101,6 @@ def version_callback(value: bool):
     if value:
         console.print()
         print_version_info()
-        console.print()
         raise typer.Exit()
 
 @app.callback(invoke_without_command=True)
