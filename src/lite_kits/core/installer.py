@@ -54,9 +54,15 @@ class Installer:
         # Operational modes
         self.force = force
 
-        # Preferences
+        # Preferences - validate immediately during init
         self.preferred_agents = agents
         self.preferred_shells = shells
+
+        # Validate agent/shell preferences early (raises ValueError if invalid)
+        if agents:
+            self.detector.detect_agents(agents)
+        if shells:
+            self.detector.detect_shells(shells)
 
         # Kits to install
         self.kits = kits or [self.manifest.get_default_kit()]
