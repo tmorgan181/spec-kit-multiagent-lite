@@ -21,12 +21,14 @@ It's an **add-on**, not a fork—your vanilla spec-kit stays vanilla, and you be
 ### 1. Install lite-kits
 
 ```bash
-# Recommended: Install with uv
+# Recommended: Install as a CLI tool with uv
 uv tool install lite-kits
 
-# Or with pip
-pip install lite-kits
+# Alternative: pipx (if you prefer pipx)
+pipx install lite-kits
 ```
+
+> **Note**: Use `uv tool install` or `pipx install` to install lite-kits as a CLI tool. These methods ensure the `lite-kits` command is available in your PATH. Regular `pip install lite-kits` installs the package but may not add the CLI to your PATH on all systems.
 
 ### 2. Add kits to your spec-kit project
 
@@ -108,10 +110,10 @@ npm install -g @github/spec-kit
 specify init my-project
 cd my-project
 
-# 3. Install lite-kits
-uv tool install lite-kits     # Recommended: with uv
+# 3. Install lite-kits as a CLI tool
+uv tool install lite-kits     # Recommended
 # OR
-pip install lite-kits          # Alternative: with pip
+pipx install lite-kits        # Alternative
 
 # 4. Add enhancement kits to your project
 lite-kits add    # Adds dev-kit (all commands)
@@ -123,10 +125,11 @@ lite-kits add    # Adds dev-kit (all commands)
 
 ### Alternative Install Methods
 
-**With pip:**
+**With pip** (not recommended for CLI usage):
 ```bash
 pip install lite-kits
 ```
+> ⚠️ **Warning**: `pip install` installs the package but may not add the `lite-kits` command to your PATH on Windows. Use `uv tool install` or `pipx install` instead for CLI tools.
 
 **From source:**
 ```bash
