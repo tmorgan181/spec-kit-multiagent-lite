@@ -124,7 +124,8 @@ def diagonal_reveal_banner(text=BANNER, steps_override=None, fps=56):
     except KeyboardInterrupt:
         pass
 
-    # No need to print again - the last frame stays visible
+    # Brief pause to let the banner settle before moving cursor
+    time.sleep(0.15)
     typewriter_effect()
 
 def show_static_banner():
