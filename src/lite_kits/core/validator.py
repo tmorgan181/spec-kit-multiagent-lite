@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict
 
 from .manifest import KitManifest
+from .detector import Detector
 
 
 class Validator:
@@ -23,6 +24,7 @@ class Validator:
         """
         self.target_dir = target_dir
         self.manifest = manifest
+        self.detector = Detector(target_dir, manifest)
 
     def validate_all(self) -> Dict:
         """
@@ -46,6 +48,7 @@ class Validator:
         return {
             "valid": any_installed,
             "checks": checks,
+            "target_dir": self.target_dir,
         }
 
     def validate_kit(self, kit_name: str, options: Dict) -> Dict:
@@ -75,14 +78,48 @@ class Validator:
                 "message": f"{kit_info['name']}: not installed",
             }
 
-        # Kit is installed, validate files
+        # Detect which agents are actually present in the project
+        detected_agents = self.detector.detect_agents()
+        detected_shells = self.detector.detect_shells()
+
+        # Kit is installed, validate only files for detected agents/shells that actually have kit files
+        files_to_validate = []
+
+        # Add agent-specific files (commands/prompts) - only if at least one kit file exists for that agent
+        for agent in detected_agents:
+            agent_files = self.manifest.get_kit_files(kit_name, agent=agent)
+            # Check if any of this kit's files exist for this agent
+            has_kit_files = any(
+                (self.target_dir / f['path']).exists()
+                for f in agent_files
+                if f.get('status') != 'planned'
+            )
+            if has_kit_files:
+                files_to_validate.extend(agent_files)
+
+        # Add shell-specific files (scripts) - only if at least one kit file exists for that shell
+        for shell in detected_shells:
+            shell_files = self.manifest.get_kit_files(kit_name, agent=shell)
+            has_kit_files = any(
+                (self.target_dir / f['path']).exists()
+                for f in shell_files
+                if f.get('status') != 'planned'
+            )
+            if has_kit_files:
+                files_to_validate.extend(shell_files)
+
+        # Add agent/shell-agnostic files (memory, templates, etc.)
         all_files = self.manifest.get_kit_files(kit_name, agent=None)
+        for file_info in all_files:
+            # Only add files that aren't agent/shell-specific
+            if file_info.get('type') not in ['command', 'prompt', 'script']:
+                files_to_validate.append(file_info)
 
         missing = []
         corrupted = []
         outdated = []
 
-        for file_info in all_files:
+        for file_info in files_to_validate:
             # Skip non-required files
             if not file_info.get('required', True):
                 continue

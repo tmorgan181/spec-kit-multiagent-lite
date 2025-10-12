@@ -38,7 +38,17 @@ class Detector:
         if preferred:
             config = self.manifest.get_agent_config(preferred)
             if not config:
-                raise ValueError(f"Unknown agent: {preferred}")
+                # Build helpful error message with valid options
+                agents = self.manifest.manifest.get('agents', {})
+                valid_agents = [
+                    name for name, cfg in agents.items()
+                    if cfg.get('supported', False)
+                ]
+                valid_list = ', '.join(valid_agents)
+                raise ValueError(
+                    f"Unknown agent: '{preferred}'\n"
+                    f"Valid options: {valid_list}"
+                )
             if not config.get('supported', False):
                 raise ValueError(f"Agent not supported: {preferred}")
             return [preferred]
@@ -75,14 +85,35 @@ class Detector:
         Returns:
             List of shell names
         """
+        # Shell aliases for common shorthands
+        shell_aliases = {
+            'ps': 'powershell',
+            'pwsh': 'powershell',
+            'sh': 'bash',
+        }
+
         # If explicit preference, validate and return
         if preferred:
-            config = self.manifest.manifest.get('shells', {}).get(preferred)
+            # Normalize shell name using aliases
+            normalized = shell_aliases.get(preferred.lower(), preferred.lower())
+
+            config = self.manifest.manifest.get('shells', {}).get(normalized)
             if not config:
-                raise ValueError(f"Unknown shell: {preferred}")
+                # Build helpful error message with valid options
+                shells_config = self.manifest.manifest.get('shells', {})
+                valid_shells = [
+                    name for name, cfg in shells_config.items()
+                    if cfg.get('supported', False)
+                ]
+                valid_list = ', '.join(valid_shells)
+                raise ValueError(
+                    f"Unknown shell: '{preferred}'\n"
+                    f"Valid options: {valid_list}\n"
+                    f"Aliases: ps/pwsh->powershell, sh->bash"
+                )
             if not config.get('supported', False):
-                raise ValueError(f"Shell not supported: {preferred}")
-            return [preferred]
+                raise ValueError(f"Shell not supported: {normalized}")
+            return [normalized]
 
         # Check if shell detection is enabled
         options = self.manifest.manifest.get('options', {})
