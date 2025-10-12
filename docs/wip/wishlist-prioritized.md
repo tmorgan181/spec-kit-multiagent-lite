@@ -111,6 +111,28 @@
 - Plugin marketplace integration
 
 **UX Improvements**:
+- **Combine status and validate commands** 🔥 - Consolidate similar functionality
+  - **Problem**: `status` and `validate` do very similar things (show kit breakdown)
+  - **Current situation**:
+    - `status` - Quick overview of installed kits with agent/shell breakdown
+    - `validate` - File integrity checks + agent/shell breakdown
+    - Both use shared `_build_kit_breakdown_table()` helper
+    - Output format is nearly identical (only difference is validation issues shown)
+  - **Proposed solution**: Single `status` command with optional validation flag
+  - **Implementation options**:
+    - Option A: `lite-kits status` (quick overview) vs `lite-kits status -v` (full validation)
+    - Option B: `lite-kits status --validate` (explicit validation flag)
+    - Option C: Keep both but alias `validate` to `status --validate`
+  - **Pros**:
+    - Fewer commands to learn (simpler API)
+    - DRY - already share most of the display logic
+    - More intuitive: "check status" naturally includes validation
+    - Reduces confusion about which command to use
+  - **Cons**:
+    - `-v` already used for verbose output (conflict)
+    - Validation might slow down quick status checks
+    - May want separate commands for semantic clarity
+  - **Recommendation**: Keep separate for now, revisit in v0.5 if user feedback suggests confusion
 - **Preview table color semantics** 🔥 - Properly distinguish +/~/- operations
   - **Problem**: Preview tables show `~N` for everything, mixing "new" and "modified" counts
   - **Current pain**:
