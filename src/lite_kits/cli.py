@@ -199,19 +199,25 @@ def main(
     # Store banner flag in context for commands to use
     ctx.obj = {"show_banner": banner}
 
-    # Show banner if requested
+    # Show banner if requested (and exit, don't show quickstart)
     if banner:
         try:
             diagonal_reveal_banner()
+            console.print()
         except UnicodeEncodeError:
             # Windows console doesn't support Unicode box characters
             console.print("[bold cyan]LITE-KITS[/bold cyan]")
             console.print("[dim]Lightweight enhancement kits for spec-driven development[/dim]\n")
+        raise typer.Exit(0)
 
     # Show banner + hint and quick-start when no command is given
     if ctx.invoked_subcommand is None:
-        if not banner:  # Only show static banner if animated not already shown
+        try:
             show_static_banner()
+        except UnicodeEncodeError:
+            # Windows console doesn't support Unicode box characters
+            console.print("[bold cyan]LITE-KITS[/bold cyan]")
+            console.print("[dim]Lightweight enhancement kits for spec-driven development[/dim]")
         print_help_hint()
         print_quick_start()
 
