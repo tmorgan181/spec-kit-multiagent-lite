@@ -105,9 +105,9 @@ def diagonal_reveal_banner(text=BANNER, steps_override=None, fps=56):
         char_matrix.append(row)
         diag_indices.append(diag_row)
 
-    # Reveal animation
+    # Reveal animation (transient=False keeps the last frame visible)
     try:
-        with Live(console=console, refresh_per_second=fps, transient=True) as live:
+        with Live(console=console, refresh_per_second=fps, transient=False) as live:
             for reveal_diag in range(steps + 1):
                 result = Text()
                 for line_idx, row in enumerate(char_matrix):
@@ -124,15 +124,7 @@ def diagonal_reveal_banner(text=BANNER, steps_override=None, fps=56):
     except KeyboardInterrupt:
         pass
 
-    # Show final static gradient
-    result = Text()
-    for line_idx, row in enumerate(char_matrix):
-        for char_idx, char in enumerate(row):
-            diag_idx = diag_indices[line_idx][char_idx]
-            color = gradient[min(diag_idx, len(gradient)-1)]
-            result.append(char, style=f"bold {color}")
-        result.append('\n')
-    console.print(result)
+    # No need to print again - the last frame stays visible
     typewriter_effect()
 
 def show_static_banner():
