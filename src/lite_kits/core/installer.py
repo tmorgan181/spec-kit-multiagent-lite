@@ -23,8 +23,8 @@ class Installer:
         target_dir: Path,
         kits: Optional[List[str]] = None,
         force: bool = False,
-        agent: Optional[str] = None,
-        shell: Optional[str] = None,
+        agents: Optional[List[str]] = None,
+        shells: Optional[List[str]] = None,
     ):
         """
         Initialize installer.
@@ -33,8 +33,8 @@ class Installer:
             target_dir: Target spec-kit project directory
             kits: List of kits to install (None = use default from manifest)
             force: Skip confirmations and overwrite existing files
-            agent: Explicit agent preference (None = auto-detect)
-            shell: Explicit shell preference (None = auto-detect)
+            agents: List of explicit agent preferences (None = auto-detect)
+            shells: List of explicit shell preferences (None = auto-detect)
         """
         self.target_dir = Path(target_dir).resolve()
         self.kits_dir = Path(__file__).parent.parent / "kits"
@@ -55,8 +55,8 @@ class Installer:
         self.force = force
 
         # Preferences
-        self.preferred_agent = agent
-        self.preferred_shell = shell
+        self.preferred_agents = agents
+        self.preferred_shells = shells
 
         # Kits to install
         self.kits = kits or [self.manifest.get_default_kit()]
@@ -82,8 +82,8 @@ class Installer:
 
     def preview_installation(self) -> Dict:
         """Preview installation without making changes."""
-        agents = self.detector.detect_agents(self.preferred_agent)
-        shells = self.detector.detect_shells(self.preferred_shell)
+        agents = self.detector.detect_agents(self.preferred_agents)
+        shells = self.detector.detect_shells(self.preferred_shells)
 
         preview = {
             "kits": [],
@@ -169,8 +169,8 @@ class Installer:
         }
 
         try:
-            agents = self.detector.detect_agents(self.preferred_agent)
-            shells = self.detector.detect_shells(self.preferred_shell)
+            agents = self.detector.detect_agents(self.preferred_agents)
+            shells = self.detector.detect_shells(self.preferred_shells)
 
             if not agents:
                 supported = [

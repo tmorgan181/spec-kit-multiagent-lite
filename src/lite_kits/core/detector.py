@@ -24,34 +24,37 @@ class Detector:
         self.target_dir = target_dir
         self.manifest = manifest
 
-    def detect_agents(self, preferred: Optional[str] = None) -> List[str]:
+    def detect_agents(self, preferred: Optional[List[str]] = None) -> List[str]:
         """
         Auto-detect which AI agents are present.
 
         Args:
-            preferred: Explicit agent preference (overrides auto-detection)
+            preferred: List of explicit agent preferences (overrides auto-detection)
 
         Returns:
             List of agent names sorted by priority
         """
-        # If explicit preference, validate and return
+        # If explicit preferences, validate and return
         if preferred:
-            config = self.manifest.get_agent_config(preferred)
-            if not config:
-                # Build helpful error message with valid options
-                agents = self.manifest.manifest.get('agents', {})
-                valid_agents = [
-                    name for name, cfg in agents.items()
-                    if cfg.get('supported', False)
-                ]
-                valid_list = ', '.join(valid_agents)
-                raise ValueError(
-                    f"Unknown agent: '{preferred}'\n"
-                    f"Valid options: {valid_list}"
-                )
-            if not config.get('supported', False):
-                raise ValueError(f"Agent not supported: {preferred}")
-            return [preferred]
+            validated = []
+            for agent_name in preferred:
+                config = self.manifest.get_agent_config(agent_name)
+                if not config:
+                    # Build helpful error message with valid options
+                    agents = self.manifest.manifest.get('agents', {})
+                    valid_agents = [
+                        name for name, cfg in agents.items()
+                        if cfg.get('supported', False)
+                    ]
+                    valid_list = ', '.join(valid_agents)
+                    raise ValueError(
+                        f"Unknown agent: '{agent_name}'\n"
+                        f"Valid options: {valid_list}"
+                    )
+                if not config.get('supported', False):
+                    raise ValueError(f"Agent not supported: {agent_name}")
+                validated.append(agent_name)
+            return validated
 
         # Auto-detect from manifest
         detected = []
@@ -75,12 +78,12 @@ class Detector:
         detected.sort(key=lambda x: x['priority'])
         return [agent['name'] for agent in detected]
 
-    def detect_shells(self, preferred: Optional[str] = None) -> List[str]:
+    def detect_shells(self, preferred: Optional[List[str]] = None) -> List[str]:
         """
         Determine which shells to install for.
 
         Args:
-            preferred: Explicit shell preference (overrides auto-detection)
+            preferred: List of explicit shell preferences (overrides auto-detection)
 
         Returns:
             List of shell names
@@ -92,28 +95,31 @@ class Detector:
             'sh': 'bash',
         }
 
-        # If explicit preference, validate and return
+        # If explicit preferences, validate and return
         if preferred:
-            # Normalize shell name using aliases
-            normalized = shell_aliases.get(preferred.lower(), preferred.lower())
+            validated = []
+            for shell_name in preferred:
+                # Normalize shell name using aliases
+                normalized = shell_aliases.get(shell_name.lower(), shell_name.lower())
 
-            config = self.manifest.manifest.get('shells', {}).get(normalized)
-            if not config:
-                # Build helpful error message with valid options
-                shells_config = self.manifest.manifest.get('shells', {})
-                valid_shells = [
-                    name for name, cfg in shells_config.items()
-                    if cfg.get('supported', False)
-                ]
-                valid_list = ', '.join(valid_shells)
-                raise ValueError(
-                    f"Unknown shell: '{preferred}'\n"
-                    f"Valid options: {valid_list}\n"
-                    f"Aliases: ps/pwsh->powershell, sh->bash"
-                )
-            if not config.get('supported', False):
-                raise ValueError(f"Shell not supported: {normalized}")
-            return [normalized]
+                config = self.manifest.manifest.get('shells', {}).get(normalized)
+                if not config:
+                    # Build helpful error message with valid options
+                    shells_config = self.manifest.manifest.get('shells', {})
+                    valid_shells = [
+                        name for name, cfg in shells_config.items()
+                        if cfg.get('supported', False)
+                    ]
+                    valid_list = ', '.join(valid_shells)
+                    raise ValueError(
+                        f"Unknown shell: '{shell_name}'\n"
+                        f"Valid options: {valid_list}\n"
+                        f"Aliases: ps/pwsh->powershell, sh->bash"
+                    )
+                if not config.get('supported', False):
+                    raise ValueError(f"Shell not supported: {normalized}")
+                validated.append(normalized)
+            return validated
 
         # Check if shell detection is enabled
         options = self.manifest.manifest.get('options', {})

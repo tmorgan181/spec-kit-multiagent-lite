@@ -259,13 +259,17 @@ def add_kits(
         kits = [k.strip() for k in kit.split(',')]
     # else: kits=None will use default from manifest
 
+    # Parse comma-separated agents and shells
+    agents = [a.strip() for a in agent.split(',')] if agent else None
+    shells = [s.strip() for s in shell.split(',')] if shell else None
+
     try:
         installer = Installer(
             target_dir,
             kits=kits,
             force=force,
-            agent=agent,
-            shell=shell
+            agents=agents,
+            shells=shells
         )
     except ValueError as e:
         console.print()
@@ -332,8 +336,8 @@ def add_kits(
             target_dir,
             kits=kits,
             force=True,  # Skip conflict checks after user confirmed
-            agent=agent,
-            shell=shell
+            agents=agents,
+            shells=shells
         )
 
     # Install
@@ -953,7 +957,7 @@ def _display_validation_results(validation_result: dict):
         table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Validated Installation[/bold magenta]")
         table.add_column("Kit", style="cyan")
         table.add_column("Agents", style="green")
-        table.add_column("Scripts", style="blue")
+        table.add_column("Shells", style="white")
 
         for kit in installed_kits:
             # Check which agents have this kit's files
