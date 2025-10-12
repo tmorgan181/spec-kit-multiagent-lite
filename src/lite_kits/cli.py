@@ -51,7 +51,7 @@ def print_help_hint():
 def print_version_info():
     """Print version information."""
     console.print(f"[bold]Version:[/bold]")
-    console.print(f"  [bold cyan]{APP_NAME} version {__version__}[/bold cyan]\n")
+    console.print(f"  [bold cyan]{APP_NAME} version {__version__}[/bold cyan]")
 
 def print_quick_start():
     console.print("[bold]Quick Start:[/bold]")
@@ -81,14 +81,53 @@ def print_spec_kit_error():
     console.print()
 
 def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
-    """Print kit installation info."""
+    """Print kit installation info with agent/shell breakdown."""
+    from rich.box import ROUNDED
+
     console.print()
     if is_spec_kit:
         console.print(f"[bold green][OK] Spec-kit project detected in {target_dir}.[/bold green]\n")
         if installed_kits:
-            console.print("Installed kits:", style="bold")
+            # Detect which agents/shells have files
+            agent_dirs = {
+                "Claude Code": target_dir / ".claude" / "commands",
+                "GitHub Copilot": target_dir / ".github" / "prompts"
+            }
+
+            shell_dirs = {
+                "Bash": target_dir / ".specify" / "scripts" / "bash",
+                "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
+            }
+
+            # Build installation breakdown table
+            table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Installed Kits[/bold magenta]")
+            table.add_column("Kit", style="cyan")
+            table.add_column("Agents", style="green")
+            table.add_column("Scripts", style="blue")
+
             for kit in installed_kits:
-                console.print(f"  [green]+[/green] {kit}-kit")
+                # Check which agents have this kit's files
+                agents_with_kit = []
+                for agent_name, agent_dir in agent_dirs.items():
+                    if agent_dir.exists() and any(agent_dir.glob("*.md")):
+                        # Check for at least one non-spec-kit file (not speckit.*)
+                        non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
+                        if non_speckit_files:
+                            agents_with_kit.append(agent_name)
+
+                # Check which shells have scripts
+                shells_with_kit = []
+                for shell_name, shell_dir in shell_dirs.items():
+                    if shell_dir.exists() and any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1")):
+                        shells_with_kit.append(shell_name)
+
+                # Format output
+                agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
+                shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
+
+                table.add_row(f"{kit}-kit", agents_display, shells_display)
+
+            console.print(table)
         else:
             console.print("No kits installed.", style="dim yellow")
     else:
@@ -101,7 +140,6 @@ def version_callback(value: bool):
     if value:
         console.print()
         print_version_info()
-        console.print()
         raise typer.Exit()
 
 @app.callback(invoke_without_command=True)
@@ -259,10 +297,16 @@ def add_kits(
 
     # Always show preview unless --force flag was used
     if not skip_preview:
-        console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
-        preview = installer.preview_installation()
+        try:
+            preview = installer.preview_installation()
+        except ValueError as e:
+            console.print()
+            console.print(f"[red]Error:[/red] {e}", style="bold")
+            console.print()
+            raise typer.Exit(1)
+
         normalized_preview = _normalize_preview_for_display(preview, operation="install")
-        _display_changes(normalized_preview, verbose=verbose)
+        _display_changes(normalized_preview, target_dir, verbose=verbose)
 
         # Show warnings/conflicts
         if preview.get("warnings"):
@@ -385,7 +429,6 @@ def remove(
     # Show preview and confirmation unless --force is used
     if not force:
         # Show preview of files to be removed
-        console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
         preview = installer.preview_removal()
 
         if preview["total_files"] == 0:
@@ -395,7 +438,7 @@ def remove(
 
         # Normalize removal preview to standard format for DRY display
         normalized_preview = _normalize_preview_for_display(preview, operation="remove")
-        _display_changes(normalized_preview, verbose=verbose)
+        _display_changes(normalized_preview, target_dir, verbose=verbose)
 
         # Confirm removal
         if not typer.confirm("Continue with removal?"):
@@ -543,14 +586,18 @@ def _normalize_preview_for_display(preview: dict, operation: str = "install") ->
     else:
         raise ValueError(f"Unknown operation: {operation}")
 
-def _display_changes(changes: dict, verbose: bool = False):
+def _display_changes(changes: dict, target_dir: Path, verbose: bool = False):
     """Display preview of changes.
 
     Args:
         changes: Normalized preview dict with file/directory changes
+        target_dir: Target directory being modified
         verbose: If True, show detailed file listings; if False, show only tables
     """
     from collections import defaultdict
+
+    # Show preview header
+    console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
 
     # Collect stats for each kit
     kit_stats = {}
@@ -859,13 +906,17 @@ def _display_removal_summary(result: dict, verbose: bool = False):
         console.print(f"\nRemoved {len(all_removed)} files")
 
 def _display_validation_results(validation_result: dict):
-    """Display validation results in a user-friendly format.
+    """Display validation results in a user-friendly format with agent/shell breakdown.
 
     Args:
-        validation_result: Dict with 'valid' (bool) and 'checks' (dict of kit results)
+        validation_result: Dict with 'valid' (bool), 'checks' (dict of kit results), and 'target_dir' (Path)
     """
-    checks = validation_result.get("checks", {})
+    from rich.box import ROUNDED
 
+    checks = validation_result.get("checks", {})
+    target_dir = validation_result.get("target_dir", Path.cwd())
+
+    # First show per-kit validation status
     for kit_name, result in checks.items():
         status = result.get("status", "unknown")
 
@@ -880,6 +931,53 @@ def _display_validation_results(validation_result: dict):
                 console.print(f"[dim]  Missing files: {', '.join(missing[:3])}" + (" ..." if len(missing) > 3 else "") + "[/dim]")
         else:
             console.print(f"[red][X] {kit_name} ({status})[/red]")
+
+    # Show agent/shell breakdown table for installed kits
+    installed_kits = [kit_name for kit_name, result in checks.items() if result.get("status") == "installed"]
+
+    if installed_kits:
+        console.print()
+
+        # Detect which agents/shells have files
+        agent_dirs = {
+            "Claude Code": target_dir / ".claude" / "commands",
+            "GitHub Copilot": target_dir / ".github" / "prompts"
+        }
+
+        shell_dirs = {
+            "Bash": target_dir / ".specify" / "scripts" / "bash",
+            "PowerShell": target_dir / ".specify" / "scripts" / "powershell"
+        }
+
+        # Build installation breakdown table
+        table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title="[bold magenta]Validated Installation[/bold magenta]")
+        table.add_column("Kit", style="cyan")
+        table.add_column("Agents", style="green")
+        table.add_column("Scripts", style="blue")
+
+        for kit in installed_kits:
+            # Check which agents have this kit's files
+            agents_with_kit = []
+            for agent_name, agent_dir in agent_dirs.items():
+                if agent_dir.exists() and any(agent_dir.glob("*.md")):
+                    # Check for at least one non-spec-kit file (not speckit.*)
+                    non_speckit_files = [f for f in agent_dir.glob("*.md") if not f.stem.startswith("speckit.")]
+                    if non_speckit_files:
+                        agents_with_kit.append(agent_name)
+
+            # Check which shells have scripts
+            shells_with_kit = []
+            for shell_name, shell_dir in shell_dirs.items():
+                if shell_dir.exists() and (any(shell_dir.glob("*.sh")) or any(shell_dir.glob("*.ps1"))):
+                    shells_with_kit.append(shell_name)
+
+            # Format output
+            agents_display = ", ".join(agents_with_kit) if agents_with_kit else "[dim]none[/dim]"
+            shells_display = ", ".join(shells_with_kit) if shells_with_kit else "[dim]none[/dim]"
+
+            table.add_row(kit, agents_display, shells_display)
+
+        console.print(table)
 
 def _cleanup_empty_directories(target_dir: Path):
     """Clean up empty directories created by lite-kits."""
