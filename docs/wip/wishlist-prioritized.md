@@ -110,6 +110,27 @@
 - Session checkpointing and history navigation
 - Plugin marketplace integration
 
+**UX Improvements**:
+- **Preview table color semantics** 🔥 - Properly distinguish +/~/- operations
+  - **Problem**: Preview tables show `~N` for everything, mixing "new" and "modified" counts
+  - **Current pain**:
+    - Agent Breakdown shows `~7` for both new Copilot files and modified Claude files
+    - No visual distinction between adding, modifying, or removing files
+    - Colors don't match the verbose output which properly uses `+` (green), `~` (yellow), `-` (red)
+  - **Solution**: Refactor stats collection to track new/modified/removed separately
+  - **Challenges** (attempted in v0.3.2):
+    - Stats structure currently combines all operations: `stats["commands"] = 14` (7 new + 7 modified)
+    - Need nested structure: `stats = {"new": {...}, "modified": {...}, "removed": {...}}`
+    - Requires updating ALL table building code (Agent Breakdown, Kit Contents, File Totals)
+    - Requires updating verbose output summary calculations
+    - Large refactor touching ~200 lines across multiple functions
+  - **Benefits**:
+    - `+7` (green) for new files, `~7` (yellow) for modified, `-5` (red) for removed
+    - Can show combined: `+5 ~2` when both operations occur
+    - Matches verbose output format
+    - Much clearer what's actually happening
+  - **Deferred to**: v0.4 (needs dedicated session)
+
 **Code Quality & DRY Improvements**:
 - **Refactor manifest for DRY between agents/kits** 🔥🔥 - Reduce duplication in kits.yaml
   - **Problem**: Manifest has significant duplication between agent configs and kit file definitions
