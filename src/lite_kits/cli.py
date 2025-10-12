@@ -258,7 +258,6 @@ def add_kits(
 
     # Always show preview unless --force flag was used
     if not skip_preview:
-        console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
         try:
             preview = installer.preview_installation()
         except ValueError as e:
@@ -266,8 +265,9 @@ def add_kits(
             console.print(f"[red]Error:[/red] {e}", style="bold")
             console.print()
             raise typer.Exit(1)
+
         normalized_preview = _normalize_preview_for_display(preview, operation="install")
-        _display_changes(normalized_preview, verbose=verbose)
+        _display_changes(normalized_preview, target_dir, verbose=verbose)
 
         # Show warnings/conflicts
         if preview.get("warnings"):
@@ -390,7 +390,6 @@ def remove(
     # Show preview and confirmation unless --force is used
     if not force:
         # Show preview of files to be removed
-        console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
         preview = installer.preview_removal()
 
         if preview["total_files"] == 0:
@@ -400,7 +399,7 @@ def remove(
 
         # Normalize removal preview to standard format for DRY display
         normalized_preview = _normalize_preview_for_display(preview, operation="remove")
-        _display_changes(normalized_preview, verbose=verbose)
+        _display_changes(normalized_preview, target_dir, verbose=verbose)
 
         # Confirm removal
         if not typer.confirm("Continue with removal?"):
@@ -548,14 +547,18 @@ def _normalize_preview_for_display(preview: dict, operation: str = "install") ->
     else:
         raise ValueError(f"Unknown operation: {operation}")
 
-def _display_changes(changes: dict, verbose: bool = False):
+def _display_changes(changes: dict, target_dir: Path, verbose: bool = False):
     """Display preview of changes.
 
     Args:
         changes: Normalized preview dict with file/directory changes
+        target_dir: Target directory being modified
         verbose: If True, show detailed file listings; if False, show only tables
     """
     from collections import defaultdict
+
+    # Show preview header
+    console.print(f"\n[bold magenta]Previewing changes for:[/bold magenta]\n[bold yellow]{target_dir}[/bold yellow]\n")
 
     # Collect stats for each kit
     kit_stats = {}
