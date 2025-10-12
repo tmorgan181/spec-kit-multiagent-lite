@@ -80,14 +80,12 @@ def print_spec_kit_error():
     console.print("  4. More info: https://github.com/github/spec-kit\n")
     console.print()
 
-def _build_kit_breakdown_table(target_dir: Path, kits: list[str], title: str = "Installed Kits", kit_column_style: str = "cyan") -> Table:
+def _build_kit_breakdown_table(target_dir: Path, kits: list[str]) -> Table:
     """Build agent/shell breakdown table for kits.
 
     Args:
         target_dir: Target project directory
         kits: List of kit names (e.g., ["dev", "multiagent"])
-        title: Table title
-        kit_column_style: Style for kit column (cyan for status, white for validate)
 
     Returns:
         Rich Table with agent/shell breakdown
@@ -106,8 +104,8 @@ def _build_kit_breakdown_table(target_dir: Path, kits: list[str], title: str = "
     }
 
     # Build table
-    table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title=f"[bold magenta]{title}[/bold magenta]")
-    table.add_column("Kit", style=kit_column_style)
+    table = Table(show_header=True, header_style="bold cyan", box=ROUNDED, title=f"[bold magenta]Kit Breakdown[/bold magenta]")
+    table.add_column("Kit", style="cyan")
     table.add_column("Agents", style="green")
     table.add_column("Shells", style="white")
 
@@ -142,7 +140,7 @@ def print_kit_info(target_dir: Path, is_spec_kit: bool, installed_kits: list):
     if is_spec_kit:
         console.print(f"[bold green][OK] Spec-kit project detected in {target_dir}.[/bold green]\n")
         if installed_kits:
-            table = _build_kit_breakdown_table(target_dir, installed_kits, title="Installed Kits")
+            table = _build_kit_breakdown_table(target_dir, installed_kits)
             console.print(table)
         else:
             console.print("No kits installed.", style="dim yellow")
@@ -156,6 +154,7 @@ def version_callback(value: bool):
     if value:
         console.print()
         print_version_info()
+        console.print()
         raise typer.Exit()
 
 @app.callback(invoke_without_command=True)
@@ -962,7 +961,7 @@ def _display_validation_results(validation_result: dict):
 
     if validated_kits:
         console.print()
-        table = _build_kit_breakdown_table(target_dir, validated_kits, title="Validated Installation", kit_column_style="white")
+        table = _build_kit_breakdown_table(target_dir, validated_kits)
         console.print(table)
 
 def _cleanup_empty_directories(target_dir: Path):
