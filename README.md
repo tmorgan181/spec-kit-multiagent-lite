@@ -1,6 +1,6 @@
 # 🌈 LITE-KITS 🎒
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/tmorgan181/lite-kits/releases/tag/v0.3.0)
+[![PyPI version](https://img.shields.io/pypi/v/lite-kits.svg)](https://pypi.org/project/lite-kits/)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Spec-Kit](https://img.shields.io/badge/spec--kit-compatible-purple.svg)](https://github.com/github/spec-kit)
